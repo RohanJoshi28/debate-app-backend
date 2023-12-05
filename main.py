@@ -39,8 +39,9 @@ def increment():
 #Route to increment request count
 @app.route('/save_email', methods=['POST'])
 def save_email():
-    name = request.form["name"]
-    email = request.form["email"]
+    name = request.get_json()['name']
+    email = request.get_json()['email']
+
     user = User.query.filter_by(email=email).first()
     if user == None:
         user = User(name=name, email=email)
