@@ -118,7 +118,7 @@ def refresh_expiring_jwts(response):
 def logout():
     response = jsonify({"msg": "logout successful"})
     unset_jwt_cookies(response)
-    return response
+    return response, 200
 
 @app.route("/protected", methods=["GET"])
 @jwt_required()
