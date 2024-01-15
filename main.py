@@ -86,19 +86,17 @@ def login():
 
     #check if user is in database, if not add the user 
     #FYI FOR LATER ON: MAYBE ONLY ALLOW LOGIN IF USER IS AN EXISTING USER; BC ONLY ADMINS CAN ACCESS
-    # user = User.query.filter_by(email=user_info['email']).first()
-    # if user == None:
-    #     user = User(user_info['name'], user_info['email'])
-    #     db.session.add(user)
-    #     db.session.commit()
-    # else:
-    #     user.name = user_info['name']
-    #     db.session.commit()
+    user = User.query.filter_by(email=user_info['email']).first()
+    if user != None:
+        jwt_token = create_access_token(identity=user_info['email'])  
+        response = jsonify(user=user_info)
+        response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
+        return response, 200
+    else:
+        response = jsonify({'message':'Failed'})
+        return response, 401
 
-    jwt_token = create_access_token(identity=user_info['email'])  
-    response = jsonify(user=user_info)
-    response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
-    return response, 200
+    
 
 @app.after_request
 def refresh_expiring_jwts(response):
