@@ -44,9 +44,52 @@ class RequestCount(db.Model):
     count = db.Column(db.Integer, default=0)
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String)
     name = db.Column(db.String)
+
+class Debater(db.Model):
+    __tablename__ = "debater"
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String, unique=True)
+    name = db.Column(db.String)
+    partnership_id = db.Column(db.Integer, db.ForeignKey('partnership.id'), nullable=False)
+
+class Partnership(db.Model):
+    __tablename__ = "partnership"
+    id = db.Column(db.Integer, primary_key=True)
+    debaters = db.relationship("Debater", backref="partnership")
+    school_id = db.Column(db.Integer, db.ForeignKey('school.id'), nullable=False)
+
+class School(db.Model):
+    __tablename__ = "school"
+    id = db.Column(db.Integer, primary_key=True)
+    parternships = db.relationship("Partnership", backref="school")
+    name = db.Column(db.String)
+    num_debaters = db.Column(db.Integer)
+    num_judges = db.Column(db.Integer)
+    coach = db.relationship("Coach", uselist=False, backref="school")
+    tournaments_hosting = db.relationship("Tournament", foreign_keys="Tournament.host_school_id", backref="host_school")
+    tournaments = db.relationship("Tournament", secondary="tournament_school", back_populates="schools")
+
+class Coach(db.Model):
+    __tablename__ = "coach"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Integer)
+    email = db.Column(db.String, unique=True)
+    school_id = db.Column(db.Integer, db.ForeignKey('school.id'), nullable=False)
+
+class Tournament(db.Model):
+    __tablename__ = "tournament"
+    id = db.Column(db.Integer, primary_key=True)
+    host_school_id = db.Column(db.Integer, db.ForeignKey('school.id'), nullable=False)
+    schools = db.relationship("School", secondary="tournament_school", back_populates="tournaments")
+
+tournament_school = db.Table(
+    "tournament_school",
+    db.Column("tournament_id", db.Integer, db.ForeignKey("tournament.id")),
+    db.Column("school_id", db.Integer, db.ForeignKey("school.id")),
+)
 
 db.create_all()
 
