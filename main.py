@@ -155,6 +155,12 @@ def refresh_expiring_jwts(response):
         # Case where there is not a valid JWT. Just return the original response
         return response
         
+        
+@app.route("/retrieve_jvtournaments", methods=["GET"])
+def retrieve_jvtournaments():
+    response = jsonify({"test": "data"})
+    return response, 200
+
 @app.route("/logout", methods=["POST"])
 def logout():
     response = jsonify({"msg": "logout successful"})
