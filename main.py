@@ -111,6 +111,7 @@ def hello_world():
 
 @app.route('/login', methods=['POST'])
 def login():
+    print("YOOOOOOO")
     auth_code = request.get_json()['code']
 
     data = {
@@ -127,15 +128,18 @@ def login():
     }
     user_info = requests.get('https://www.googleapis.com/oauth2/v3/userinfo', headers=headers).json()
 
+    print(user_info['email'])
     #check if user is in database, if not add the user 
     #FYI FOR LATER ON: MAYBE ONLY ALLOW LOGIN IF USER IS AN EXISTING USER; BC ONLY ADMINS CAN ACCESS
-    user = User.query.filter_by(email=user_info['email']).first()
+    user = User.query.filter_by(email=user_info['email'])
+    print(user)
     if user != None:
         jwt_token = create_access_token(identity=user_info['email'])  
         response = jsonify(user=user_info)
         response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
         return response, 200
     else:
+       
         response = jsonify({'message':'Failed'})
         return response, 401
 
