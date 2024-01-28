@@ -204,5 +204,14 @@ def save_email():
         db.session.commit()
     return "Success", 200
 
+@app.route('/users', methods=['GET'])
+def get_users():
+    users = User.query.all()
+    user_data = [];
+    for user in users:
+        user_info = {'name' : user.name, 'email' : user.email}
+        user_data.append(user_info)
+    return jsonify(user_data),200
+
 if __name__ == '__main__':
     app.run(debug=True)
