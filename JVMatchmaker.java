@@ -1,144 +1,136 @@
 import java.util.*;
 
 public class JVMatchmaker {
-    public static void main(String[] args) {
-        School[] schools = new School[] {
-            new School(new SchoolArg(2, 1), 0),
-            new School(new SchoolArg(1, 1), 1),
-        };
+    public static void main(String[] args) {    
+        List<SchoolArg> schoolArgs = new ArrayList<>();
+        schoolArgs.add(new SchoolArg(5, 1));
+        schoolArgs.add(new SchoolArg(3, 2));
 
-        //generate all debaters and judges
-        Debater[] debaters = generateDebaters(schools);
-        Judge[] judges = generateJudges(schools);
+        List<School> schools = createSchools(schoolArgs);
+        List<Debater> debaters = createDebaters(schoolArgs, schools);
+        sortDebaters(debaters);
 
+        System.out.println("Debaters:");
         for (Debater debater : debaters) {
             System.out.println(debater.name);
         }
 
-        for (Judge judge : judges) {
-            System.out.println(judge.name);
-        }
+        List<Debater> unmatchedDebaters = new ArrayList<>();
+        List<Match> round1Matches = matchDebaters(debaters, unmatchedDebaters);
 
-        //generate all possible matches
-        Match[] matches = generateMatches(debaters, judges);
-
-        for (Match match : matches) {
+        System.out.println("Matches:");
+        for (Match match : round1Matches) {
             System.out.println(match.toString());
         }
+
+        System.out.println("\nUnmatched:");
+        for (Debater debater : unmatchedDebaters) {
+            System.out.println(debater.name);
+        }
     }
 
-    public static Match[] generateTournament(SchoolArg[] schoolArgs, int[] roomNumbers) {
-        //generate schools
-        School[] schools = generateSchools(schoolArgs);
+    public static void getMatchmaking(List<SchoolArg> schoolArgs) {
+        List<School> schools = createSchools(schoolArgs);
+        List<Debater> debaters = createDebaters(schoolArgs, schools);
 
-        //generate all debaters and judges
-        Debater[] debaters = generateDebaters(schools);
-        Judge[] judges = generateJudges(schools);
-        
-        //generate all possible matches
-        Match[] matches = generateMatches(debaters, judges);
-
-        //generate all possible rounds
-
-
-        //generate all possible n-round tournaments (2 in this case for JV)
-        //score all tournaments:
-        //  -debaters should not be against themselves
-        //  -debaters should not be against their own school
-        //  -judges should not be from a debater's school
-        //  -debaters should not go against the same opponent twice
-        //assign rooms to each match
-        //format the result
-        //return
-        return null;
+        List<Debater> unmatchedDebaters = new ArrayList<>();
+        List<Match> round1Matches = createRound(debaters, unmatchedDebaters);
     }
 
-    private static School[] generateSchools(SchoolArg[] schoolArgs) {
-        School[] schools = new School[schoolArgs.length];
+    private static List<School> createSchools(List<SchoolArg> schoolArgs) {
+        List<School> schools = new ArrayList<>();
 
-        for (int i = 0; i < schoolArgs.length; i++) {
-            schools[i] = new School(schoolArgs[i], i);
+        for (int i = 0; i < schoolArgs.size(); i++) {
+            schools.add(new School(i));
         }
 
         return schools;
     }
 
-    private static Debater[] generateDebaters(School[] schools) {
+    private static List<Debater> createDebaters(List<SchoolArg> schoolArgs, List<School> schools) {
         List<Debater> debaters = new ArrayList<>();
 
-        for (School school : schools) {
-            for (int i = 0; i < school.debaterCount; i++) {
-                debaters.add(new Debater(school, i));
+        for (int schoolIndex = 0; schoolIndex < schools.size(); schoolIndex++) {
+            int debaterCount = schoolArgs.get(schoolIndex).debaterCount;
+
+            for (int counter = 0; counter < debaterCount; counter++) {
+                debaters.add(new Debater(schools.get(schoolIndex), counter));
             }
         }
 
-        return debaters.toArray(new Debater[0]);
+        return debaters;
     }
 
-    private static Judge[] generateJudges(School[] schools) {
-        List<Judge> judges = new ArrayList<>();
-
-        for (School school : schools) {
-            for (int i = 0; i < school.judgeCount; i++) {
-                judges.add(new Judge(school, i));
-            }
-        }
-
-        return judges.toArray(new Judge[0]);
-    }
-
-    private static Match[] generateMatches(Debater[] debaters, Judge[] judges) {
+    private static List<Match> createRound(List<Debater> debaters, List<Debater> unmatchedDebaters) {
         List<Match> matches = new ArrayList<>();
+        sortDebaters(debaters);
+        int index = 0;
 
-        for (Judge judge : judges) {
-            for (Debater debater1 : debaters) {
-                for (Debater debater2 : debaters) {
-                    matches.add(new Match(debater1, debater2, judge));
-                }
+        while (index < debaters.size() - 1) {
+            Debater debater1 = debaters.get(index);
+            Debater debater2 = debaters.get(index + 1);
+            
+            if (debater1.school != debater2.school) {
+                matches.add(new Match(debater1, debater2));
+            } else {
+                break;
             }
+
+            index += 2;
+        }
+        
+        for (int i = index; i < debaters.size(); i++) {
+            unmatchedDebaters.add(debaters.get(i));
         }
 
-        return matches.toArray(new Match[0]);
+        return matches;
     }
 
-    /*
-    private static Round[] generateRounds(Match[] matches) {
-        for (Match match : matches) {
-            for (Match match2 : matches) {
-                
+    private static void sortDebaters(List<Debater> debaters) {
+        debaters.sort((debater1, debater2) -> {
+            if (debater1.index != debater2.index) {
+                return debater1.index - debater2.index;
             }
+            
+            return debater1.school.index - debater2.school.index;
+        });
+    }
+
+    private static class Match {
+        public Debater debater1;
+        public Debater debater2;
+
+        public Match(Debater debater1, Debater debater2) {
+            this.debater1 = debater1;
+            this.debater2 = debater2;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + debater1.name + ", " + debater2.name + ")";
         }
     }
-    */
 
-    //Class definitions
     private static class Debater {
+        public School school;
+        public int index;
         public String name;
 
-        public Debater(School school, int number) {
-            name = school.name + number;
+        public Debater(School school, int index) {
+            this.school = school;
+            this.index = index;
+            this.name = "" + school.name + index;
         }
     }
-
-    private static class Judge {
-        public String name;
-
-        public Judge(School school, int number) {
-            name = "J" + school.name + number;
-        }
-    } 
 
     private static class School {
-        private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        public int index;
+        public char name;
+        
 
-        public int debaterCount;
-        public int judgeCount;
-        public String name;
-
-        public School(SchoolArg schoolArg, int number) {
-            this.debaterCount = schoolArg.debaterCount;
-            this.judgeCount = schoolArg.judgeCount;
-            this.name = "" + ALPHABET.charAt(number);
+        public School(int index) {
+            this.index = index;
+            name = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".charAt(index);
         }
     }
 
@@ -149,31 +141,6 @@ public class JVMatchmaker {
         public SchoolArg(int debaterCount, int judgeCount) {
             this.debaterCount = debaterCount;
             this.judgeCount = judgeCount;
-        }        
-    }
-
-    private static class Match {
-        public Debater debater1;
-        public Debater debater2;
-        public Judge judge;
-
-        public Match(Debater debater1, Debater debater2, Judge judge) {
-            this.debater1 = debater1;
-            this.debater2 = debater2;
-            this.judge = judge;
-        }
-
-        @Override
-        public String toString() {
-            return "(" + debater1.name + ", " + debater2.name + ", " + judge.name + ")";
-        }
-    }
-
-    private static class Round {
-        public Match[] matches;
-
-        public Round(Match[] matches) {
-            this.matches = matches;
         }
     }
 }
