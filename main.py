@@ -111,7 +111,6 @@ def hello_world():
 
 @app.route('/login', methods=['POST'])
 def login():
-    print("YOOOOOOO")
     auth_code = request.get_json()['code']
 
     data = {
@@ -192,8 +191,8 @@ def increment():
 #Route to increment request count
 @app.route('/save_email', methods=['POST'])
 def save_email():
-    name = request.get_json()['name']
-    email = request.get_json()['email']
+    name = request.form['name']
+    email = request.form['email']
 
     user = User.query.filter_by(email=email).first()
     if user == None:
