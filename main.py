@@ -17,6 +17,10 @@ from flask_jwt_extended import unset_jwt_cookies
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
@@ -202,6 +206,21 @@ def save_email():
     else:
         user.name = name
         db.session.commit()
+    
+    message = Mail(
+    from_email='testdebateteamapp@gmail.com',
+    to_emails=email,
+    subject='Welcome to the Debate Team Dashboard!',
+    html_content='<p>Hi, ' + name + '!</p><p>You were added as an admin to the Debate Team Dashboard.</p><strong>To access the dashboard, go to: URL :)</strong>')
+    
+    try:
+        sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+        response = sg.send(message)
+        print(response.status_code)
+        print(response.body)
+        print(response.headers)
+    except Exception as e:
+        print(e.message)
     return "Success", 200
 
 @app.route('/users', methods=['GET'])
