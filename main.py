@@ -277,5 +277,35 @@ def get_tournaments():
 
     return jsonify(tournaments_list), 200
 
+@app.route('/tournament/<int:tournament_id>')
+def get_tournament(tournament_id):
+    tournament = Tournament.query.get(tournament_id)
+    if tournament is None:
+        return jsonify({"message": "Tournament not found"}), 404
+
+    school_data = []
+    for school in tournament.schools:
+        coach = school.coach
+        coach_name = coach.name if coach else "No coach assigned"
+
+        school_data.append({
+            "name": school.name,
+            "num_debaters": school.num_debaters,
+            "num_judges": school.num_judges,
+            "coach": coach_name
+        })
+
+    tournament_data = {
+        "id": tournament.id,
+        "datetime": tournament.datetime.isoformat() if tournament.datetime else None,
+        "host_school": {
+            "id": tournament.host_school_id,
+            "name": School.query.get(tournament.host_school_id).name
+        },
+        "schools": school_data
+    }
+
+    return jsonify(tournament_data)
+
 if __name__ == '__main__':
     app.run(debug=True)
