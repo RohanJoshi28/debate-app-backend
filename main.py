@@ -17,6 +17,7 @@ from flask_jwt_extended import unset_jwt_cookies
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+from flask_migrate import Migrate
 
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
@@ -28,6 +29,7 @@ db = SQLAlchemy(app)
 app.app_context().push()
 CORS(app, origins=['http://localhost:3000'], supports_credentials=True)
 
+migrate = Migrate(app, db)
 
 load_dotenv()
 
@@ -88,6 +90,7 @@ class Tournament(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     host_school_id = db.Column(db.Integer, db.ForeignKey('school.id'), nullable=False)
     schools = db.relationship("School", secondary="tournament_school", back_populates="tournaments")
+    datetime = db.Column(db.DateTime, default=datetime.utcnow)
 
 tournament_school = db.Table(
     "tournament_school",
@@ -101,6 +104,27 @@ if RequestCount.query.get(1) is None:
     new_counter = RequestCount(id=1, count=0)
     db.session.add(new_counter)
     db.session.commit()
+
+db.session.query(School).delete()
+db.session.query(Tournament).delete()
+
+school1 = School(id=1, name="Bergen Academies", num_debaters=2, num_judges=2)
+school2 = School(id=2, name="Mountain Valley", num_debaters=2, num_judges=2)
+school3 = School(id=3, name="Bridgewater High", num_debaters=3, num_judges=1)
+
+db.session.add(school1)
+db.session.add(school2)
+db.session.add(school3)
+db.session.commit()
+
+tournament = Tournament(id=1, host_school_id=school1.id, datetime=datetime(2024, 2, 5, 17, 0))
+db.session.add(tournament)
+db.session.commit()
+
+tournament.schools.append(school1)
+tournament.schools.append(school2)
+tournament.schools.append(school3)
+db.session.commit()
 
 # @app.before_request
 # def handle_preflight():
@@ -135,7 +159,7 @@ def login():
     #check if user is in database, if not add the user 
     #FYI FOR LATER ON: MAYBE ONLY ALLOW LOGIN IF USER IS AN EXISTING USER; BC ONLY ADMINS CAN ACCESS
     user = User.query.filter_by(email=user_info['email'])
-    print(user)
+    
     if user != None:
         jwt_token = create_access_token(identity=user_info['email'])  
         response = jsonify(user=user_info)
@@ -162,11 +186,6 @@ def refresh_expiring_jwts(response):
         # Case where there is not a valid JWT. Just return the original response
         return response
         
-        
-@app.route("/retrieve_jvtournaments", methods=["GET"])
-def retrieve_jvtournaments():
-    response = jsonify({"test": "data"})
-    return response, 200
 
 @app.route("/logout", methods=["POST"])
 def logout():
@@ -231,6 +250,27 @@ def get_users():
         user_info = {'name' : user.name, 'email' : user.email}
         user_data.append(user_info)
     return jsonify(user_data),200
+
+@app.route('/tournaments')
+def get_tournaments():
+    # Query all tournaments
+    tournaments = Tournament.query.all()
+
+    # Serialize each tournament
+    tournaments_list = []
+    for tournament in tournaments:
+        tournament_data = {
+            "id": tournament.id,
+            "datetime": tournament.datetime.isoformat() if tournament.datetime else None,
+            "host_school": {
+                "id": tournament.host_school_id,
+                "name": School.query.get(tournament.host_school_id).name  # Assuming you have a name field in School
+            },
+            "schools": [school.name for school in tournament.schools]  # Assuming a relationship with schools
+        }
+        tournaments_list.append(tournament_data)
+
+    return jsonify(tournaments_list)
 
 if __name__ == '__main__':
     app.run(debug=True)
