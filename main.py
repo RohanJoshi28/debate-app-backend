@@ -245,7 +245,7 @@ def save_email():
 @app.route('/users', methods=['GET'])
 def get_users():
     users = User.query.all()
-    user_data = [];
+    user_data = []
     for user in users:
         user_info = {'name' : user.name, 'email' : user.email}
         user_data.append(user_info)
@@ -253,24 +253,29 @@ def get_users():
 
 @app.route('/tournaments')
 def get_tournaments():
-    # Query all tournaments
     tournaments = Tournament.query.all()
 
-    # Serialize each tournament
     tournaments_list = []
     for tournament in tournaments:
+        school_data = []
+        for school in tournament.schools:
+            school_data.append({
+                "name": school.name,
+                "num_judges": school.num_judges
+            })
+
         tournament_data = {
             "id": tournament.id,
             "datetime": tournament.datetime.isoformat() if tournament.datetime else None,
             "host_school": {
                 "id": tournament.host_school_id,
-                "name": School.query.get(tournament.host_school_id).name  # Assuming you have a name field in School
+                "name": School.query.get(tournament.host_school_id).name
             },
-            "schools": [school.name for school in tournament.schools]  # Assuming a relationship with schools
+            "schools": school_data
         }
         tournaments_list.append(tournament_data)
 
-    return jsonify(tournaments_list)
+    return jsonify(tournaments_list), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
