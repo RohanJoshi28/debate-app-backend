@@ -5,10 +5,10 @@ class algorithm{
 
     public static String[][] JVMatches (int[] players, int[] judges){
         int numMatches = 0;
-        if(sum(players)>sum(judges)){
+        if(sum(players)/2>sum(judges)){//should be players/2
             numMatches = sum(judges);
         }else{
-            numMatches = sum(players);
+            numMatches = sum(players)/2;
         }
         //the following does not perfectly take into account edge cases
         //the main edge case not accounted four is too many teams
@@ -16,70 +16,13 @@ class algorithm{
         //number of matches will be based on judges or players and distributed to teams equally
         int[] copyP = players.clone();
         int[] copyJ = judges.clone();
-        String[] round1 = roundJV(copyP, copyJ, numMatches, new String[numMatches], players, judges);
+        String[] round1 = roundJV(copyP, copyJ, numMatches, new String[0], players, judges);
         String[] round2 = roundJV(copyP, copyJ, numMatches, round1, players, judges);
         String[][] matches = new String[2][];
         matches[0] = round1;
         matches[1] = round2;
         return matches;
     }
-
-    // public static String[] round1JV(int[] players, int[] judges, int matches){
-    //     int pos = players.length-1;
-    //     String[] match = new String[matches];
-    //     for(int i = 0; i<matches; i++){
-    //         if(players[pos]>0){
-    //             match[i] = ((char) pos) + Integer.toString(players[pos]--);
-    //         }
-    //         pos--;
-    //         if(pos < 0){
-    //             pos = players.length-1;
-    //         }
-    //     }
-
-    //     boolean secondTime = false;
-    //     for(int i = 0; i<matches; i++){
-    //         if(players[pos]>0){
-    //             if(match[i].charAt(0) == (char) pos){
-    //                 if(secondTime){
-    //                     match[i] += ((char) pos) + players[pos]--;
-    //                     secondTime = false;
-    //                 }else{
-    //                     secondTime = true;
-    //                 }
-    //             }else{
-    //                 match[i] += ((char) pos) + players[pos]--;
-    //                 secondTime = false;
-    //             }
-    //         }
-    //         pos--;
-    //         if(pos < 0){
-    //             pos = players.length-1;
-    //         }
-    //     }
-
-    //     secondTime = false;
-    //     for(int i = 0; i<matches; i++){
-    //         if(judges[pos]>0){
-    //             if(match[i].charAt(0) == (char) pos){
-    //                 if(secondTime){
-    //                     match[i] += ((char) pos) + judges[pos]--;
-    //                     secondTime = false;
-    //                 }else{
-    //                     secondTime = true;
-    //                 }
-    //             }else{
-    //                 match[i] += ((char) pos) + judges[pos]--;
-    //                 secondTime = false;
-    //             }
-    //         }
-    //         pos--;
-    //         if(pos < 0){
-    //             pos = judges.length-1;
-    //         }
-    //     }
-    //     return match;
-    // }
 
     public static String[] roundJV(int[] players, int[] judges, int matches, String[] previousRound, int[] origP, int[] origJ){
         int pos = players.length-1;
@@ -96,8 +39,10 @@ class algorithm{
                         match[i] = ((char) pos) + Integer.toString(players[pos]--);
                     }
                 }else{
-                    match[i] = ((char) pos) + Integer.toString(players[pos]--);
+                    match[i] = ((char) pos) + Integer.toString(players[pos]--)+"|";
                 }
+            }else{
+                i--;
             }
             pos--;
             if(pos < 0){
@@ -114,20 +59,22 @@ class algorithm{
         for(int i = 0; i<matches; i++){
             if(players[pos]>0){
                 if(excludedP && players[pos] == excludeP[pos]){
-                    
+                    i--;
                 }else{
                     if(match[i].charAt(0) == (char) pos){
                         if(secondTime){
-                            match[i] += ((char) pos) + players[pos]--;
+                            match[i] += ((char) pos) + players[pos]-- + "|";
                             secondTime = false;
                         }else{
                             secondTime = true;
                         }
                     }else{
-                        match[i] += ((char) pos) + players[pos]--;
+                        match[i] += ((char) pos) + players[pos]-- + "|";
                         secondTime = false;
                     }
                 }
+            }else{
+                i--;
             }
             pos--;
             if(pos < 0){
@@ -157,6 +104,8 @@ class algorithm{
                         secondTime = false;
                     }
                 }
+            }else{
+                i--;
             }
             pos--;
             if(pos < 0){
