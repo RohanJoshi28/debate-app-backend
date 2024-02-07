@@ -10,44 +10,43 @@ public class algorithm2 {
         //the main edge case not accounted four is too many teams
         //in the case of too many teams the largest team will be penalized rather than the host
         //number of matches will be based on judges or players and distributed to teams equally
-        int[] playCopy = players.clone();
-        int[] judgeCopy = judges.clone();
-        String[] round1 =roundjv(numMatches, players, judges, new String[0], playCopy, judgeCopy);
-        System.out.println("here");
-        String[] round2 = roundjv(numMatches, players, judges, round1, playCopy, judgeCopy);
-        System.out.println("here2");
+        debater[][] debaters = new debater[players.length][];
+        for(int i = 0; i < debaters.length; i++){
+            debaters[i] = new debater[players[i]];
+            for(int j = 0; j<players[i]; j++){
+                debaters[i][j] = new debater(Integer.toString(i), Integer.toString(j));
+            }
+        }
+        
+        debater[][] playCopy = debaters.clone();
+        debater[][] judgers = new debater[judges.length][];
+        for(int i = 0; i < debaters.length; i++){
+            judgers[i] = new debater[judges[i]];
+            for(int j = 0; j<judges[i]; j++){
+                judgers[i][j] = new debater(Integer.toString(i), Integer.toString(j));
+            }
+        }
+        debater[][] judgeCopy = judgers.clone();
+        String[] round1 =roundjv(numMatches, debaters, judgers, new String[0], playCopy, judgeCopy);
+        String[] round2 = roundjv(numMatches, debaters, judgers, round1, playCopy, judgeCopy);
         String[][] matches = new String[2][];
         matches[0] = round1;
         matches[1] = round2;
         return matches;
     }
     
-    public static String[] roundjv(int numMatches, int[] players, int[] judges, String[] prev, int[] playerCopy, int[] judgesCopy){
+    public static String[] roundjv(int numMatches, debater[][] players, debater[][] judges, String[] prev, debater[][] playerCopy, debater[][] judgesCopy){
         String[] match = new String[numMatches];
         int pos = players.length-1;
-        System.out.println("here3");
+        
         for(int i = 0; i<numMatches; i++){
-            if(players[pos]!=0){
-                match[i] = Integer.toString(pos)+"~"+Integer.toString(players[pos]--)+"|";
-            }else{
-                i--;
-            }
-            pos--;
-            if(pos < 0){
-                pos = players.length-1;
-                if(sum(players)==0){
-                    players = playerCopy;
-                }
-            }
-        }
-        System.out.println("here4");
-        for(int i = 0; i<numMatches; i++){
-            if(players[pos]!=0){
-                String[] prevMatch = match[i].split("~");
-                if(prevMatch[0].equals(Integer.toString(pos))){
-                    i--;
-                }else{
-                    match[i] += Integer.toString(pos)+"~"+Integer.toString(players[pos]--)+"|";
+            if(!allUsed(players[pos])){
+                for(int j = 0; j<players[pos].length; j++){
+                    if(!players[pos][j].used){
+                        match[i] = players[pos][j].team+"~"+players[pos][j].number+"|";
+                        players[pos][j].used = true;
+                        break;
+                    }
                 }
             }else{
                 i--;
@@ -55,19 +54,59 @@ public class algorithm2 {
             pos--;
             if(pos < 0){
                 pos = players.length-1;
-                if(sum(players)==0){
-                    players = playerCopy;
+                if(allUsed(players)){
+                    for(int k = 0; k<players.length; k++){
+                        for(int l = 0; l < players[k].length; l++){
+                            players[k][l].used = false;
+                        }
+                    }
                 }
             }
         }
 
         for(int i = 0; i<numMatches; i++){
-            if(judges[pos]!=0){
+            if(!allUsed(players[pos])){
+                String[] prevMatch = match[i].split("~");
+                if(prevMatch[0].equals(Integer.toString(pos))){
+                    i--;
+                }else{
+                    for(int j = 0; j<players[pos].length; j++){
+                        if(!players[pos][j].used){
+                            match[i] += players[pos][j].team+"~"+players[pos][j].number+"|";
+                            players[pos][j].used = true;
+                            break;
+                        }
+                    }
+                }
+            }else{
+                i--;
+            }
+            pos--;
+            if(pos < 0){
+                pos = players.length-1;
+                if(allUsed(players)){
+                    for(int k = 0; k<players.length; k++){
+                        for(int l = 0; l < players[k].length; l++){
+                            players[k][l].used = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        for(int i = 0; i<numMatches; i++){
+            if(!allUsed(judges[pos])){
                 String[] prevMatch = match[i].split("~");
                 if(prevMatch[0].equals(Integer.toString(pos))||prevMatch[2].equals(Integer.toString(pos))){
                     i--;
                 }else{
-                    match[i] += Integer.toString(pos)+"~"+Integer.toString(judges[pos]--)+"|";
+                    for(int j = 0; j<judges[pos].length; j++){
+                        if(!judges[pos][j].used){
+                            match[i] += judges[pos][j].team+"~"+judges[pos][j].number+"|";
+                            judges[pos][j].used = true;
+                            break;
+                        }
+                    }
                 }
             }else{
                 i--;
@@ -75,8 +114,12 @@ public class algorithm2 {
             pos--;
             if(pos < 0){
                 pos = judges.length-1;
-                if(sum(judges)==0){
-                    judges = judgesCopy;
+                if(allUsed(judges)){
+                    for(int k = 0; k<judges.length; k++){
+                        for(int l = 0; l < judges[k].length; l++){
+                            judges[k][l].used = false;
+                        }
+                    }
                 }
             }
         }
@@ -89,5 +132,37 @@ public class algorithm2 {
             sum+=array[i];
         }
         return sum;
+    }
+
+    public static boolean allUsed(debater[] array){
+        for(int i = 0; i < array.length; i++){
+            if(!array[i].used){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean allUsed(debater[][] array){
+        for(int i = 0; i < array.length; i++){
+            for(int j = 0; j<array[i].length; j++){
+                if(!array[i][j].used){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+}
+
+class debater{
+    public String team;
+    public String number;
+    public boolean used;
+
+    public debater(String team, String num){
+        this.team = team;
+        this.number = num;
+        this.used = false;
     }
 }
