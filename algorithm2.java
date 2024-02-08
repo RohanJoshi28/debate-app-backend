@@ -1,5 +1,8 @@
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+
 public class algorithm2 {
-    public static String[][] JVMatches (int[] players, int[] judges){
+    public static String[][] JVMatches (int[] players, int[] judges) throws FileNotFoundException{
         int numMatches = 0;
         if(sum(players)/2>sum(judges)){//should be players/2
             numMatches = sum(judges);
@@ -32,6 +35,18 @@ public class algorithm2 {
         String[][] matches = new String[2][];
         matches[0] = round1;
         matches[1] = round2;
+        PrintWriter writer = new PrintWriter("matchResults.txt");
+        for(int i = 0; i<matches.length; i++){
+            writer.print("[");
+            for(int j = 0; j<matches[i].length; j++){
+                writer.print(matches[i][j]);
+                if(j!=matches.length-1){
+                    writer.print(" ");
+                }
+            }
+            writer.println("]");
+        }
+        writer.close();
         return matches;
     }
     
