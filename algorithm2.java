@@ -55,9 +55,18 @@ public class algorithm2 {
             if(pos < 0){
                 pos = players.length-1;
                 if(allUsed(players)){
-                    for(int k = 0; k<players.length; k++){
-                        for(int l = 0; l < players[k].length; l++){
-                            players[k][l].used = false;
+                    String matched = "";
+                    for(int l = 0; l <= i; l++){
+                        matched+=match[l];
+                    }
+                    for(int a = 0; a<players.length; a++){
+                        for(int b = 0; b<players[a].length; b++){
+                            String check = players[a][b].team+"~"+players[a][b].number+"|";
+                            if(matched.contains(check)){
+                                players[a][b].used = true;
+                            }else{
+                                players[a][b].used = false;
+                            }
                         }
                     }
                 }
@@ -70,11 +79,52 @@ public class algorithm2 {
                 if(prevMatch[0].equals(Integer.toString(pos))){
                     i--;
                 }else{
-                    for(int j = 0; j<players[pos].length; j++){
-                        if(!players[pos][j].used){
-                            match[i] += players[pos][j].team+"~"+players[pos][j].number+"|";
-                            players[pos][j].used = true;
-                            break;
+                    boolean allFail = false;
+                    for(int j = 0; j < players[pos].length; j++){
+                        if(prev.length>0){
+                            String prospective = match[i] + players[pos][j].team+"~"+players[pos][j].number+"|";
+                            String[] pros = prospective.split("\\|");
+                            boolean fails = false;
+                            for(int k = 0; k < prev.length; k++){
+                                String[] pre = prev[k].split("\\|");
+                                if((pre[0].equals(pros[0])||pre[0].equals(pros[1]))&&
+                                (pre[1].equals(pros[0])||pre[1].equals(pros[1]))){
+                                    fails = true;
+                                    allFail = true;
+                                }
+                            }
+                            if(!fails){
+                                if(!players[pos][j].used){
+                                    match[i] = prospective;
+                                    players[pos][j].used = true;
+                                    allFail = false;
+                                    break;
+                                }else{
+                                    allFail = true;
+                                }
+                            }
+                        }else{
+                            if(!players[pos][j].used){
+                                match[i] += players[pos][j].team+"~"+players[pos][j].number+"|";
+                                players[pos][j].used = true;
+                                allFail = false;
+                                break;
+                            }
+                        }
+                    }
+                    if(allFail){
+                        if(i>0){
+                            String swap = match[0].split("\\|")[1];
+                            for(int j = 0; j<players[pos].length;j++){
+                                if(!players[pos][j].used){
+                                    match[0] = match[0].split("\\|")[0]+"|"+players[pos][j].team+"~"+players[pos][j].number+"|";
+                                    players[pos][j].used = true;
+                                    break;
+                                }
+                            }
+                            match[i] += swap+"|";
+                        }else{
+                            i--;
                         }
                     }
                 }
@@ -85,15 +135,24 @@ public class algorithm2 {
             if(pos < 0){
                 pos = players.length-1;
                 if(allUsed(players)){
-                    for(int k = 0; k<players.length; k++){
-                        for(int l = 0; l < players[k].length; l++){
-                            players[k][l].used = false;
+                    String matched = "";
+                    for(int l = 0; l < match.length; l++){
+                        matched+=match[l];
+                    }
+                    for(int a = 0; a<players.length; a++){
+                        for(int b = 0; b<players[a].length; b++){
+                            String check = players[a][b].team+"~"+players[a][b].number+"|";
+                            if(matched.contains(check)){
+                                players[a][b].used = true;
+                            }else{
+                                players[a][b].used = false;
+                            }
                         }
                     }
                 }
             }
         }
-
+        
         for(int i = 0; i<numMatches; i++){
             if(!allUsed(judges[pos])){
                 String[] prevMatch = match[i].split("~");
@@ -102,7 +161,7 @@ public class algorithm2 {
                 }else{
                     for(int j = 0; j<judges[pos].length; j++){
                         if(!judges[pos][j].used){
-                            match[i] += judges[pos][j].team+"~"+judges[pos][j].number+"|";
+                            match[i] += "J"+ judges[pos][j].team+"~"+judges[pos][j].number;
                             judges[pos][j].used = true;
                             break;
                         }
@@ -115,9 +174,18 @@ public class algorithm2 {
             if(pos < 0){
                 pos = judges.length-1;
                 if(allUsed(judges)){
-                    for(int k = 0; k<judges.length; k++){
-                        for(int l = 0; l < judges[k].length; l++){
-                            judges[k][l].used = false;
+                    String matched = "";
+                    for(int l = 0; l < match.length; l++){
+                        matched+=match[l];
+                    }
+                    for(int a = 0; a<judges.length; a++){
+                        for(int b = 0; b<judges[a].length; b++){
+                            String check = "J"+ judges[a][b].team+"~"+judges[a][b].number;
+                            if(matched.contains(check)){
+                                judges[a][b].used = true;
+                            }else{
+                                judges[a][b].used = false;
+                            }
                         }
                     }
                 }
