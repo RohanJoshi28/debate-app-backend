@@ -242,6 +242,17 @@ def save_email():
         print(e.message)
     return "Success", 200
 
+@app.route("/deleteuser", methods=["POST"])
+def deleteuser():
+
+    # email = request.form['email']
+    email = request.get_json()['email']
+    user = User.query.filter_by(email=email).first()
+    if user != None:
+        db.session.delete(user)
+        db.session.commit()
+    return "Success", 200
+
 @app.route('/users', methods=['GET'])
 def get_users():
     users = User.query.all()
