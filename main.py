@@ -318,5 +318,18 @@ def get_tournament(tournament_id):
 
     return jsonify(tournament_data)
 
+
+#Matchmaking Routes
+@app.route('/tournamentschedule/<int:tournament_id>', methods=['GET'])
+def get_tournament_schedule(tournament_id):
+    #handle running java/getting the match results from the txt here
+    tournament = Tournament.query.get(tournament_id)
+    if tournament is None:
+        return jsonify({"message": "Tournament not found"}), 404
+    
+    
+    sample_data=["Tournament id: " + str(tournament_id)]
+    return jsonify(sample_data),200
+
 if __name__ == '__main__':
     app.run(debug=True)
