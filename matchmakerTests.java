@@ -1,5 +1,7 @@
+import java.io.FileNotFoundException;
+
 public class matchmakerTests {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
         algorithm2 A = new algorithm2();
         JVMatchmaker JV = new JVMatchmaker();
         int[] test1Players = {10, 10, 0};
