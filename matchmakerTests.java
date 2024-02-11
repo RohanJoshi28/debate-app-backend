@@ -3,7 +3,6 @@ import java.io.FileNotFoundException;
 public class matchmakerTests {
     public static void main(String[] args) throws FileNotFoundException {
         algorithm2 A = new algorithm2();
-        JVMatchmaker JV = new JVMatchmaker();
         int[] test1Players = {10, 10, 0};
         int[] test1Judges = {0, 0, 5};
         String[][] matches1 = A.JVMatches(test1Players, test1Judges);
