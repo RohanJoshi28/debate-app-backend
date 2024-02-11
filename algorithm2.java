@@ -40,7 +40,7 @@ public class algorithm2 {
             writer.print("[");
             for(int j = 0; j<matches[i].length; j++){
                 writer.print(matches[i][j]);
-                if(j!=matches.length-1){
+                if(j!=matches[i].length-1){
                     writer.print(" ");
                 }
             }
@@ -56,12 +56,33 @@ public class algorithm2 {
         
         for(int i = 0; i<numMatches; i++){
             if(!allUsed(players[pos])){
+                boolean notUsed = false;
                 for(int j = 0; j<players[pos].length; j++){
                     if(!players[pos][j].used){
-                        match[i] = players[pos][j].team+"~"+players[pos][j].number+"|";
-                        players[pos][j].used = true;
-                        break;
+                        if(prev.length>0){
+                            notUsed = false;
+                            String prospective = players[pos][j].team+"~"+players[pos][j].number;
+                            for(int k = 0; k < prev.length; k++){
+                                if(prev[k].split("\\|")[0].equals(prospective)){
+                                    notUsed = true;
+                                }
+                            }
+                            if(!notUsed){
+                                match[i] = players[pos][j].team+"~"+players[pos][j].number+"|";
+                                players[pos][j].used = true;
+                                notUsed = false;
+                                break;
+                            }
+                        }else{
+                            match[i] = players[pos][j].team+"~"+players[pos][j].number+"|";
+                            players[pos][j].used = true;
+                            notUsed = false;
+                            break;
+                        }
                     }
+                }
+                if(notUsed){
+                    i--;
                 }
             }else{
                 i--;
@@ -97,7 +118,7 @@ public class algorithm2 {
                     boolean allFail = false;
                     for(int j = 0; j < players[pos].length; j++){
                         if(prev.length>0){
-                            String prospective = match[i] + players[pos][j].team+"~"+players[pos][j].number+"|";
+                            String prospective = match[i] + players[pos][j].team+"~"+players[pos][j].number;
                             String[] pros = prospective.split("\\|");
                             boolean fails = false;
                             for(int k = 0; k < prev.length; k++){
@@ -108,9 +129,15 @@ public class algorithm2 {
                                     allFail = true;
                                 }
                             }
+                            for(int k = 0; k < prev.length; k++){
+                                if(prev[k].split("\\|")[1].equals(players[pos][j].team+"~"+players[pos][j].number)){
+                                    fails = true;
+                                    allFail = true;
+                                }
+                            }
                             if(!fails){
                                 if(!players[pos][j].used){
-                                    match[i] = prospective;
+                                    match[i] = prospective+"|";
                                     players[pos][j].used = true;
                                     allFail = false;
                                     break;
@@ -129,15 +156,28 @@ public class algorithm2 {
                     }
                     if(allFail){
                         if(i>0){
-                            String swap = match[0].split("\\|")[1];
-                            for(int j = 0; j<players[pos].length;j++){
-                                if(!players[pos][j].used){
-                                    match[0] = match[0].split("\\|")[0]+"|"+players[pos][j].team+"~"+players[pos][j].number+"|";
-                                    players[pos][j].used = true;
+                            boolean done = false;
+                            for(int k = 0; k<i; k++){
+                                String swap = match[k].split("\\|")[1];
+                                if(swap.split("~")[0].equals(match[i].split("~")[0])){
+                                    continue;
+                                }
+                                for(int j = 0; j<players[pos].length;j++){
+                                    if(!players[pos][j].used){
+                                        match[k] = match[k].split("\\|")[0]+"|"+players[pos][j].team+"~"+players[pos][j].number+"|";
+                                        players[pos][j].used = true;
+                                        match[i] += swap+"|";
+                                        done = true;
+                                        break;
+                                    }
+                                }
+                                if(done){
                                     break;
                                 }
                             }
-                            match[i] += swap+"|";
+                            if(!done){
+                                i--;
+                            }
                         }else{
                             i--;
                         }
