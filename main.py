@@ -164,6 +164,7 @@ def login():
         jwt_token = create_access_token(identity=user_info['email'])  
         response = jsonify(user=user_info)
         response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
+        response.set_cookie('logged_in', value="yes", secure=True)
         return response, 200
     else:
        
@@ -191,6 +192,7 @@ def refresh_expiring_jwts(response):
 def logout():
     response = jsonify({"msg": "logout successful"})
     unset_jwt_cookies(response)
+    response.delete_cookie('logged_in')
     return response, 200
 
 @app.route("/protected", methods=["GET"])
