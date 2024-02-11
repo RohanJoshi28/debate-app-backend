@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 import requests
 from flask import Flask, jsonify, request, Response
@@ -321,17 +322,43 @@ def get_tournament(tournament_id):
     return jsonify(tournament_data)
 
 
-#Matchmaking Routes
 @app.route('/tournamentschedule/<int:tournament_id>', methods=['GET'])
 def get_tournament_schedule(tournament_id):
-    #handle running java/getting the match results from the txt here
+    # Fetch the tournament
     tournament = Tournament.query.get(tournament_id)
     if tournament is None:
         return jsonify({"message": "Tournament not found"}), 404
-    
-    
-    sample_data=["Tournament id: " + str(tournament_id)]
-    return jsonify(sample_data),200
+
+    # Initialize lists to hold player and judge counts
+    players_counts = []
+    judges_counts = []
+
+    # Iterate through schools participating in the tournament
+    for school in tournament.schools:
+        players_counts.append(school.num_debaters)
+        judges_counts.append(school.num_judges)
+
+    # Convert the lists to comma-separated strings
+    players_str = ",".join(map(str, players_counts))
+    judges_str = ",".join(map(str, judges_counts))
+
+    # Construct the command to run your Java program
+    cmd = ['java', '-cp', '.', 'algorithm2']
+
+    # Start the Java process
+    process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    # Send the input data and read the output
+    output, errors = process.communicate(input=f"{players_str}\n{judges_str}\n")
+
+    # Check for errors
+    if process.returncode != 0:
+        return jsonify({"error": "Java program execution failed", "details": errors}), 500
+
+    # Process the output back into a Python list of lists (or any other desired structure)
+    matches = [line.split(",") for line in output.strip().split("\n")]
+
+    return jsonify(matches)
 
 if __name__ == '__main__':
     app.run(debug=True)

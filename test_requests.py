@@ -1,3 +1,4 @@
 import requests
 
-requests.get("http://127.0.0.1:5000/tournaments")
+response = requests.get("http://127.0.0.1:5000/tournamentschedule/1")
+print(response.json())
