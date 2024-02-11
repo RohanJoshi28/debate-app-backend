@@ -1,7 +1,29 @@
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 public class algorithm2 {
+    public static void main(String[] args) throws Exception {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+        // Reading data from stdin
+        String playersLine = reader.readLine();
+        String judgesLine = reader.readLine();
+
+        // Parsing the comma-separated strings into arrays
+        int[] test1Players = Arrays.stream(playersLine.split(",")).mapToInt(Integer::parseInt).toArray();
+        int[] test1Judges = Arrays.stream(judgesLine.split(",")).mapToInt(Integer::parseInt).toArray();
+
+        // Call the JVMatches method
+        String[][] matches = JVMatches(test1Players, test1Judges);
+
+        // Output the matches as a simple format (e.g., line-separated values)
+        for (String[] match : matches) {
+            System.out.println(String.join(",", match));
+        }
+    }
     public static String[][] JVMatches (int[] players, int[] judges) throws FileNotFoundException{
         int numMatches = 0;
         if(sum(players)/2>sum(judges)){//should be players/2
