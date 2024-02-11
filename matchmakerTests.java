@@ -3,6 +3,12 @@ import java.io.FileNotFoundException;
 public class matchmakerTests {
     public static void main(String[] args) throws FileNotFoundException {
         algorithm2 A = new algorithm2();
+        JVMatchmaker JV = new JVMatchmaker();
+        int[] test0Players = {2, 2, 3};
+        int[] test0Judges = {2, 2, 1};
+        String[][] matches0 = A.JVMatches(test0Players, test0Judges);
+        System.out.println("test 0");
+        test(matches0);
         int[] test1Players = {10, 10, 0};
         int[] test1Judges = {0, 0, 5};
         String[][] matches1 = A.JVMatches(test1Players, test1Judges);
@@ -13,6 +19,11 @@ public class matchmakerTests {
         String[][] matches2 = A.JVMatches(test2Players, test2Judges);
         System.out.println("test 2");
         test(matches2);
+        int[] test3Players = {5, 5, 0};
+        int[] test3Judges = {0, 0, 5};
+        String[][] matches3 = A.JVMatches(test3Players, test3Judges);
+        System.out.println("test 3");
+        test(matches3);
     }
 
     public static void test(String[][] matches){

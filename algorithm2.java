@@ -160,6 +160,9 @@ public class algorithm2 {
                             if(!fails){
                                 if(!players[pos][j].used){
                                     match[i] = prospective+"|";
+                                    if((players[pos][j].team+"~"+players[pos][j].number).equals("0~1")){
+                                        System.out.println("here");
+                                    }
                                     players[pos][j].used = true;
                                     allFail = false;
                                     break;
@@ -185,7 +188,27 @@ public class algorithm2 {
                                     continue;
                                 }
                                 for(int j = 0; j<players[pos].length;j++){
+                                    for(int l = 0; l < prev.length; l++){
+                                        if(prev[l].split("\\|")[1].equals(players[pos][j].team+"~"+players[pos][j].number)){
+                                            done = true;
+                                        }
+                                    }
+                                    if(done){
+                                        done = false;
+                                        continue;
+                                    }
                                     if(!players[pos][j].used){
+                                        if((players[pos][j].team+"~"+players[pos][j].number).equals("0~1")){
+                                            System.out.print("[");
+                                            for(int m = 0; m<match.length; m++){
+                                                System.out.print(match[m]);
+                                                if(m!=match.length-1){
+                                                    System.out.print(" ");
+                                                }
+                                            }
+                                            System.out.println("]");
+                                            System.out.println("here1");
+                                        }
                                         match[k] = match[k].split("\\|")[0]+"|"+players[pos][j].team+"~"+players[pos][j].number+"|";
                                         players[pos][j].used = true;
                                         match[i] += swap+"|";
