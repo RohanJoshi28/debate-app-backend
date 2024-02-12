@@ -198,17 +198,6 @@ public class algorithm2 {
                                         continue;
                                     }
                                     if(!players[pos][j].used){
-                                        if((players[pos][j].team+"~"+players[pos][j].number).equals("0~1")){
-                                            System.out.print("[");
-                                            for(int m = 0; m<match.length; m++){
-                                                System.out.print(match[m]);
-                                                if(m!=match.length-1){
-                                                    System.out.print(" ");
-                                                }
-                                            }
-                                            System.out.println("]");
-                                            System.out.println("here1");
-                                        }
                                         match[k] = match[k].split("\\|")[0]+"|"+players[pos][j].team+"~"+players[pos][j].number+"|";
                                         players[pos][j].used = true;
                                         match[i] += swap+"|";
@@ -256,7 +245,7 @@ public class algorithm2 {
         for(int i = 0; i<numMatches; i++){
             if(!allUsed(judges[pos])){
                 String[] prevMatch = match[i].split("~");
-                if(prevMatch[0].equals(Integer.toString(pos))||prevMatch[2].equals(Integer.toString(pos))){
+                if(prevMatch[0].equals(Integer.toString(pos))||prevMatch[1].split("\\|")[1].equals(Integer.toString(pos))){
                     i--;
                 }else{
                     for(int j = 0; j<judges[pos].length; j++){
@@ -266,6 +255,79 @@ public class algorithm2 {
                             break;
                         }
                     }
+                    // boolean allFail = false;
+                    // for(int j = 0; j<judges[pos].length; j++){
+                    //     if(prev.length>0){
+                    //         boolean fails = false;
+                    //         for(int k = 0; k<prev.length; k++){
+                    //             if(prev[k].split("\\|")[2].equals("J"+ judges[pos][j].team+"~"+judges[pos][j].number)&&
+                    //             (prev[k].split("\\|")[0].equals(match[i].split("\\|")[0])||
+                    //             prev[k].split("\\|")[0].equals(match[i].split("\\|")[1])||
+                    //             prev[k].split("\\|")[1].equals(match[i].split("\\|")[0])||
+                    //             prev[k].split("\\|")[1].equals(match[i].split("\\|")[1]))){
+                    //                 fails = true;
+                    //                 allFail = true;
+                    //             }
+                    //         }
+                    //         if(!fails){
+                    //             if(!judges[pos][j].used){
+                    //                 match[i]+="J"+ judges[pos][j].team+"~"+judges[pos][j].number;
+                    //                 judges[pos][j].used = true;
+                    //                 allFail = false;
+                    //                 break;
+                    //             }else{
+                    //                 allFail = true;
+                    //             }
+                    //         }
+                    //     }else{
+                    //         if(!judges[pos][j].used){
+                    //             match[i] += "J"+ judges[pos][j].team+"~"+judges[pos][j].number;
+                    //             judges[pos][j].used = true;
+                    //             break;
+                    //         }
+                    //     }
+                    // }
+                    // if(allFail){
+                    //     if(i>0){
+                    //         boolean done = false;
+                    //         for(int k =0; k<i; k++){
+                    //             String swap = match[k].split("\\|")[2];
+                    //             if(swap.split("~").equals(match[i].split("~")[0])){
+                    //                 continue;
+                    //             }
+                    //             for(int j = 0; j<players[pos].length; j++){
+                    //                 for(int l = 0; l<prev.length; l++){
+                    //                     if(prev[l].split("\\|")[2].equals("J"+ judges[pos][j].team+"~"+judges[pos][j].number)&&
+                    //                     (prev[l].split("\\|")[0].equals(match[i].split("\\|")[0])||
+                    //                     prev[l].split("\\|")[0].equals(match[i].split("\\|")[1])||
+                    //                     prev[l].split("\\|")[1].equals(match[i].split("\\|")[0])||
+                    //                     prev[l].split("\\|")[1].equals(match[i].split("\\|")[1]))){
+                    //                         done = true;
+                    //                     }
+                    //                 }
+                    //                 if(done){
+                    //                     done = false;
+                    //                     continue;
+                    //                 }
+                    //                 if(!players[pos][j].used){
+                    //                     match[k] = match[k].split("\\|")[0] +match[k].split("\\|")[1]+"J"+ judges[pos][j].team+"~"+judges[pos][j].number;
+                    //                     judges[pos][j].used = true;
+                    //                     match[i]+=swap;
+                    //                     done = true;
+                    //                     break;
+                    //                 }
+                    //             }                                
+                    //             if(done){
+                    //                 break;
+                    //             }
+                    //         }
+                    //         if(!done){
+                    //             i--;
+                    //         }
+                    //     }else{
+                    //         i--;
+                    //     }
+                    // }
                 }
             }else{
                 i--;
