@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 import requests
 from flask import Flask, jsonify, request, Response
@@ -17,6 +18,11 @@ from flask_jwt_extended import unset_jwt_cookies
 from datetime import datetime
 from datetime import timedelta
 from datetime import timezone
+from flask_migrate import Migrate
+
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
@@ -24,6 +30,7 @@ db = SQLAlchemy(app)
 app.app_context().push()
 CORS(app, origins=['http://localhost:3000'], supports_credentials=True)
 
+migrate = Migrate(app, db)
 
 load_dotenv()
 
@@ -84,6 +91,7 @@ class Tournament(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     host_school_id = db.Column(db.Integer, db.ForeignKey('school.id'), nullable=False)
     schools = db.relationship("School", secondary="tournament_school", back_populates="tournaments")
+    datetime = db.Column(db.DateTime, default=datetime.utcnow)
 
 tournament_school = db.Table(
     "tournament_school",
@@ -97,6 +105,27 @@ if RequestCount.query.get(1) is None:
     new_counter = RequestCount(id=1, count=0)
     db.session.add(new_counter)
     db.session.commit()
+
+db.session.query(School).delete()
+db.session.query(Tournament).delete()
+
+school1 = School(id=1, name="Bergen Academies", num_debaters=2, num_judges=2)
+school2 = School(id=2, name="Mountain Valley", num_debaters=2, num_judges=2)
+school3 = School(id=3, name="Bridgewater High", num_debaters=3, num_judges=1)
+
+db.session.add(school1)
+db.session.add(school2)
+db.session.add(school3)
+db.session.commit()
+
+tournament = Tournament(id=1, host_school_id=school1.id, datetime=datetime(2024, 2, 5, 17, 0))
+db.session.add(tournament)
+db.session.commit()
+
+tournament.schools.append(school1)
+tournament.schools.append(school2)
+tournament.schools.append(school3)
+db.session.commit()
 
 # @app.before_request
 # def handle_preflight():
@@ -131,11 +160,12 @@ def login():
     #check if user is in database, if not add the user 
     #FYI FOR LATER ON: MAYBE ONLY ALLOW LOGIN IF USER IS AN EXISTING USER; BC ONLY ADMINS CAN ACCESS
     user = User.query.filter_by(email=user_info['email'])
-    print(user)
+    
     if user != None:
         jwt_token = create_access_token(identity=user_info['email'])  
         response = jsonify(user=user_info)
         response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
+        response.set_cookie('logged_in', value="yes", secure=True)
         return response, 200
     else:
        
@@ -158,16 +188,12 @@ def refresh_expiring_jwts(response):
         # Case where there is not a valid JWT. Just return the original response
         return response
         
-        
-@app.route("/retrieve_jvtournaments", methods=["GET"])
-def retrieve_jvtournaments():
-    response = jsonify({"test": "data"})
-    return response, 200
 
 @app.route("/logout", methods=["POST"])
 def logout():
     response = jsonify({"msg": "logout successful"})
     unset_jwt_cookies(response)
+    response.delete_cookie('logged_in')
     return response, 200
 
 @app.route("/protected", methods=["GET"])
@@ -202,7 +228,137 @@ def save_email():
     else:
         user.name = name
         db.session.commit()
+    
+    message = Mail(
+    from_email='testdebateteamapp@gmail.com',
+    to_emails=email,
+    subject='Welcome to the Debate Team Dashboard!',
+    html_content='<p>Hi, ' + name + '!</p><p>You were added as an admin to the Debate Team Dashboard.</p><strong>To access the dashboard, go to: URL :)</strong>')
+    
+    try:
+        sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+        response = sg.send(message)
+        print(response.status_code)
+        print(response.body)
+        print(response.headers)
+    except Exception as e:
+        print(e.message)
     return "Success", 200
+
+@app.route("/deleteuser", methods=["POST"])
+def deleteuser():
+
+    # email = request.form['email']
+    email = request.get_json()['email']
+    user = User.query.filter_by(email=email).first()
+    if user != None:
+        db.session.delete(user)
+        db.session.commit()
+    return "Success", 200
+
+@app.route('/users', methods=['GET'])
+def get_users():
+    users = User.query.all()
+    user_data = []
+    for user in users:
+        user_info = {'name' : user.name, 'email' : user.email}
+        user_data.append(user_info)
+    return jsonify(user_data),200
+
+@app.route('/tournaments')
+def get_tournaments():
+    tournaments = Tournament.query.all()
+
+    tournaments_list = []
+    for tournament in tournaments:
+        school_data = []
+        for school in tournament.schools:
+            school_data.append({
+                "name": school.name,
+                "num_judges": school.num_judges
+            })
+
+        tournament_data = {
+            "id": tournament.id,
+            "datetime": tournament.datetime.isoformat() if tournament.datetime else None,
+            "host_school": {
+                "id": tournament.host_school_id,
+                "name": School.query.get(tournament.host_school_id).name
+            },
+            "schools": school_data
+        }
+        tournaments_list.append(tournament_data)
+
+    return jsonify(tournaments_list), 200
+
+@app.route('/tournament/<int:tournament_id>')
+def get_tournament(tournament_id):
+    tournament = Tournament.query.get(tournament_id)
+    if tournament is None:
+        return jsonify({"message": "Tournament not found"}), 404
+
+    school_data = []
+    for school in tournament.schools:
+        coach = school.coach
+        coach_name = coach.name if coach else "No coach assigned"
+
+        school_data.append({
+            "name": school.name,
+            "num_debaters": school.num_debaters,
+            "num_judges": school.num_judges,
+            "coach": coach_name
+        })
+
+    tournament_data = {
+        "id": tournament.id,
+        "datetime": tournament.datetime.isoformat() if tournament.datetime else None,
+        "host_school": {
+            "id": tournament.host_school_id,
+            "name": School.query.get(tournament.host_school_id).name
+        },
+        "schools": school_data
+    }
+
+    return jsonify(tournament_data)
+
+
+@app.route('/tournamentschedule/<int:tournament_id>', methods=['GET'])
+def get_tournament_schedule(tournament_id):
+    # Fetch the tournament
+    tournament = Tournament.query.get(tournament_id)
+    if tournament is None:
+        return jsonify({"message": "Tournament not found"}), 404
+
+    # Initialize lists to hold player and judge counts
+    players_counts = []
+    judges_counts = []
+
+    # Iterate through schools participating in the tournament
+    for school in tournament.schools:
+        players_counts.append(school.num_debaters)
+        judges_counts.append(school.num_judges)
+
+    # Convert the lists to comma-separated strings
+    players_str = ",".join(map(str, players_counts))
+    judges_str = ",".join(map(str, judges_counts))
+
+    # Construct the command to run your Java program
+    cmd = ['java', '-cp', '.', 'algorithm2']
+
+    # Start the Java process
+    process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    # Send the input data and read the output
+    output, errors = process.communicate(input=f"{players_str}\n{judges_str}\n")
+
+    # Check for errors
+    if process.returncode != 0:
+        return jsonify({"error": "Java program execution failed", "details": errors}), 500
+
+    # Process the output back into a Python list of lists (or any other desired structure)
+    matches = [line.split(",") for line in output.strip().split("\n")]
+
+    return jsonify(matches)
 
 if __name__ == '__main__':
     app.run(debug=True)
