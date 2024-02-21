@@ -306,7 +306,8 @@ def get_tournament(tournament_id):
             "name": school.name,
             "num_debaters": school.num_debaters,
             "num_judges": school.num_judges,
-            "coach": coach_name
+            "coach": coach_name,
+            "id": school.id
         })
 
     tournament_data = {
@@ -360,5 +361,44 @@ def get_tournament_schedule(tournament_id):
 
     return jsonify(matches)
 
+@app.route('/updateschool/<int:school_id>', methods=['POST'])
+def update_school(school_id):
+    school = School.query.get(school_id)
+    if not school:
+        return jsonify({"message": "School not found"}), 404
+    num_debaters = int(request.form['pairs'])
+    num_judges = int(request.form['judges'])
+    
+    
+    print(num_debaters)
+    print(num_judges)
+
+
+    school.num_debaters = num_debaters
+    school.num_judges = num_judges
+
+    db.session.commit()
+
+    return "Success", 200
+
+@app.route('/updateschoolcoach/<int:school_id>', methods=['PUT'])
+def update_school_coach(school_id):
+    school = School.query.get(school_id)
+    if not school:
+        return jsonify({"message": "School not found"}), 404
+
+    data = request.get_json()
+    if 'coach_id' in data:
+        coach_id = data['coach_id']
+        coach = Coach.query.get(coach_id)
+        if coach:
+            school.coach = coach
+            db.session.commit()
+            return jsonify({"message": "Coach updated successfully"}), 200
+        else:
+            return jsonify({"message": "Coach not found"}), 404
+    else:
+        return jsonify({"message": "Coach ID not provided"}), 400
+    
 if __name__ == '__main__':
     app.run(debug=True)
