@@ -36,7 +36,13 @@ public class algorithm2 {
                 }
             }
         }else{
-            numMatches = playNum;
+            if(playNum%2==1){
+                if(players[0]>0){
+                    players[0]--;
+                    playNum--;
+                }
+            }
+            numMatches = playNum/2;
         }
         //the following does not perfectly take into account edge cases
         //the main edge case not accounted four is too many teams
