@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class VarsityMatchmaking {
@@ -9,6 +10,11 @@ public class VarsityMatchmaking {
         List<School> schools = createSchools(debaterCounts.length);
         List<Debater> debaters = createDebaters(debaterCounts, schools);
         List<Judge> judges = createJudges(judgeCounts, schools);
+
+        Round round1 = createRound(debaters, judges, null);
+        Collections.reverse(debaters);
+        Collections.reverse(judges);
+        Round round2 = createRound(debaters, judges, round1);
     }
 
     private static List<School> createSchools(int count) {
@@ -19,6 +25,37 @@ public class VarsityMatchmaking {
         }
 
         return schools;
+    }
+
+    private static Round createRound(List<Debater> debaters, List<Judge> judges, Round lastRound) {
+        List<Match> matches = new ArrayList<>();
+        List<Debater> matchedDebaters = new ArrayList<>();
+        List<Judge> matchedJudges = new ArrayList<>();
+
+        for (int debater1Index = 0; debater1Index < debaters.size(); debater1Index++) {
+            Debater debater1 = debaters.get(debater1Index);
+
+            if (matchedDebaters.contains(debater1)) continue;
+
+            for (int debater2Index = 0; debater2Index < debaters.size(); debater2Index++) {
+                Debater debater2 = debaters.get(debater2Index);
+
+                if (matchedDebaters.contains(debater2)) continue;
+                //if (!canDebatersMatch(debater1, debater2, lastRound)) continue;
+
+                //Judge judge = getJudge(judges, matchedJudges, debater1, debater2);
+
+                if (judge == null) break;
+
+                matches.add(new Match(debater1, debater2, judge));
+                matchedDebaters.add(debater1);
+                matchedDebaters.add(debater2);
+                matchedJudges.add(judge);
+                break;
+            }
+        }
+
+        return new Round(matches);
     }
 
     private static List<Debater> createDebaters(int[] debaterCounts, List<School> schools) {
@@ -45,6 +82,53 @@ public class VarsityMatchmaking {
 
         judges.sort(Comparable::compareTo);
         return judges;
+    }
+
+    
+    private static class Round {
+        private List<Match> matches;
+
+        public Round(List<Match> matches) {
+            this.matches = matches;
+        }
+
+        public boolean hasMatchup(Debater debater1, Debater debater2) {
+            for (Match match : matches) {
+                if (match.debater1 == debater1 && match.debater2 == debater2 ||
+                match.debater1 == debater2 && match.debater2 == debater1) return true;
+            }
+
+            return false;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Round:\n");
+
+            for (Match match : matches) {
+                builder.append(match + "\n");
+            }
+
+            return builder.toString();
+        }
+    }
+
+    private static class Match {
+        private Debater debater1;
+        private Debater debater2;
+        private Judge judge;
+
+        public Match(Debater debater1, Debater debater2, Judge judge) {
+            this.debater1 = debater1;
+            this.debater2 = debater2;
+            this.judge = judge;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + debater1 + ", " + debater2 + ", " + judge + ")";
+        }
     }
 
 
