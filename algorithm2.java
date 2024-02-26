@@ -5,6 +5,10 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 
 public class algorithm2 {
+
+    public static int playersToUse;
+    public static int judgesToUse;
+
     public static void main(String[] args) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
@@ -30,11 +34,12 @@ public class algorithm2 {
         int judgeNum = sum(judges);
         if(playNum/2>judgeNum){//should be players/2
             numMatches = judgeNum;
-            for(float i = playNum/2; i>0; i--){
-                if(players[0]>0){
-                    players[0]--;
-                }
-            }
+            // add disclaimer saying that for lower ranked teams to play, they may need to be switched in(only top x(according to judge) teams are looked at)
+            // for(int i = 0; i <players.length; i++){
+            //     if(players[i]>judgeNum){
+            //         players[i] = judgeNum;
+            //     }
+            // }
         }else{
             if(playNum%2==1){
                 if(players[0]>0){
@@ -44,6 +49,8 @@ public class algorithm2 {
             }
             numMatches = playNum/2;
         }
+        playersToUse = playNum;
+        judgesToUse = judgeNum;
         //the following does not perfectly take into account edge cases
         //the main edge case not accounted four is too many teams
         //in the case of too many teams the largest team will be penalized rather than the host
@@ -105,12 +112,14 @@ public class algorithm2 {
                             if(!notUsed){
                                 match[i] = players[pos][j].team+"~"+players[pos][j].number+"|";
                                 players[pos][j].used = true;
+                                playersToUse--;
                                 notUsed = false;
                                 break;
                             }
                         }else{
                             match[i] = players[pos][j].team+"~"+players[pos][j].number+"|";
                             players[pos][j].used = true;
+                            playersToUse--;
                             notUsed = false;
                             break;
                         }
@@ -123,9 +132,10 @@ public class algorithm2 {
                 i--;
             }
             pos--;
+            
             if(pos < 0){
                 pos = players.length-1;
-                if(allUsed(players)){
+                if(playersToUse==0){
                     String matched = "";
                     for(int l = 0; l <= i; l++){
                         matched+=match[l];
@@ -137,6 +147,7 @@ public class algorithm2 {
                                 players[a][b].used = true;
                             }else{
                                 players[a][b].used = false;
+                                playersToUse++;
                             }
                         }
                     }
@@ -177,6 +188,7 @@ public class algorithm2 {
                                         System.out.println("here");
                                     }
                                     players[pos][j].used = true;
+                                    playersToUse--;
                                     allFail = false;
                                     break;
                                 }else{
@@ -187,6 +199,7 @@ public class algorithm2 {
                             if(!players[pos][j].used){
                                 match[i] += players[pos][j].team+"~"+players[pos][j].number+"|";
                                 players[pos][j].used = true;
+                                playersToUse--;
                                 allFail = false;
                                 break;
                             }
@@ -213,6 +226,7 @@ public class algorithm2 {
                                     if(!players[pos][j].used){
                                         match[k] = match[k].split("\\|")[0]+"|"+players[pos][j].team+"~"+players[pos][j].number+"|";
                                         players[pos][j].used = true;
+                                        playersToUse--;
                                         match[i] += swap+"|";
                                         done = true;
                                         break;
@@ -234,9 +248,10 @@ public class algorithm2 {
                 i--;
             }
             pos--;
+            
             if(pos < 0){
-                pos = players.length-1;
-                if(allUsed(players)){
+                pos = players.length-1; 
+                if(playersToUse==0){
                     String matched = "";
                     for(int l = 0; l < match.length; l++){
                         matched+=match[l];
@@ -248,6 +263,7 @@ public class algorithm2 {
                                 players[a][b].used = true;
                             }else{
                                 players[a][b].used = false;
+                                playersToUse++;
                             }
                         }
                     }
@@ -265,6 +281,7 @@ public class algorithm2 {
                         if(!judges[pos][j].used){
                             match[i] += "J"+ judges[pos][j].team+"~"+judges[pos][j].number;
                             judges[pos][j].used = true;
+                            judgesToUse--;
                             break;
                         }
                     }
@@ -346,9 +363,10 @@ public class algorithm2 {
                 i--;
             }
             pos--;
+            
             if(pos < 0){
                 pos = judges.length-1;
-                if(allUsed(judges)){
+                if(judgesToUse==0){
                     String matched = "";
                     for(int l = 0; l < match.length; l++){
                         matched+=match[l];
@@ -360,6 +378,7 @@ public class algorithm2 {
                                 judges[a][b].used = true;
                             }else{
                                 judges[a][b].used = false;
+                                judgesToUse++;
                             }
                         }
                     }
