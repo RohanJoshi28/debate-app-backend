@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class VarsityMatchmaking {
@@ -7,7 +6,47 @@ public class VarsityMatchmaking {
     }
 
     private static void matchmake(int[] debaterCounts, int[] judgeCounts) {
+        List<School> schools = createSchools(debaterCounts.length);
+        List<Debater> debaters = createDebaters(debaterCounts, schools);
+        List<Judge> judges = createJudges(judgeCounts, schools);
     }
+
+    private static List<School> createSchools(int count) {
+        List<School> schools = new ArrayList<>();
+
+        for (int i = 0; i < count; i++) {
+            schools.add(new School(i));
+        }
+
+        return schools;
+    }
+
+    private static List<Debater> createDebaters(int[] debaterCounts, List<School> schools) {
+        List<Debater> debaters = new ArrayList<>();
+
+        for (int schoolIndex = 0; schoolIndex < debaterCounts.length; schoolIndex++) {
+            for (int index = 0; index < debaterCounts[schoolIndex]; index++) {
+                debaters.add(new Debater(schools.get(schoolIndex), index));
+            }
+        }
+
+        debaters.sort(Comparable::compareTo);
+        return debaters;
+    }
+
+    private static List<Judge> createJudges(int[] judgeCounts, List<School> schools) {
+        List<Judge> judges = new ArrayList<>();
+
+        for (int schoolIndex = 0; schoolIndex < judgeCounts.length; schoolIndex++) {
+            for (int index = 0; index < judgeCounts[schoolIndex]; index++) {
+                judges.add(new Judge(schools.get(schoolIndex), index));
+            }
+        }
+
+        judges.sort(Comparable::compareTo);
+        return judges;
+    }
+
 
     private abstract static class Person implements Comparable<Person> {
         public School school;
