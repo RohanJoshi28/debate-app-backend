@@ -41,12 +41,12 @@ public class algorithm2 {
             //     }
             // }
         }else{
-            if(playNum%2==1){
-                if(players[0]>0){
-                    players[0]--;
-                    playNum--;
-                }
-            }
+            // if(playNum%2==1){
+            //     if(players[0]>0){
+            //         players[0]--;
+            //         playNum--;
+            //     }
+            // }
             numMatches = playNum/2;
         }
         playersToUse = playNum;
@@ -132,26 +132,26 @@ public class algorithm2 {
                 i--;
             }
             pos--;
-            
-            if(pos < 0){
-                pos = players.length-1;
-                if(playersToUse==0){
-                    String matched = "";
-                    for(int l = 0; l <= i; l++){
-                        matched+=match[l];
-                    }
-                    for(int a = 0; a<players.length; a++){
-                        for(int b = 0; b<players[a].length; b++){
-                            String check = players[a][b].team+"~"+players[a][b].number+"|";
-                            if(matched.contains(check)){
-                                players[a][b].used = true;
-                            }else{
-                                players[a][b].used = false;
-                                playersToUse++;
-                            }
+            if(playersToUse==0){
+                String matched = "";
+                for(int l = 0; l <= i; l++){
+                    matched+=match[l];
+                }
+                for(int a = 0; a<players.length; a++){
+                    for(int b = 0; b<players[a].length; b++){
+                        String check = players[a][b].team+"~"+players[a][b].number+"|";
+                        if(matched.contains(check)){
+                            players[a][b].used = true;
+                        }else{
+                            players[a][b].used = false;
+                            playersToUse++;
                         }
                     }
                 }
+            }
+            if(pos < 0){
+                pos = players.length-1;
+                
             }
         }
 
@@ -248,26 +248,26 @@ public class algorithm2 {
                 i--;
             }
             pos--;
-            
-            if(pos < 0){
-                pos = players.length-1; 
-                if(playersToUse==0){
-                    String matched = "";
-                    for(int l = 0; l < match.length; l++){
-                        matched+=match[l];
-                    }
-                    for(int a = 0; a<players.length; a++){
-                        for(int b = 0; b<players[a].length; b++){
-                            String check = players[a][b].team+"~"+players[a][b].number+"|";
-                            if(matched.contains(check)){
-                                players[a][b].used = true;
-                            }else{
-                                players[a][b].used = false;
-                                playersToUse++;
-                            }
+            if(playersToUse==0){
+                String matched = "";
+                for(int l = 0; l < match.length; l++){
+                    matched+=match[l];
+                }
+                for(int a = 0; a<players.length; a++){
+                    for(int b = 0; b<players[a].length; b++){
+                        String check = players[a][b].team+"~"+players[a][b].number+"|";
+                        if(matched.contains(check)){
+                            players[a][b].used = true;
+                        }else{
+                            players[a][b].used = false;
+                            playersToUse++;
                         }
                     }
                 }
+            }
+            if(pos < 0){
+                pos = players.length-1; 
+                
             }
         }
         
@@ -363,26 +363,25 @@ public class algorithm2 {
                 i--;
             }
             pos--;
-            
-            if(pos < 0){
-                pos = judges.length-1;
-                if(judgesToUse==0){
-                    String matched = "";
-                    for(int l = 0; l < match.length; l++){
-                        matched+=match[l];
-                    }
-                    for(int a = 0; a<judges.length; a++){
-                        for(int b = 0; b<judges[a].length; b++){
-                            String check = "J"+ judges[a][b].team+"~"+judges[a][b].number;
-                            if(matched.contains(check)){
-                                judges[a][b].used = true;
-                            }else{
-                                judges[a][b].used = false;
-                                judgesToUse++;
-                            }
+            if(judgesToUse==0){
+                String matched = "";
+                for(int l = 0; l < match.length; l++){
+                    matched+=match[l];
+                }
+                for(int a = 0; a<judges.length; a++){
+                    for(int b = 0; b<judges[a].length; b++){
+                        String check = "J"+ judges[a][b].team+"~"+judges[a][b].number;
+                        if(matched.contains(check)){
+                            judges[a][b].used = true;
+                        }else{
+                            judges[a][b].used = false;
+                            judgesToUse++;
                         }
                     }
                 }
+            }
+            if(pos < 0){
+                pos = judges.length-1;
             }
         }
         return match;

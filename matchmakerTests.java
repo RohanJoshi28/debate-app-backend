@@ -4,11 +4,11 @@ public class matchmakerTests {
     public static void main(String[] args) throws FileNotFoundException {
         algorithm2 A = new algorithm2();
         JVMatchmaker JV = new JVMatchmaker();
-        // int[] test0Players = {2, 2, 3};
-        // int[] test0Judges = {2, 2, 1};
-        // String[][] matches0 = A.JVMatches(test0Players, test0Judges);
-        // System.out.println("test 0");
-        // test(matches0);
+        int[] test0Players = {2, 2, 3};
+        int[] test0Judges = {2, 2, 1};
+        String[][] matches0 = A.JVMatches(test0Players, test0Judges);
+        System.out.println("test 0");
+        test(matches0);
         int[] test1Players = {10, 10, 0};
         int[] test1Judges = {0, 0, 5};
         String[][] matches1 = A.JVMatches(test1Players, test1Judges);
