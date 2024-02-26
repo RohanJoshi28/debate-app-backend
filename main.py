@@ -23,6 +23,7 @@ from flask_migrate import Migrate
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
+import subprocess
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
@@ -351,6 +352,14 @@ def get_tournament_schedule(tournament_id):
 
     # Send the input data and read the output
     output, errors = process.communicate(input=f"{players_str}\n{judges_str}\n")
+
+    # Close the stdin, stdout, and stderr streams
+    process.stdin.close()
+    process.stdout.close()
+    process.stderr.close()
+
+    # Wait for the process to finish
+    process.wait()
 
     # Check for errors
     if process.returncode != 0:
