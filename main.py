@@ -411,13 +411,12 @@ def update_school_coach(school_id):
     
 @app.route('/add_tournament', methods=['POST'])
 def add_tournament():
-
     data = request.get_json()
-
     try:
+        tournament_date = datetime.strptime(data['datetime'], '%m/%d/%Y').replace(hour=0, minute=0)
         new_tournament = Tournament(
             host_school_id=data['host_school_id'],
-            datetime=datetime.strptime(data['datetime'], '%Y-%m-%d %H:%M:%S')  # for example '2024-02-05 17:00:00'
+            datetime=tournament_date
         )
         db.session.add(new_tournament)
         db.session.commit()
