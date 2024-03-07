@@ -409,5 +409,23 @@ def update_school_coach(school_id):
     else:
         return jsonify({"message": "Coach ID not provided"}), 400
     
+@app.route('/add_tournament', methods=['POST'])
+def add_tournament():
+    data = request.get_json()
+    try:
+        tournament_date = datetime.strptime(data['datetime'], '%m/%d/%Y').replace(hour=0, minute=0)
+        new_tournament = Tournament(
+            host_school_id=data['host_school_id'],
+            datetime=tournament_date
+        )
+        db.session.add(new_tournament)
+        db.session.commit()
+
+        return jsonify({"message": "Tournament added successfully", "tournament_id": new_tournament.id}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000)
