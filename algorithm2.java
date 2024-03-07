@@ -35,11 +35,19 @@ public class algorithm2 {
         if(playNum/2>judgeNum){//should be players/2
             numMatches = judgeNum;
             // add disclaimer saying that for lower ranked teams to play, they may need to be switched in(only top x(according to judge) teams are looked at)
-            // for(int i = 0; i <players.length; i++){
-            //     if(players[i]>judgeNum){
-            //         players[i] = judgeNum;
-            //     }
+            // may do differnt way potentially
+            // int sumOthers = 0;
+            // for(int i = 1; i<players.length; i++){
+            //     sumOthers+=players[i];
             // }
+            // if(players[0]>sumOthers){
+            //     players[0] = sumOthers;
+            // }
+            // // for(int i = 0; i <players.length; i++){
+            // //     if(players[i]>judgeNum){
+            // //         players[i] = judgeNum;
+            // //     }
+            // // }
         }else{
             // if(playNum%2==1){
             //     if(players[0]>0){
@@ -184,9 +192,6 @@ public class algorithm2 {
                             if(!fails){
                                 if(!players[pos][j].used){
                                     match[i] = prospective+"|";
-                                    if((players[pos][j].team+"~"+players[pos][j].number).equals("0~1")){
-                                        System.out.println("here");
-                                    }
                                     players[pos][j].used = true;
                                     playersToUse--;
                                     allFail = false;
@@ -270,99 +275,120 @@ public class algorithm2 {
                 
             }
         }
-        
-        for(int i = 0; i<numMatches; i++){
-            if(!allUsed(judges[pos])){
-                String[] prevMatch = match[i].split("~");
-                if(prevMatch[0].equals(Integer.toString(pos))||prevMatch[1].split("\\|")[1].equals(Integer.toString(pos))){
-                    i--;
-                }else{
-                    for(int j = 0; j<judges[pos].length; j++){
-                        if(!judges[pos][j].used){
-                            match[i] += "J"+ judges[pos][j].team+"~"+judges[pos][j].number;
+        int timeSenseMatch = 0;
+        pos = judges.length-1;
+        for(int i = 0; i < numMatches; i++){
+            // if(prev.length>0&&timeSenseMatch<6){
+            //     System.out.println(i+" "+timeSenseMatch);
+            //     for(int j = 0; j < prev.length; j++){
+            //         System.out.print(prev[j]+" ");
+            //     }
+            //     System.out.println();
+            //     for(int j = 0; j < match.length; j++){
+            //         System.out.print(match[j]+" ");
+            //     }
+            //     System.out.println();
+            // }
+
+            // if(pos == 2 && prev.length>0){
+            //     System.out.println("hello");
+            // }
+
+            //make sure judges of all teams are available for use
+            if(judges[pos].length>0&&allUsed(judges[pos])){
+                String matched = "";
+                for(int l = 0; l < match.length; l++){
+                    matched+=match[l];
+                }
+                for(int b = 0; b<judges[pos].length; b++){
+                    String check = "J"+judges[pos][b].team+"~"+judges[pos][b].number;
+                    if(matched.contains(check)){
+                        judges[pos][b].used = true;
+                    }else{
+                        judges[pos][b].used = false;
+                        judgesToUse++;
+                    }
+                }
+            }
+
+            //check if any judge is from same team as debater,(only if full rotation has not occuredd)
+            //System.out.println(match[i]);
+            if(judges[pos].length>0&&(match[i].split("~")[0].equals(judges[pos][0].team)||
+            match[i].split("\\|")[1].split("~")[0].equals(judges[pos][0].team))&&
+            timeSenseMatch<judges.length-1){
+                i--;
+                timeSenseMatch++;
+            }else{
+            //go through seeing if judge from this team can be added
+                boolean matchMade = false;
+                for(int j = 0; j < judges[pos].length; j++){
+                    //do second round checks
+                    if(prev.length>0){//exceptions for if timeSenseMatch is long
+                        //check judge same teams last round
+                        boolean foundPrev = false;;
+                        for(int k = 0; k<prev.length; k++){
+                            if(prev[k].split("\\|")[0].equals(match[i].split("\\|")[0])||
+                            prev[k].split("\\|")[1].equals(match[i].split("\\|")[0])||
+                            prev[k].split("\\|")[0].equals(match[i].split("\\|")[1])||
+                            prev[k].split("\\|")[1].equals(match[i].split("\\|")[1])){
+                                if(prev[k].contains("J"+judges[pos][j].team+"~"+judges[pos][j].number)){
+                                    foundPrev = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        //if a judge pairing was found, check if swap should be tried, otherwise continue
+                        if(foundPrev){
+                            if(timeSenseMatch>judges.length-1&&!judges[pos][j].used){
+                                if(swap(match, i, pos, judges[pos][j], prev)){
+                                    timeSenseMatch = 0;
+                                    matchMade = true;
+                                    judges[pos][j].used = true;
+                                    judgesToUse--;
+                                    break;
+                                }
+                            }
+                            continue;
+                        }
+                        //check if a player should recieve support, if so match and break/continue
+                        //gonna come back later lol
+                    }
+
+                    //given a circulation without match has occured, swap if judge matches a team
+                    if((match[i].split("~")[0].equals(judges[pos][0].team)||
+                    match[i].split("\\|")[1].split("~")[0].equals(judges[pos][0].team))&&
+                    timeSenseMatch>=judges.length-1){
+                        if(swap(match, i, pos, judges[pos][j], prev)){
+                            timeSenseMatch = 0;
+                            matchMade = true;
                             judges[pos][j].used = true;
                             judgesToUse--;
                             break;
                         }
                     }
-                    // boolean allFail = false;
-                    // for(int j = 0; j<judges[pos].length; j++){
-                    //     if(prev.length>0){
-                    //         boolean fails = false;
-                    //         for(int k = 0; k<prev.length; k++){
-                    //             if(prev[k].split("\\|")[2].equals("J"+ judges[pos][j].team+"~"+judges[pos][j].number)&&
-                    //             (prev[k].split("\\|")[0].equals(match[i].split("\\|")[0])||
-                    //             prev[k].split("\\|")[0].equals(match[i].split("\\|")[1])||
-                    //             prev[k].split("\\|")[1].equals(match[i].split("\\|")[0])||
-                    //             prev[k].split("\\|")[1].equals(match[i].split("\\|")[1]))){
-                    //                 fails = true;
-                    //                 allFail = true;
-                    //             }
-                    //         }
-                    //         if(!fails){
-                    //             if(!judges[pos][j].used){
-                    //                 match[i]+="J"+ judges[pos][j].team+"~"+judges[pos][j].number;
-                    //                 judges[pos][j].used = true;
-                    //                 allFail = false;
-                    //                 break;
-                    //             }else{
-                    //                 allFail = true;
-                    //             }
-                    //         }
-                    //     }else{
-                    //         if(!judges[pos][j].used){
-                    //             match[i] += "J"+ judges[pos][j].team+"~"+judges[pos][j].number;
-                    //             judges[pos][j].used = true;
-                    //             break;
-                    //         }
-                    //     }
-                    // }
-                    // if(allFail){
-                    //     if(i>0){
-                    //         boolean done = false;
-                    //         for(int k =0; k<i; k++){
-                    //             String swap = match[k].split("\\|")[2];
-                    //             if(swap.split("~").equals(match[i].split("~")[0])){
-                    //                 continue;
-                    //             }
-                    //             for(int j = 0; j<players[pos].length; j++){
-                    //                 for(int l = 0; l<prev.length; l++){
-                    //                     if(prev[l].split("\\|")[2].equals("J"+ judges[pos][j].team+"~"+judges[pos][j].number)&&
-                    //                     (prev[l].split("\\|")[0].equals(match[i].split("\\|")[0])||
-                    //                     prev[l].split("\\|")[0].equals(match[i].split("\\|")[1])||
-                    //                     prev[l].split("\\|")[1].equals(match[i].split("\\|")[0])||
-                    //                     prev[l].split("\\|")[1].equals(match[i].split("\\|")[1]))){
-                    //                         done = true;
-                    //                     }
-                    //                 }
-                    //                 if(done){
-                    //                     done = false;
-                    //                     continue;
-                    //                 }
-                    //                 if(!players[pos][j].used){
-                    //                     match[k] = match[k].split("\\|")[0] +match[k].split("\\|")[1]+"J"+ judges[pos][j].team+"~"+judges[pos][j].number;
-                    //                     judges[pos][j].used = true;
-                    //                     match[i]+=swap;
-                    //                     done = true;
-                    //                     break;
-                    //                 }
-                    //             }                                
-                    //             if(done){
-                    //                 break;
-                    //             }
-                    //         }
-                    //         if(!done){
-                    //             i--;
-                    //         }
-                    //     }else{
-                    //         i--;
-                    //     }
-                    // }
+                    
+                    //attempt match, if not all judges are used for this team, match should be forced
+                    if(!judges[pos][j].used){
+                        judges[pos][j].used = true;
+                        matchMade = true;
+                        timeSenseMatch = 0;
+                        judgesToUse--;
+                        match[i]+="J"+judges[pos][j].team+"~"+judges[pos][j].number;
+                        break;
+                    }
                 }
-            }else{
-                i--;
+                //if match was not made(and it's been a while since last match) swap
+                if(!matchMade){
+                    i--;
+                    timeSenseMatch++;
+                }
             }
+
+            //moves to next team
             pos--;
+
+            //refills judges available for use(if not this round)
             if(judgesToUse==0){
                 String matched = "";
                 for(int l = 0; l < match.length; l++){
@@ -370,7 +396,7 @@ public class algorithm2 {
                 }
                 for(int a = 0; a<judges.length; a++){
                     for(int b = 0; b<judges[a].length; b++){
-                        String check = "J"+ judges[a][b].team+"~"+judges[a][b].number;
+                        String check = "J"+judges[a][b].team+"~"+judges[a][b].number;
                         if(matched.contains(check)){
                             judges[a][b].used = true;
                         }else{
@@ -380,11 +406,101 @@ public class algorithm2 {
                     }
                 }
             }
-            if(pos < 0){
+
+            //resets teams to beginning(so you swithc every time)
+            if(pos<0){
                 pos = judges.length-1;
             }
         }
         return match;
+    }
+
+    //if possible, will swap a value(returns true), if not, returns false
+    public static boolean swap(String[] matches, int max, int pos, debater judge, String[] prev){
+        // look into:
+        // should never swap if teams overlap previous matchs
+        // there are opportunities when swapping(when position matches) could be beneficial
+        //also times with judge priority to be considered
+
+        //System.out.println("here");
+        
+        String toSwap = "J"+judge.team+"~"+judge.number;
+
+        //go through and see if swap can be made
+        for(int i = 0; i<max; i++){
+            if(prev.length>0){
+                boolean justContinue = false;
+                for(int j = 0; j<prev.length; j++){
+                    if(prev[j].contains(matches[i].split("\\|")[0]+"|")||
+                    prev[j].contains(matches[i].split("\\|")[1]+"|")){
+                        if(prev[j].split("\\|")[2].equals(toSwap)){
+                            justContinue = true;
+                            break;
+                        }
+                    }
+
+                    if(prev[j].contains(matches[max].split("\\|")[0]+"|")||
+                    prev[j].contains(matches[max].split("\\|")[1]+"|")){
+                        if(prev[j].split("\\|")[2].equals(matches[i].split("\\|")[2])){
+                            justContinue = true;
+                            break;
+                        }
+                    }
+                }
+
+                if(justContinue){
+                    continue;
+                }
+            }
+
+            //check if judges team matches any of the debaters team on the swapping team
+            if(!(matches[i].split("\\|")[0].split("~")[0].equals(judge.team)||
+            matches[i].split("\\|")[1].split("~")[0].equals(judge.team)||
+            matches[max].split("\\|")[0].split("~")[0].equals(matches[i].split("J")[1].split("~")[0])||
+            matches[max].split("\\|")[0].split("~")[0].equals(matches[i].split("J")[1].split("~")[0]))){
+                matches[max]+=matches[i].split("\\|")[2];
+                matches[i] = matches[i].split("J")[0]+toSwap;
+                return true;
+            }
+        }
+
+        //force swap as long as teams(of debaters) don't match lol
+        if(prev.length>0){
+            for(int i = 0; i<max; i++){
+                if(prev.length>0){
+                    boolean justContinue = false;
+                    for(int j = 0; j<prev.length; j++){
+                        if(prev[j].contains(matches[i].split("\\|")[0]+"|")||
+                        prev[j].contains(matches[i].split("\\|")[1]+"|")){
+                            if(prev[j].split("\\|")[2].equals(toSwap)){
+                                justContinue = true;
+                                break;
+                            }
+                        }
+
+                        if(prev[j].contains(matches[max].split("\\|")[0]+"|")||
+                        prev[j].contains(matches[max].split("\\|")[1]+"|")){
+                            if(prev[j].split("\\|")[2].equals(matches[i].split("\\|")[2])){
+                                justContinue = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if(justContinue){
+                        continue;
+                    }
+                }
+
+                //check if judges team matches any of the debaters team on the swapping team
+                matches[max]+=matches[i].split("\\|")[2];
+                matches[i] = matches[i].split("J")[0]+toSwap;
+                return true;
+            }
+        }
+
+
+        return false;
     }
 
     public static int sum(int[] array){
