@@ -10,24 +10,28 @@ public class algorithm2 {
     public static int judgesToUse;
 
     public static void main(String[] args) throws Exception {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        try{
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
-        // Reading data from stdin
-        String playersLine = reader.readLine();
-        String judgesLine = reader.readLine();
+            // Reading data from stdin
+            String playersLine = reader.readLine();
+            String judgesLine = reader.readLine();
 
-        // Parsing the comma-separated strings into arrays
-        int[] test1Players = Arrays.stream(playersLine.split(",")).mapToInt(Integer::parseInt).toArray();
-        int[] test1Judges = Arrays.stream(judgesLine.split(",")).mapToInt(Integer::parseInt).toArray();
+            // Parsing the comma-separated strings into arrays
+            int[] test1Players = Arrays.stream(playersLine.split(",")).mapToInt(Integer::parseInt).toArray();
+            int[] test1Judges = Arrays.stream(judgesLine.split(",")).mapToInt(Integer::parseInt).toArray();
 
-        // Call the JVMatches method
-        String[][] matches = JVMatches(test1Players, test1Judges);
+            // Call the JVMatches method
+            String[][] matches = JVMatches(test1Players, test1Judges);
 
-        // Output the matches as a simple format (e.g., line-separated values)
-        for (String[] match : matches) {
-            System.out.println(String.join(",", match));
+            // Output the matches as a simple format (e.g., line-separated values)
+            for (String[] match : matches) {
+                System.out.println(String.join(",", match));
+            }
+        }catch(Exception e){
+            System.out.println("error");
         }
-    }
+    } 
     public static String[][] JVMatches (int[] players, int[] judges) throws FileNotFoundException{
         int numMatches = 0;
         int playNum = sum(players);
