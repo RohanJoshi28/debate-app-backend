@@ -129,6 +129,16 @@ tournament.schools.append(school2)
 tournament.schools.append(school3)
 db.session.commit()
 
+def create_initial_user():
+    # Add the user if not already present in the database
+    existing_user = User.query.filter_by(email='joshkim771@gmail.com').first()
+    if not existing_user:
+        new_user = User(email='joshkim771@gmail.com', name='Josh Kim')
+        db.session.add(new_user)
+        db.session.commit()
+        
+create_initial_user()
+
 # @app.before_request
 # def handle_preflight():
 #     if request.method == "OPTIONS":
