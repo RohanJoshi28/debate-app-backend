@@ -266,6 +266,18 @@ def get_users():
         user_data.append(user_info)
     return jsonify(user_data),200
 
+@app.route('/schools', methods=['GET'])
+def get_schools():
+    schools = School.query.all()
+    school_data = [{
+        'id': school.id,
+        'name': school.name,
+        'num_debaters': school.num_debaters,
+        'num_judges': school.num_judges
+    } for school in schools]
+    return jsonify(school_data), 200
+
+
 @app.route('/tournaments')
 def get_tournaments():
     tournaments = Tournament.query.all()
@@ -328,6 +340,7 @@ def get_tournament(tournament_id):
 def get_tournament_schedule(tournament_id):
     # Fetch the tournament
     tournament = Tournament.query.get(tournament_id)
+
     if tournament is None:
         return jsonify({"message": "Tournament not found"}), 404
 
@@ -345,6 +358,7 @@ def get_tournament_schedule(tournament_id):
     judges_str = ",".join(map(str, judges_counts))
 
     # Construct the command to run your Java program
+    
     cmd = ['java', '-cp', '.', 'algorithm2']
 
     # Start the Java process
@@ -413,7 +427,7 @@ def update_school_coach(school_id):
 def add_tournament():
     data = request.get_json()
     try:
-        tournament_date = datetime.strptime(data['datetime'], '%m/%d/%Y').replace(hour=0, minute=0)
+        tournament_date = datetime.strptime(data['datetime'], '%Y-%m-%d').replace(hour=0, minute=0)
         new_tournament = Tournament(
             host_school_id=data['host_school_id'],
             datetime=tournament_date
@@ -421,7 +435,12 @@ def add_tournament():
         db.session.add(new_tournament)
         db.session.commit()
 
-        return jsonify({"message": "Tournament added successfully", "tournament_id": new_tournament.id}), 201
+        for school_id in data['schools']:
+            db.session.execute(tournament_school.insert().values(tournament_id=new_tournament.id, school_id=school_id))
+        
+        db.session.commit()
+
+        return jsonify({"message": "Tournament added successfully", "tournament_id": new_tournament.id}), 200
 
     except Exception as e:
         db.session.rollback()
