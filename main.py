@@ -29,7 +29,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 
 app.app_context().push()
-CORS(app, origins=['http://localhost:3000'], supports_credentials=True)
+# CORS(app, origins=['http://localhost:3000'], supports_credentials=True)
+CORS(app, origins=['http://localhost:3000', 'https://test-debate-frontend-update-deploy-1h102jiw0.vercel.app', 'https://debate-app-backend.onrender.com'], supports_credentials=True)
 
 migrate = Migrate(app, db)
 
