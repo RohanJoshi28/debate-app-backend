@@ -73,7 +73,7 @@ public class algorithm2 {
         
         debater[][] playCopy = debaters.clone();
         debater[][] judgers = new debater[judges.length][];
-        for(int i = 0; i < debaters.length; i++){
+        for(int i = 0; i < judgers.length; i++){
             judgers[i] = new debater[judges[i]];
             for(int j = 0; j<judges[i]; j++){
                 judgers[i][j] = new debater(Integer.toString(i), Integer.toString(j));
@@ -163,96 +163,87 @@ public class algorithm2 {
             }
         }
 
+        int timeSinceMatch = 0;
+
         for(int i = 0; i<numMatches; i++){
-            if(!allUsed(players[pos])){
-                String[] prevMatch = match[i].split("~");
-                if(prevMatch[0].equals(Integer.toString(pos))){
-                    i--;
-                }else{
-                    boolean allFail = false;
-                    for(int j = 0; j < players[pos].length; j++){
-                        if(prev.length>0){
-                            String prospective = match[i] + players[pos][j].team+"~"+players[pos][j].number;
-                            String[] pros = prospective.split("\\|");
-                            boolean fails = false;
-                            for(int k = 0; k < prev.length; k++){
-                                String[] pre = prev[k].split("\\|");
-                                if((pre[0].equals(pros[0])||pre[0].equals(pros[1]))&&
-                                (pre[1].equals(pros[0])||pre[1].equals(pros[1]))){
-                                    fails = true;
-                                    allFail = true;
-                                }
-                            }
-                            for(int k = 0; k < prev.length; k++){
-                                if(prev[k].split("\\|")[1].equals(players[pos][j].team+"~"+players[pos][j].number)){
-                                    fails = true;
-                                    allFail = true;
-                                }
-                            }
-                            if(!fails){
-                                if(!players[pos][j].used){
-                                    match[i] = prospective+"|";
-                                    players[pos][j].used = true;
-                                    playersToUse--;
-                                    allFail = false;
-                                    break;
-                                }else{
-                                    allFail = true;
-                                }
-                            }
-                        }else{
-                            if(!players[pos][j].used){
-                                match[i] += players[pos][j].team+"~"+players[pos][j].number+"|";
-                                players[pos][j].used = true;
-                                playersToUse--;
-                                allFail = false;
-                                break;
-                            }
-                        }
-                    }
-                    if(allFail){
-                        if(i>0){
-                            boolean done = false;
-                            for(int k = 0; k<i; k++){
-                                String swap = match[k].split("\\|")[1];
-                                if(swap.split("~")[0].equals(match[i].split("~")[0])){
-                                    continue;
-                                }
-                                for(int j = 0; j<players[pos].length;j++){
-                                    for(int l = 0; l < prev.length; l++){
-                                        if(prev[l].split("\\|")[1].equals(players[pos][j].team+"~"+players[pos][j].number)){
-                                            done = true;
-                                        }
-                                    }
-                                    if(done){
-                                        done = false;
-                                        continue;
-                                    }
-                                    if(!players[pos][j].used){
-                                        match[k] = match[k].split("\\|")[0]+"|"+players[pos][j].team+"~"+players[pos][j].number+"|";
-                                        players[pos][j].used = true;
-                                        playersToUse--;
-                                        match[i] += swap+"|";
-                                        done = true;
-                                        break;
-                                    }
-                                }
-                                if(done){
-                                    break;
-                                }
-                            }
-                            if(!done){
-                                i--;
-                            }
-                        }else{
-                            i--;
-                        }
+
+            if(players[pos].length>0&&allUsed(players[pos])){
+                String matched = "";
+                for(int l = 0; l < match.length; l++){
+                    matched+=match[l];
+                }
+                for(int b = 0; b<players[pos].length; b++){
+                    String check = players[pos][b].team+"~"+players[pos][b].number+"|";
+                    if(matched.contains(check)){
+                        players[pos][b].used = true;
+                    }else{
+                        players[pos][b].used = false;
+                        playersToUse++;
                     }
                 }
-            }else{
-                i--;
             }
+            
+            if(players[pos].length>0&&match[i].split("~")[0].equals(players[pos][0].team)&&timeSinceMatch<players.length-1){
+                i--;
+                timeSinceMatch++;
+            }else{
+                boolean matchMade = false;
+                for(int j = 0; j<players[pos].length; j++){
+                    if(prev.length>0){
+                        //check if faced last match
+                        boolean foundPrev = false;
+                        for(int k = 0; k <prev.length; k++){
+                            if(prev[k].contains(match[i])){
+                                if(prev[k].contains(players[pos][j].team+"~"+players[pos][j].number+"|")){
+                                    foundPrev = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if(foundPrev){
+                            if(timeSinceMatch>players.length-1&&!players[pos][j].used){
+                                if(swap(match, i, players[pos][j], prev)){
+                                    timeSinceMatch = 0;
+                                    matchMade = true;
+                                    players[pos][j].used = true;
+                                    playersToUse--;
+                                    break;
+                                }
+                            }
+                            continue;
+                        }
+                        
+                    }
+                    //given a circulation without match has occured, swap if player matches a team
+                    if(match[i].split("~")[0].equals(players[pos][0].team)&&
+                    timeSinceMatch>=judges.length-1&&!players[pos][j].used){
+                        if(swap(match, i, players[pos][j], prev)){
+                            timeSinceMatch = 0;
+                            matchMade = true;
+                            players[pos][j].used = true;
+                            playersToUse--;
+                            break;
+                        }
+                    }
+                    
+                    //attempt match, if not all player are used for this team, match should be forced
+                    if(!players[pos][j].used){
+                        players[pos][j].used = true;
+                        matchMade = true;
+                        timeSinceMatch = 0;
+                        playersToUse--;
+                        match[i]+=players[pos][j].team+"~"+players[pos][j].number+"|";
+                        break;
+                    }
+                }
+                if(!matchMade){
+                    i--;
+                    timeSinceMatch++;
+                }
+            }
+            
             pos--;
+
             if(playersToUse==0){
                 String matched = "";
                 for(int l = 0; l < match.length; l++){
@@ -270,13 +261,16 @@ public class algorithm2 {
                     }
                 }
             }
+
             if(pos < 0){
                 pos = players.length-1; 
                 
             }
         }
-        int timeSenseMatch = 0;
+
+        timeSinceMatch = 0;
         pos = judges.length-1;
+        //System.out.println("j");
         for(int i = 0; i < numMatches; i++){
             // if(prev.length>0&&timeSenseMatch<6){
             //     System.out.println(i+" "+timeSenseMatch);
@@ -315,9 +309,9 @@ public class algorithm2 {
             //System.out.println(match[i]);
             if(judges[pos].length>0&&(match[i].split("~")[0].equals(judges[pos][0].team)||
             match[i].split("\\|")[1].split("~")[0].equals(judges[pos][0].team))&&
-            timeSenseMatch<judges.length-1){
+            timeSinceMatch<judges.length-1){
                 i--;
-                timeSenseMatch++;
+                timeSinceMatch++;
             }else{
             //go through seeing if judge from this team can be added
                 boolean matchMade = false;
@@ -340,9 +334,9 @@ public class algorithm2 {
 
                         //if a judge pairing was found, check if swap should be tried, otherwise continue
                         if(foundPrev){
-                            if(timeSenseMatch>judges.length-1&&!judges[pos][j].used){
+                            if(timeSinceMatch>judges.length-1&&!judges[pos][j].used){
                                 if(swap(match, i, pos, judges[pos][j], prev)){
-                                    timeSenseMatch = 0;
+                                    timeSinceMatch = 0;
                                     matchMade = true;
                                     judges[pos][j].used = true;
                                     judgesToUse--;
@@ -358,9 +352,9 @@ public class algorithm2 {
                     //given a circulation without match has occured, swap if judge matches a team
                     if((match[i].split("~")[0].equals(judges[pos][0].team)||
                     match[i].split("\\|")[1].split("~")[0].equals(judges[pos][0].team))&&
-                    timeSenseMatch>=judges.length-1){
+                    timeSinceMatch>=judges.length-1){
                         if(swap(match, i, pos, judges[pos][j], prev)){
-                            timeSenseMatch = 0;
+                            timeSinceMatch = 0;
                             matchMade = true;
                             judges[pos][j].used = true;
                             judgesToUse--;
@@ -372,7 +366,7 @@ public class algorithm2 {
                     if(!judges[pos][j].used){
                         judges[pos][j].used = true;
                         matchMade = true;
-                        timeSenseMatch = 0;
+                        timeSinceMatch = 0;
                         judgesToUse--;
                         match[i]+="J"+judges[pos][j].team+"~"+judges[pos][j].number;
                         break;
@@ -381,7 +375,7 @@ public class algorithm2 {
                 //if match was not made(and it's been a while since last match) swap
                 if(!matchMade){
                     i--;
-                    timeSenseMatch++;
+                    timeSinceMatch++;
                 }
             }
 
@@ -413,6 +407,65 @@ public class algorithm2 {
             }
         }
         return match;
+    }
+
+    public static boolean swap(String[] matches, int max, debater player, String[] prev){
+        String toSwap = player.team+"~"+player.number+"|";
+
+        //go through and see if swap can be made
+        for(int i = 0; i<max; i++){
+            if(prev.length>0){
+                boolean justContinue = false;
+                for(int j = 0; j<prev.length; j++){
+                    if(prev[j].contains(matches[i].split("\\|")[0]+"|")){
+                        if(prev[j].contains(toSwap)){
+                            justContinue = true;
+                            break;
+                        }
+                    }
+                }
+
+                if(justContinue){
+                    continue;
+                }
+            }
+
+            //check if judges team matches any of the debaters team on the swapping team
+            if(!(matches[i].split("\\|")[0].split("~")[0].equals(player.team)||
+            matches[max].split("\\|")[0].split("~")[0].equals(matches[i].split("\\|")[1].split("~")[0]))){
+                matches[max]+=matches[i].split("\\|")[1]+"|";
+                matches[i] = matches[i].split("\\|")[0]+"|"+toSwap;
+                return true;
+            }
+        }
+
+        //force swap as long as teams(of debaters) don't match lol
+        if(prev.length>0){
+            for(int i = 0; i<max; i++){
+                if(prev.length>0){
+                    boolean justContinue = false;
+                    for(int j = 0; j<prev.length; j++){
+                        if(prev[j].contains(matches[i].split("\\|")[0]+"|")){
+                            if(prev[j].contains(toSwap)){
+                                justContinue = true;
+                                break;
+                            }
+                        }
+                    }
+    
+                    if(justContinue){
+                        continue;
+                    }
+                }
+
+                //check if player team matches any of the debaters team on the swapping team
+                matches[max]+=matches[i].split("\\|")[1]+"|";
+                matches[i] = matches[i].split("\\|")[0]+"|"+toSwap;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     //if possible, will swap a value(returns true), if not, returns false

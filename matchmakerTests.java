@@ -19,11 +19,21 @@ public class matchmakerTests {
         String[][] matches2 = A.JVMatches(test2Players, test2Judges);
         System.out.println("test 2");
         test(matches2);
-        // int[] test3Players = {5, 5, 0};
-        // int[] test3Judges = {0, 0, 5};
-        // String[][] matches3 = A.JVMatches(test3Players, test3Judges);
-        // System.out.println("test 3");
-        // test(matches3);
+        int[] test3Players = {12, 1, 4, 4, 13, 4, 1};
+        int[] test3Judges = {6, 3, 3, 2, 6, 8, 0};
+        String[][] matches3 = A.JVMatches(test3Players, test3Judges);
+        System.out.println("test 3");
+        test(matches3);
+        int[] test4Players = {14, 5, 3, 5, 1, 2, 15};
+        int[] test4Judges = {6, 7, 4, 5, 0, 3, 5};
+        String[][] matches4 = A.JVMatches(test4Players, test4Judges);
+        System.out.println("test 4");
+        test(matches4);
+        int[] test5Players = {11, 6, 13, 3};
+        int[] test5Judges = {6, 1, 5, 1};
+        String[][] matches5 = A.JVMatches(test5Players, test5Judges);
+        System.out.println("test 5");
+        test(matches5);
     }
 
     public static void test(String[][] matches){
