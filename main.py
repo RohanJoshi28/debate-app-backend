@@ -171,7 +171,7 @@ def login():
     print(user_info['email'])
     #check if user is in database, if not add the user 
     #FYI FOR LATER ON: MAYBE ONLY ALLOW LOGIN IF USER IS AN EXISTING USER; BC ONLY ADMINS CAN ACCESS
-    user = User.query.filter_by(email=user_info['email'])
+    user = User.query.filter_by(email=user_info['email']).first()
 
     if user is not None:
         jwt_token = create_access_token(identity=user_info['email'])  
