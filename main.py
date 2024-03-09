@@ -30,7 +30,8 @@ db = SQLAlchemy(app)
 
 app.app_context().push()
 # CORS(app, origins=['http://localhost:3000'], supports_credentials=True)
-CORS(app, origins=['http://localhost:3000', 'https://test-debate-frontend-update-deploy.onrender.com', 'https://debate-app-backend.onrender.com'], supports_credentials=True)
+# CORS(app, origins=['http://localhost:3000', 'https://test-debate-frontend-update-deploy.onrender.com', 'https://debate-app-backend.onrender.com'], supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "https://test-debate-frontend-update-deploy.onrender.com", "supports_credentials": True}})
 
 migrate = Migrate(app, db)
 
@@ -178,8 +179,8 @@ def login():
     if user is not None:
         jwt_token = create_access_token(identity=user_info['email'])  
         response = jsonify(user=user_info)
-        response.set_cookie('access_token_cookie', value=jwt_token, secure=True, samesite='None', domain="test-debate-frontend-update-deploy.onrender.com")
-        response.set_cookie('logged_in', value="yes", secure=True, samesite='None', domain="test-debate-frontend-update-deploy.onrender.com")
+        response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="test-debate-frontend-update-deploy.onrender.com")
+        response.set_cookie('logged_in', value="yes", secure=True, httponly=True, samesite='None', domain="test-debate-frontend-update-deploy.onrender.com")
         return response, 200
     else:
        
