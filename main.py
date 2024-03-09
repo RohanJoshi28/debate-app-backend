@@ -175,6 +175,7 @@ def login():
 
     if user is not None:
         jwt_token = create_access_token(identity=user_info['email'])  
+        print(jwt_token)
         response = jsonify(user=user_info)
         response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
         response.set_cookie('logged_in', value="yes", secure=True)
