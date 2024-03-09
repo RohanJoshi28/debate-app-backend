@@ -36,7 +36,7 @@ migrate = Migrate(app, db)
 
 load_dotenv()
 
-app.config["JWT_COOKIE_SECURE"] = False
+app.config["JWT_COOKIE_SECURE"] = True
 app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
@@ -177,8 +177,8 @@ def login():
     if user is not None:
         jwt_token = create_access_token(identity=user_info['email'])  
         response = jsonify(user=user_info)
-        response.set_cookie('access_token_cookie', value=jwt_token, secure=False, samesite='None') 
-        response.set_cookie('logged_in', value="yes", secure=False, samesite='None')
+        response.set_cookie('access_token_cookie', value=jwt_token, secure=True, samesite='None', domain='https://debate-app-backend.onrender.com')
+        response.set_cookie('logged_in', value="yes", secure=True, samesite='None', domain='https://debate-app-backend.onrender.com')
         return response, 200
     else:
        
@@ -247,7 +247,7 @@ def save_email():
     from_email='testdebateteamapp@gmail.com',
     to_emails=email,
     subject='Welcome to the Debate Team Dashboard!',
-    html_content='<p>Hi, ' + name + '!</p><p>You were added as an admin to the Debate Team Dashboard.</p><strong>To access the dashboard, go to: URL :)</strong>')
+    html_content='<p>Hi, ' + name + '!</p><p>You were added as an admin to the Debate Team Dashboard.</p><strong>To access the dashboard, go to: debatedashboard.vercel.com :)</strong>')
     
     try:
         sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
