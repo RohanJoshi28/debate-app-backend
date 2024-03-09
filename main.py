@@ -41,7 +41,7 @@ app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_COOKIE_SAMESITE"] = "None"
-app.config["JWT_COOKIE_DOMAIN"] = ".onrender.com"
+app.config["JWT_COOKIE_DOMAIN"] = "test-debate-frontend-update-deploy.onrender.com"
 jwt = JWTManager(app)
 
 GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
@@ -178,8 +178,8 @@ def login():
     if user is not None:
         jwt_token = create_access_token(identity=user_info['email'])  
         response = jsonify(user=user_info)
-        response.set_cookie('access_token_cookie', value=jwt_token, secure=True, samesite='None', domain=".onrender.com")
-        response.set_cookie('logged_in', value="yes", secure=True, samesite='None', domain=".onrender.com")
+        response.set_cookie('access_token_cookie', value=jwt_token, secure=True, samesite='None', domain="test-debate-frontend-update-deploy.onrender.com")
+        response.set_cookie('logged_in', value="yes", secure=True, samesite='None', domain="test-debate-frontend-update-deploy.onrender.com")
         return response, 200
     else:
        
