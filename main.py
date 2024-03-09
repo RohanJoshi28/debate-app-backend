@@ -36,7 +36,7 @@ migrate = Migrate(app, db)
 
 load_dotenv()
 
-app.config["JWT_COOKIE_SECURE"] = True
+app.config["JWT_COOKIE_SECURE"] = False
 app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
@@ -177,8 +177,8 @@ def login():
     if user is not None:
         jwt_token = create_access_token(identity=user_info['email'])  
         response = jsonify(user=user_info)
-        response.set_cookie('access_token_cookie', value=jwt_token, secure=True, samesite='None') 
-        response.set_cookie('logged_in', value="yes", secure=True, samesite='None')
+        response.set_cookie('access_token_cookie', value=jwt_token, secure=False, samesite='None') 
+        response.set_cookie('logged_in', value="yes", secure=False, samesite='None')
         return response, 200
     else:
        
