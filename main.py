@@ -41,6 +41,7 @@ app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_COOKIE_SAMESITE"] = "None"
+app.config["JWT_COOKIE_DOMAIN"] = ".vercel.com"
 jwt = JWTManager(app)
 
 GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
@@ -177,8 +178,8 @@ def login():
     if user is not None:
         jwt_token = create_access_token(identity=user_info['email'])  
         response = jsonify(user=user_info)
-        response.set_cookie('access_token_cookie', value=jwt_token, secure=True, samesite='None', domain='test-debate-frontend-update-deploy.vercel.app')
-        response.set_cookie('logged_in', value="yes", secure=True, samesite='None', domain='test-debate-frontend-update-deploy.vercel.app')
+        response.set_cookie('access_token_cookie', value=jwt_token, secure=True, samesite='None', domain=".vercel.com")
+        response.set_cookie('logged_in', value="yes", secure=True, samesite='None', domain=".vercel.com")
         return response, 200
     else:
        
@@ -206,8 +207,8 @@ def refresh_expiring_jwts(response):
 def logout():
     response = jsonify({"msg": "logout successful"})
     unset_jwt_cookies(response)
-    response.delete_cookie('access_token_cookie', samesite='None')
-    response.delete_cookie('logged_in', samesite='None')
+    # response.delete_cookie('access_token_cookie')
+    response.delete_cookie('logged_in')
     return response, 200
 
 @app.route("/protected", methods=["GET"])
