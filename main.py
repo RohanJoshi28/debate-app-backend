@@ -177,8 +177,8 @@ def login():
     if user is not None:
         jwt_token = create_access_token(identity=user_info['email'])  
         response = jsonify(user=user_info)
-        response.set_cookie('access_token_cookie', value=jwt_token, secure=True, samesite='None', domain='debate-app-backend.onrender.com')
-        response.set_cookie('logged_in', value="yes", secure=True, samesite='None', domain='debate-app-backend.onrender.com')
+        response.set_cookie('access_token_cookie', value=jwt_token, secure=True, samesite='None', domain='test-debate-frontend-update-deploy.vercel.app')
+        response.set_cookie('logged_in', value="yes", secure=True, samesite='None', domain='test-debate-frontend-update-deploy.vercel.app')
         return response, 200
     else:
        
