@@ -31,7 +31,7 @@ db = SQLAlchemy(app)
 app.app_context().push()
 # CORS(app, origins=['http://localhost:3000'], supports_credentials=True)
 # CORS(app, origins=['http://localhost:3000', 'https://test-debate-frontend-update-deploy.onrender.com', 'https://debate-app-backend.onrender.com'], supports_credentials=True)
-CORS(app, resources={r"/*": {"origins": "https://rohanjoshi.dev", "supports_credentials": True}})
+CORS(app, resources={r"/*": {"origins": "https://www.rohanjoshi.dev", "supports_credentials": True}})
 
 migrate = Migrate(app, db)
 
