@@ -2,7 +2,7 @@ import os
 import subprocess
 
 import requests
-from flask import Flask, jsonify, request, Response
+from flask import Flask, jsonify, request, Response, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -153,9 +153,12 @@ create_initial_user()
 #         return res
 
 
-@app.errorhandler(404)
-def not_found(e):
-    return app.send_static_file('index.html')
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+    return render_template('index.html')
+
+
 @app.route('/', methods=['GET'])
 def hello_world():
     cmd = ['java', '-cp', '.', 'helloworld']
