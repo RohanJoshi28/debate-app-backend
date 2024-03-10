@@ -106,6 +106,8 @@ tournament_school = db.Table(
 
 db.create_all()
 
+#db model creation tests
+"""
 if RequestCount.query.get(1) is None:
     new_counter = RequestCount(id=1, count=0)
     db.session.add(new_counter)
@@ -131,6 +133,7 @@ tournament.schools.append(school1)
 tournament.schools.append(school2)
 tournament.schools.append(school3)
 db.session.commit()
+"""
 
 def create_initial_user():
     # Add the user if not already present in the database
