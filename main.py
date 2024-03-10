@@ -152,7 +152,7 @@ create_initial_user()
     
 @app.route('/', methods=['GET'])
 def hello_world():
-    cmd = ['chmod +x ./jre/bin/java', '-cp', '.', 'helloworld']
+    cmd = ['chmod +x ./jdk-21.0.2/bin/java', '-cp', '.', 'helloworld']
 
     # Start the Java process
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
