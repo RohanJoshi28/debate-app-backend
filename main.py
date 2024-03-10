@@ -137,9 +137,9 @@ db.session.commit()
 
 def create_initial_user():
     # Add the user if not already present in the database
-    existing_user = User.query.filter_by(email='joshkim771@gmail.com').first()
+    existing_user = User.query.filter_by(email='rjoshi6@gmail.com').first()
     if not existing_user:
-        new_user = User(email='joshkim771@gmail.com', name='Josh Kim')
+        new_user = User(email='rjoshi6@gmail.com', name='Rohan Joshi')
         db.session.add(new_user)
         db.session.commit()
         
