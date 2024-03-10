@@ -2,7 +2,7 @@ import os
 import subprocess
 
 import requests
-from flask import Flask, jsonify, request, Response
+from flask import Flask, jsonify, request, Response, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -29,7 +29,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 
 app.app_context().push()
-CORS(app, origins=['http://localhost:3000'], supports_credentials=True)
+# CORS(app, origins=['http://localhost:3000'], supports_credentials=True)
+# CORS(app, origins=['http://localhost:3000', 'https://test-debate-frontend-update-deploy.onrender.com', 'https://debate-app-backend.onrender.com'], supports_credentials=True)
+CORS(app, resources={r"/*": {"origins": "https://www.rohanjoshi.dev", "supports_credentials": True}})
 
 migrate = Migrate(app, db)
 
@@ -39,6 +41,8 @@ app.config["JWT_COOKIE_SECURE"] = True
 app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+app.config["JWT_COOKIE_SAMESITE"] = "None"
+app.config["JWT_COOKIE_DOMAIN"] = "rohanjoshi.dev"
 jwt = JWTManager(app)
 
 GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
@@ -102,6 +106,8 @@ tournament_school = db.Table(
 
 db.create_all()
 
+#db model creation tests
+"""
 if RequestCount.query.get(1) is None:
     new_counter = RequestCount(id=1, count=0)
     db.session.add(new_counter)
@@ -127,6 +133,17 @@ tournament.schools.append(school1)
 tournament.schools.append(school2)
 tournament.schools.append(school3)
 db.session.commit()
+"""
+
+def create_initial_user():
+    # Add the user if not already present in the database
+    existing_user = User.query.filter_by(email='joshkim771@gmail.com').first()
+    if not existing_user:
+        new_user = User(email='joshkim771@gmail.com', name='Joshua Kim')
+        db.session.add(new_user)
+        db.session.commit()
+        
+create_initial_user()
 
 # @app.before_request
 # def handle_preflight():
@@ -134,10 +151,35 @@ db.session.commit()
 #         res = Response()
 #         res.headers['Access-Control-Allow-Credentials'] = 'true'
 #         return res
-    
+
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
+    return render_template('index.html')
+
+
 @app.route('/', methods=['GET'])
 def hello_world():
-    return "hello world"
+    cmd = ['java', '-cp', '.', 'helloworld']
+
+    # Start the Java process
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    # Send the input data and read the output
+    output, errors = process.communicate()
+
+
+    process.stdout.close()
+    process.stderr.close()
+
+    # Wait for the process to finish
+    process.wait()
+
+    # Check for errors
+    if process.returncode != 0:
+        return jsonify({"error": "Java program execution failed", "details": errors}), 500
+    return jsonify({"output": output}), 200
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -160,13 +202,13 @@ def login():
     print(user_info['email'])
     #check if user is in database, if not add the user 
     #FYI FOR LATER ON: MAYBE ONLY ALLOW LOGIN IF USER IS AN EXISTING USER; BC ONLY ADMINS CAN ACCESS
-    user = User.query.filter_by(email=user_info['email'])
-    
-    if user != None:
+    user = User.query.filter_by(email=user_info['email']).first()
+
+    if user is not None:
         jwt_token = create_access_token(identity=user_info['email'])  
         response = jsonify(user=user_info)
-        response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
-        response.set_cookie('logged_in', value="yes", secure=True)
+        response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
+        # response.set_cookie('logged_in', value="yes", secure=True, httponly=True, samesite='None', domain="test-debate-frontend-update-deploy.onrender.com")
         return response, 200
     else:
        
@@ -194,6 +236,7 @@ def refresh_expiring_jwts(response):
 def logout():
     response = jsonify({"msg": "logout successful"})
     unset_jwt_cookies(response)
+    response.delete_cookie('access_token_cookie')
     response.delete_cookie('logged_in')
     return response, 200
 
@@ -234,7 +277,7 @@ def save_email():
     from_email='testdebateteamapp@gmail.com',
     to_emails=email,
     subject='Welcome to the Debate Team Dashboard!',
-    html_content='<p>Hi, ' + name + '!</p><p>You were added as an admin to the Debate Team Dashboard.</p><strong>To access the dashboard, go to: URL :)</strong>')
+    html_content='<p>Hi, ' + name + '!</p><p>You were added as an admin to the Debate Team Dashboard.</p><strong>To access the dashboard, go to: rohanjoshi.dev :)</strong>')
     
     try:
         sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
