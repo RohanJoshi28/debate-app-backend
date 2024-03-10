@@ -105,10 +105,17 @@ public class algorithm2 {
     }
     
     public static String[] roundjv(int numMatches, debater[][] players, debater[][] judges, String[] prev, debater[][] playerCopy, debater[][] judgesCopy){
+        long startTime = System.currentTimeMillis();
+        long twentySeconds = 20*1000;
         String[] match = new String[numMatches];
         int pos = players.length-1;
         
         for(int i = 0; i<numMatches; i++){
+            if(System.currentTimeMillis()-startTime>twentySeconds){
+                System.out.println("Match Failed");
+                String[] failedTest = {"Test Failed"};
+                return failedTest;
+            }
             if(!allUsed(players[pos])){
                 boolean notUsed = false;
                 for(int j = 0; j<players[pos].length; j++){
@@ -170,7 +177,11 @@ public class algorithm2 {
         int timeSinceMatch = 0;
 
         for(int i = 0; i<numMatches; i++){
-
+            if(System.currentTimeMillis()-startTime>twentySeconds){
+                System.out.println("Match Failed");
+                String[] failedTest = {"Test Failed"};
+                return failedTest;
+            }
             if(players[pos].length>0&&allUsed(players[pos])){
                 String matched = "";
                 for(int l = 0; l < match.length; l++){
@@ -276,6 +287,11 @@ public class algorithm2 {
         pos = judges.length-1;
         //System.out.println("j");
         for(int i = 0; i < numMatches; i++){
+            if(System.currentTimeMillis()-startTime>twentySeconds){
+                System.out.println("Match Failed");
+                String[] failedTest = {"Test Failed"};
+                return failedTest;
+            }
             // if(prev.length>0&&timeSenseMatch<6){
             //     System.out.println(i+" "+timeSenseMatch);
             //     for(int j = 0; j < prev.length; j++){
