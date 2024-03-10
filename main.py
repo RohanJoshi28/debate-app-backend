@@ -489,5 +489,33 @@ def add_tournament():
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
     
+    
+@app.route('/add_school', methods=['POST'])
+def add_school():
+    data = request.get_json()
+    try:
+        new_school = School(
+            name=data['name'],
+            num_debaters=data['num_debaters'],
+            num_judges=data['num_judges']
+        )
+        db.session.add(new_school)
+        db.session.commit()
+
+        return jsonify({"message": "School added successfully", "school_id": new_school.id}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    
+@app.route("/delete_school", methods=["POST"])
+def deleteschool():
+    name = request.get_json()['name']
+    school = School.query.filter_by(name=name).first()
+    if school != None:
+        db.session.delete(school)
+        db.session.commit()
+    return "Success", 200
+    
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
