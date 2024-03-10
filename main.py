@@ -200,7 +200,7 @@ def login():
     if user is not None:
         jwt_token = create_access_token(identity=user_info['email'])  
         response = jsonify(user=user_info)
-        response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain=".test-debate-frontend-update-deploy.onrender.com")
+        response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
         # response.set_cookie('logged_in', value="yes", secure=True, httponly=True, samesite='None', domain="test-debate-frontend-update-deploy.onrender.com")
         return response, 200
     else:
@@ -270,7 +270,7 @@ def save_email():
     from_email='testdebateteamapp@gmail.com',
     to_emails=email,
     subject='Welcome to the Debate Team Dashboard!',
-    html_content='<p>Hi, ' + name + '!</p><p>You were added as an admin to the Debate Team Dashboard.</p><strong>To access the dashboard, go to: debatedashboard.vercel.com :)</strong>')
+    html_content='<p>Hi, ' + name + '!</p><p>You were added as an admin to the Debate Team Dashboard.</p><strong>To access the dashboard, go to: rohanjoshi.dev :)</strong>')
     
     try:
         sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
