@@ -23,6 +23,16 @@ from flask_migrate import Migrate
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
+import jdk
+from jdk.enums import OperatingSystem, Architecture
+
+jdk.install('11', operating_system=OperatingSystem.LINUX)
+
+import os
+jdk_version = 'jdk-11.0.19+7' #change with your version 
+os.environ['JAVA_HOME'] = '/root/.jdk/{jdk_version}'
+os.environ['PATH'] = f"{os.environ.get('PATH')}:{os.environ.get('JAVA_HOME')}/bin"
+
 import subprocess
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
