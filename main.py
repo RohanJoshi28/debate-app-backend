@@ -152,7 +152,25 @@ create_initial_user()
     
 @app.route('/', methods=['GET'])
 def hello_world():
-    return "hello world"
+    cmd = ['java', '-cp', '.', 'helloworld']
+
+    # Start the Java process
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    # Send the input data and read the output
+    output, errors = process.communicate()
+
+
+    process.stdout.close()
+    process.stderr.close()
+
+    # Wait for the process to finish
+    process.wait()
+
+    # Check for errors
+    if process.returncode != 0:
+        return jsonify({"error": "Java program execution failed", "details": errors}), 500
+    return jsonify({"output": output}), 200
 
 @app.route('/login', methods=['POST'])
 def login():
