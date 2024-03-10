@@ -38,4 +38,3 @@ urllib3==1.26.15
 Werkzeug==3.0.1
 zope.event==4.6
 zope.interface==6.0
-gunicorn==21.2.0
