@@ -137,9 +137,9 @@ db.session.commit()
 
 def create_initial_user():
     # Add the user if not already present in the database
-    existing_user = User.query.filter_by(email='rjoshi6@gmail.com').first()
+    existing_user = User.query.filter_by(email='joshkim771@gmail.com').first()
     if not existing_user:
-        new_user = User(email='rjoshi6@gmail.com', name='Rohan Joshi')
+        new_user = User(email='joshkim771@gmail.com', name='Joshua Kim')
         db.session.add(new_user)
         db.session.commit()
         
@@ -236,7 +236,7 @@ def refresh_expiring_jwts(response):
 def logout():
     response = jsonify({"msg": "logout successful"})
     unset_jwt_cookies(response)
-    # response.delete_cookie('access_token_cookie')
+    response.delete_cookie('access_token_cookie')
     response.delete_cookie('logged_in')
     return response, 200
 
