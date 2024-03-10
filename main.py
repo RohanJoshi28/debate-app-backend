@@ -151,7 +151,11 @@ create_initial_user()
 #         res = Response()
 #         res.headers['Access-Control-Allow-Credentials'] = 'true'
 #         return res
-    
+
+
+@app.errorhandler(404)
+def not_found(e):
+    return app.send_static_file('index.html')
 @app.route('/', methods=['GET'])
 def hello_world():
     cmd = ['java', '-cp', '.', 'helloworld']
