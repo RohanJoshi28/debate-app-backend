@@ -29,9 +29,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 
 app.app_context().push()
-# CORS(app, origins=['http://localhost:3000'], supports_credentials=True)
+CORS(app, origins=['http://localhost:3000'], supports_credentials=True)
 # CORS(app, origins=['http://localhost:3000', 'https://test-debate-frontend-update-deploy.onrender.com', 'https://debate-app-backend.onrender.com'], supports_credentials=True)
-CORS(app, resources={r"/*": {"origins": "https://www.rohanjoshi.dev", "supports_credentials": True}})
+# CORS(app, resources={r"/*": {"origins": "https://www.rohanjoshi.dev", "supports_credentials": True}})
 
 migrate = Migrate(app, db)
 
@@ -204,7 +204,7 @@ def login():
     #FYI FOR LATER ON: MAYBE ONLY ALLOW LOGIN IF USER IS AN EXISTING USER; BC ONLY ADMINS CAN ACCESS
     user = User.query.filter_by(email=user_info['email']).first()
 
-    if user is not None:
+    if user != None:
         jwt_token = create_access_token(identity=user_info['email'])  
         response = jsonify(user=user_info)
         response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
