@@ -236,8 +236,8 @@ def refresh_expiring_jwts(response):
 def logout():
     response = jsonify({"msg": "logout successful"})
     unset_jwt_cookies(response)
-    response.delete_cookie('access_token_cookie')
-    response.delete_cookie('logged_in')
+    response.delete_cookie('access_token_cookie', domain='.rohanjoshi.dev')
+    # response.delete_cookie('logged_in')
     return response, 200
 
 @app.route("/protected", methods=["GET"])
