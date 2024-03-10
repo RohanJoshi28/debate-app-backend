@@ -31,7 +31,7 @@ db = SQLAlchemy(app)
 app.app_context().push()
 # CORS(app, origins=['http://localhost:3000'], supports_credentials=True)
 # CORS(app, origins=['http://localhost:3000', 'https://test-debate-frontend-update-deploy.onrender.com', 'https://debate-app-backend.onrender.com'], supports_credentials=True)
-CORS(app, resources={r"/*": {"origins": "https://test-debate-frontend-update-deploy.onrender.com", "supports_credentials": True}})
+CORS(app, resources={r"/*": {"origins": "https://rohanjoshi.dev", "supports_credentials": True}})
 
 migrate = Migrate(app, db)
 
@@ -42,7 +42,7 @@ app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 app.config["JWT_COOKIE_SAMESITE"] = "None"
-app.config["JWT_COOKIE_DOMAIN"] = "test-debate-frontend-update-deploy.onrender.com"
+app.config["JWT_COOKIE_DOMAIN"] = "rohanjoshi.dev"
 jwt = JWTManager(app)
 
 GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
