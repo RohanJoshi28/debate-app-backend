@@ -23,13 +23,14 @@ from flask_migrate import Migrate
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
+
 import jdk
 from jdk.enums import OperatingSystem, Architecture
 
 jdk.install('11', operating_system=OperatingSystem.LINUX)
 
 import os
-jdk_version = 'jdk-11.0.19+7' #change with your version 
+jdk_version = 'jdk-11.0.19+7' 
 os.environ['JAVA_HOME'] = '/root/.jdk/{jdk_version}'
 os.environ['PATH'] = f"{os.environ.get('PATH')}:{os.environ.get('JAVA_HOME')}/bin"
 
@@ -164,7 +165,25 @@ create_initial_user()
     
 @app.route('/', methods=['GET'])
 def hello_world():
-    return "hello world"
+    cmd = ['java', '-cp', '.', 'helloworld']
+
+    # Start the Java process
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    # Send the input data and read the output
+    output, errors = process.communicate()
+
+
+    process.stdout.close()
+    process.stderr.close()
+
+    # Wait for the process to finish
+    process.wait()
+
+    # Check for errors
+    if process.returncode != 0:
+        return jsonify({"error": "Java program execution failed", "details": errors}), 500
+    return jsonify({"output": output}), 200
 
 @app.route('/login', methods=['POST'])
 def login():
