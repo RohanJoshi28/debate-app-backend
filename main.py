@@ -540,6 +540,29 @@ def update_partnership_ranking():
             partnership.ranking = rank
             db.session.commit()
     return "Success", 200
+
+@app.route('/deletetournament', methods=['POST'])
+def delete_tournament():
+    try:
+        data = request.get_json()
+        tournament_id = data.get('tournamentid')
+
+        if tournament_id is None:
+            return jsonify({"error": "Tournament ID not provided"}), 400
+
+        tournament = Tournament.query.get(tournament_id)
+
+        if tournament is None:
+            return jsonify({"error": "Tournament not found"}), 404
+
+        # Delete the tournament from the database
+        db.session.delete(tournament)
+        db.session.commit()
+
+        return jsonify({"message": "Tournament deleted successfully"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
