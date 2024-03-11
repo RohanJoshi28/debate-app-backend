@@ -489,7 +489,7 @@ def add_tournament():
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
     
-    ###
+    ####
 @app.route('/add_school', methods=['POST'])
 def add_school():
     data = request.get_json()
