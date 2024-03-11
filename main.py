@@ -516,6 +516,30 @@ def deleteschool():
         db.session.delete(school)
         db.session.commit()
     return "Success", 200
+
+@app.route('/updateschoolranking', methods=['POST'])
+def update_school_ranking():
+    data = request.get_json()
+    rankings = data['rankings']  # Assuming the frontend sends the updated rankings as an array
+    for rank, school_name in enumerate(rankings, start=1):
+        school = School.query.filter_by(name=school_name).first()
+        if school:
+            school.ranking = rank
+            db.session.commit()
+    return "Success", 200
+
+@app.route('/updatepartnershipranking', methods=['POST'])
+def update_partnership_ranking():
+    data = request.get_json()
+    rankings = data['rankings']  # Assuming the frontend sends the updated rankings as an array
+    for rank, partnership_info in enumerate(rankings, start=1):
+        partnership_name, school_name = partnership_info.split(' (')
+        school_name = school_name[:-1]  # Remove the trailing bracket
+        partnership = Partnership.query.filter_by(name=partnership_name).first()
+        if partnership:
+            partnership.ranking = rank
+            db.session.commit()
+    return "Success", 200
     
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
