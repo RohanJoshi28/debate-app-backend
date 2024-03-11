@@ -236,8 +236,8 @@ def refresh_expiring_jwts(response):
 def logout():
     response = jsonify({"msg": "logout successful"})
     unset_jwt_cookies(response)
-    response.delete_cookie('access_token_cookie')
-    response.delete_cookie('logged_in')
+    response.delete_cookie('access_token_cookie', domain='.rohanjoshi.dev')
+    # response.delete_cookie('logged_in')
     return response, 200
 
 @app.route("/protected", methods=["GET"])
@@ -487,6 +487,81 @@ def add_tournament():
 
     except Exception as e:
         db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    
+    ####
+@app.route('/add_school', methods=['POST'])
+def add_school():
+    data = request.get_json()
+    try:
+        new_school = School(
+            name=data['name'],
+            num_debaters=data['num_debaters'],
+            num_judges=data['num_judges']
+        )
+        db.session.add(new_school)
+        db.session.commit()
+
+        return jsonify({"message": "School added successfully", "school_id": new_school.id}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+    
+@app.route("/delete_school", methods=["POST"])
+def deleteschool():
+    name = request.get_json()['name']
+    school = School.query.filter_by(name=name).first()
+    if school != None:
+        db.session.delete(school)
+        db.session.commit()
+    return "Success", 200
+
+@app.route('/updateschoolranking', methods=['POST'])
+def update_school_ranking():
+    data = request.get_json()
+    rankings = data['rankings']
+    for rank, school_name in enumerate(rankings, start=1):
+        school = School.query.filter_by(name=school_name).first()
+        if school:
+            school.ranking = rank
+            db.session.commit()
+    return "Success", 200
+
+@app.route('/updatepartnershipranking', methods=['POST'])
+def update_partnership_ranking():
+    data = request.get_json()
+    rankings = data['rankings']
+    for rank, partnership_info in enumerate(rankings, start=1):
+        partnership_name, school_name = partnership_info.split(' (')
+        school_name = school_name[:-1]  # Remove the trailing bracket
+        partnership = Partnership.query.filter_by(name=partnership_name).first()
+        if partnership:
+            partnership.ranking = rank
+            db.session.commit()
+    return "Success", 200
+
+@app.route('/deletetournament', methods=['POST'])
+def delete_tournament():
+    try:
+        data = request.get_json()
+        tournament_id = data.get('tournamentid')
+
+        if tournament_id is None:
+            return jsonify({"error": "Tournament ID not provided"}), 400
+
+        tournament = Tournament.query.get(tournament_id)
+
+        if tournament is None:
+            return jsonify({"error": "Tournament not found"}), 404
+
+        # Delete the tournament from the database
+        db.session.delete(tournament)
+        db.session.commit()
+
+        return jsonify({"message": "Tournament deleted successfully"}), 200
+
+    except Exception as e:
         return jsonify({"error": str(e)}), 500
     
 if __name__ == '__main__':
