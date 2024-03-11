@@ -287,11 +287,12 @@ public class algorithm2 {
         pos = judges.length-1;
         //System.out.println("j");
         for(int i = 0; i < numMatches; i++){
-            if(System.currentTimeMillis()-startTime>twentySeconds){
-                System.out.println("Match Failed");
-                String[] failedTest = {"Test Failed"};
-                return failedTest;
-            }
+            // if(System.currentTimeMillis()-startTime>twentySeconds){
+            //     System.out.println("Match Failed");
+            //     String[] failedTest = {"Test Failed"};
+            //     return failedTest;
+            // }
+
             // if(prev.length>0&&timeSenseMatch<6){
             //     System.out.println(i+" "+timeSenseMatch);
             //     for(int j = 0; j < prev.length; j++){
@@ -360,6 +361,15 @@ public class algorithm2 {
                                     matchMade = true;
                                     judges[pos][j].used = true;
                                     judgesToUse--;
+                                    if(match[i].lastIndexOf(judges[pos][j].team+"~")!=(match[i].indexOf(judges[pos][j].team+"~"))){
+                                        if(match[i].lastIndexOf(judges[pos][j].team+"~")!=(match[i].indexOf(judges[pos][j].team+"~"))){
+                                            if(match[i].split("\\|")[0].split("~")[0].equals(judges[pos][j].team)){
+                                                players[Integer.parseInt(match[i].split("\\|")[1].split("~")[0])][Integer.parseInt(match[i].split("\\|")[1].split("~")[1])].judgeSupport = true;
+                                            }else{
+                                                players[Integer.parseInt(match[i].split("\\|")[0].split("~")[0])][Integer.parseInt(match[i].split("\\|")[0].split("~")[1])].judgeSupport = true;
+                                            }  
+                                        } 
+                                    }
                                     break;
                                 }
                             }
@@ -367,6 +377,101 @@ public class algorithm2 {
                         }
                         //check if a player should recieve support, if so match and break/continue
                         //gonna come back later lol
+                        String pair1 = match[i].split("\\|")[0];
+                        String pair2 = match[i].split("\\|")[1];
+                        if(players[Integer.parseInt(pair1.split("~")[0])][Integer.parseInt(pair1.split("~")[1])].judgeSupport){
+                            int temp = pos;
+                            pos = Integer.parseInt(pair1.split("~")[0]);
+                            if(judges[pos].length>0&&allUsed(judges[pos])){
+                                String matched = "";
+                                for(int l = 0; l < match.length; l++){
+                                    matched+=match[l];
+                                }
+                                for(int b = 0; b<judges[pos].length; b++){
+                                    String check = "J"+judges[pos][b].team+"~"+judges[pos][b].number;
+                                    if(matched.contains(check)){
+                                        judges[pos][b].used = true;
+                                    }else{
+                                        judges[pos][b].used = false;
+                                        judgesToUse++;
+                                    }
+                                }
+                            }
+                            if(!allUsed(judges[pos])){
+                                for(int m = 0; m<judges[pos].length; m++){
+                                    foundPrev = false;
+                                    for(int k = 0; k<prev.length; k++){
+                                        if(prev[k].split("\\|")[0].equals(match[i].split("\\|")[0])||
+                                        prev[k].split("\\|")[1].equals(match[i].split("\\|")[0])||
+                                        prev[k].split("\\|")[0].equals(match[i].split("\\|")[1])||
+                                        prev[k].split("\\|")[1].equals(match[i].split("\\|")[1])){
+                                            if(prev[k].contains("J"+judges[pos][m].team+"~"+judges[pos][m].number)){
+                                                foundPrev = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if(!foundPrev){
+                                        judges[pos][m].used = true;
+                                        matchMade = true;
+                                        timeSinceMatch = 0;
+                                        judgesToUse--;
+                                        match[i]+="J"+judges[pos][m].team+"~"+judges[pos][m].number;
+                                        break;
+                                    }
+                                }
+                            }
+                            pos = temp;
+                            if(!foundPrev){
+                                break;
+                            }
+                        }else if(players[Integer.parseInt(pair2.split("~")[0])][Integer.parseInt(pair2.split("~")[1])].judgeSupport){
+                            int temp = pos;
+                            pos = Integer.parseInt(pair2.split("~")[0]);
+                            if(judges[pos].length>0&&allUsed(judges[pos])){
+                                String matched = "";
+                                for(int l = 0; l < match.length; l++){
+                                    matched+=match[l];
+                                }
+                                for(int b = 0; b<judges[pos].length; b++){
+                                    String check = "J"+judges[pos][b].team+"~"+judges[pos][b].number;
+                                    if(matched.contains(check)){
+                                        judges[pos][b].used = true;
+                                    }else{
+                                        judges[pos][b].used = false;
+                                        judgesToUse++;
+                                    }
+                                }
+                            }
+                            if(!allUsed(judges[pos])){
+                                for(int m = 0; m<judges[pos].length; m++){
+                                    foundPrev = false;
+                                    for(int k = 0; k<prev.length; k++){
+                                        if(prev[k].split("\\|")[0].equals(match[i].split("\\|")[0])||
+                                        prev[k].split("\\|")[1].equals(match[i].split("\\|")[0])||
+                                        prev[k].split("\\|")[0].equals(match[i].split("\\|")[1])||
+                                        prev[k].split("\\|")[1].equals(match[i].split("\\|")[1])){
+                                            if(prev[k].contains("J"+judges[pos][m].team+"~"+judges[pos][m].number)){
+                                                foundPrev = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    if(!foundPrev){
+                                        judges[pos][m].used = true;
+                                        matchMade = true;
+                                        timeSinceMatch = 0;
+                                        judgesToUse--;
+                                        match[i]+="J"+judges[pos][m].team+"~"+judges[pos][m].number;
+                                        break;
+                                    }
+                                }
+                            }
+                            pos = temp;
+                            if(!foundPrev){
+                                break;
+                            }
+                        }
                     }
 
                     //given a circulation without match has occured, swap if judge matches a team
@@ -378,6 +483,15 @@ public class algorithm2 {
                             matchMade = true;
                             judges[pos][j].used = true;
                             judgesToUse--;
+                            if(match[i].lastIndexOf(judges[pos][j].team+"~")!=(match[i].indexOf(judges[pos][j].team+"~"))){
+                                if(match[i].lastIndexOf(judges[pos][j].team+"~")!=(match[i].indexOf(judges[pos][j].team+"~"))){
+                                    if(match[i].split("\\|")[0].split("~")[0].equals(judges[pos][j].team)){
+                                        players[Integer.parseInt(match[i].split("\\|")[1].split("~")[0])][Integer.parseInt(match[i].split("\\|")[1].split("~")[1])].judgeSupport = true;
+                                    }else{
+                                        players[Integer.parseInt(match[i].split("\\|")[0].split("~")[0])][Integer.parseInt(match[i].split("\\|")[0].split("~")[1])].judgeSupport = true;
+                                    }  
+                                }  
+                            }
                             break;
                         }
                     }
@@ -389,6 +503,13 @@ public class algorithm2 {
                         timeSinceMatch = 0;
                         judgesToUse--;
                         match[i]+="J"+judges[pos][j].team+"~"+judges[pos][j].number;
+                        if(match[i].lastIndexOf(judges[pos][j].team+"~")!=(match[i].indexOf(judges[pos][j].team+"~"))){
+                            if(match[i].split("\\|")[0].split("~")[0].equals(judges[pos][j].team)){
+                                players[Integer.parseInt(match[i].split("\\|")[1].split("~")[0])][Integer.parseInt(match[i].split("\\|")[1].split("~")[1])].judgeSupport = true;
+                            }else{
+                                players[Integer.parseInt(match[i].split("\\|")[0].split("~")[0])][Integer.parseInt(match[i].split("\\|")[0].split("~")[1])].judgeSupport = true;
+                            }  
+                        }
                         break;
                     }
                 }
