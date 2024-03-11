@@ -520,7 +520,7 @@ def deleteschool():
 @app.route('/updateschoolranking', methods=['POST'])
 def update_school_ranking():
     data = request.get_json()
-    rankings = data['rankings']  # Assuming the frontend sends the updated rankings as an array
+    rankings = data['rankings']
     for rank, school_name in enumerate(rankings, start=1):
         school = School.query.filter_by(name=school_name).first()
         if school:
@@ -531,7 +531,7 @@ def update_school_ranking():
 @app.route('/updatepartnershipranking', methods=['POST'])
 def update_partnership_ranking():
     data = request.get_json()
-    rankings = data['rankings']  # Assuming the frontend sends the updated rankings as an array
+    rankings = data['rankings']
     for rank, partnership_info in enumerate(rankings, start=1):
         partnership_name, school_name = partnership_info.split(' (')
         school_name = school_name[:-1]  # Remove the trailing bracket
