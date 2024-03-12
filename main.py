@@ -309,6 +309,7 @@ def get_users():
         user_data.append(user_info)
     return jsonify(user_data),200
 
+#
 @app.route('/schools', methods=['GET'])
 def get_schools():
     schools = School.query.all()
