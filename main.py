@@ -325,14 +325,14 @@ def increment():
 #Route to increment request count
 
 @app.route('/save_admin_email', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def save_admin_email():
     
-    jwt_token = request.cookies.get('access_token_cookie')
-    current_user = get_jwt_identity()
-    admin = isAdmin(current_user)
-    if not admin:
-        return "Unauthorized", 401
+    # jwt_token = request.cookies.get('access_token_cookie')
+    # current_user = get_jwt_identity()
+    # admin = isAdmin(current_user)
+    # if not admin:
+    #     return "Unauthorized", 401
     
     name = request.form['name']
     email = request.form['email']
@@ -364,14 +364,14 @@ def save_admin_email():
 
 
 @app.route('/save_coach_email', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def save_coach_email():
     
-    jwt_token = request.cookies.get('access_token_cookie')
-    current_user = get_jwt_identity()
-    admin = isAdmin(current_user)
-    if not admin:
-        return "Unauthorized", 401
+    # jwt_token = request.cookies.get('access_token_cookie')
+    # current_user = get_jwt_identity()
+    # admin = isAdmin(current_user)
+    # if not admin:
+    #     return "Unauthorized", 401
     
     name = request.form['name']
     email = request.form['email']
@@ -405,14 +405,14 @@ def save_coach_email():
 
 
 @app.route("/deleteuser", methods=["POST"])
-@jwt_required()
+# @jwt_required()
 def deleteuser():
     
-    jwt_token = request.cookies.get('access_token_cookie')
-    current_user = get_jwt_identity()
-    admin = isAdmin(current_user)
-    if not admin:
-        return "Unauthorized", 401
+    # jwt_token = request.cookies.get('access_token_cookie')
+    # current_user = get_jwt_identity()
+    # admin = isAdmin(current_user)
+    # if not admin:
+    #     return "Unauthorized", 401
     # email = request.form['email']
     email = request.get_json()['email']
     user = User.query.filter_by(email=email).first()
@@ -423,13 +423,13 @@ def deleteuser():
 
 
 @app.route("/deletecoach", methods=["POST"])
-@jwt_required()
+# @jwt_required()
 def deletecoach():
-    jwt_token = request.cookies.get('access_token_cookie')
-    current_user = get_jwt_identity()
-    admin = isAdmin(current_user)
-    if not admin:
-        return "Unauthorized", 401
+    # jwt_token = request.cookies.get('access_token_cookie')
+    # current_user = get_jwt_identity()
+    # admin = isAdmin(current_user)
+    # if not admin:
+    #     return "Unauthorized", 401
     email = request.form['email']
     email = request.get_json()['email']
     user = Coach.query.filter_by(email=email).first()
@@ -439,13 +439,13 @@ def deletecoach():
     return "Success", 200
 
 @app.route('/users', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_users():
-    jwt_token = request.cookies.get('access_token_cookie')
-    current_user = get_jwt_identity()
-    admin = isAdmin(current_user)
-    if not admin:
-        return "Unauthorized", 401
+    # jwt_token = request.cookies.get('access_token_cookie')
+    # current_user = get_jwt_identity()
+    # admin = isAdmin(current_user)
+    # if not admin:
+    #     return "Unauthorized", 401
     
     users = User.query.all()
     user_data = []
@@ -456,13 +456,13 @@ def get_users():
 
 
 @app.route('/coaches', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_coaches():
-    jwt_token = request.cookies.get('access_token_cookie')
-    current_user = get_jwt_identity()
-    admin = isAdmin(current_user)
-    if not admin:
-        return "Unauthorized", 401
+    # jwt_token = request.cookies.get('access_token_cookie')
+    # current_user = get_jwt_identity()
+    # admin = isAdmin(current_user)
+    # if not admin:
+    #     return "Unauthorized", 401
     users = Coach.query.all()
     user_data = []
     for user in users:
@@ -472,13 +472,13 @@ def get_coaches():
 
 
 @app.route('/admins', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_admins():
-    jwt_token = request.cookies.get('access_token_cookie')
-    current_user = get_jwt_identity()
-    admin = isAdmin(current_user)
-    if not admin:
-        return "Unauthorized", 401
+    # jwt_token = request.cookies.get('access_token_cookie')
+    # current_user = get_jwt_identity()
+    # admin = isAdmin(current_user)
+    # if not admin:
+    #     return "Unauthorized", 401
     
     users = Admin.query.all()
     user_data = []
@@ -488,7 +488,7 @@ def get_admins():
     return jsonify(user_data),200
 
 @app.route('/schools', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_schools():
     schools = School.query.all()
     school_data = [{
@@ -500,7 +500,7 @@ def get_schools():
     return jsonify(school_data), 200
 
 @app.route('/tournaments')
-@jwt_required()
+# @jwt_required()
 def get_tournaments():
 
     tournaments = Tournament.query.all()
@@ -528,7 +528,7 @@ def get_tournaments():
     return jsonify(tournaments_list), 200
 
 @app.route('/tournament/<int:tournament_id>')
-@jwt_required()
+# @jwt_required()
 def get_tournament(tournament_id):
     tournament = Tournament.query.get(tournament_id)
     if tournament is None:
@@ -561,7 +561,7 @@ def get_tournament(tournament_id):
 
 
 @app.route('/tournamentschedule/<int:tournament_id>', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_tournament_schedule(tournament_id):
     # Fetch the tournament
     tournament = Tournament.query.get(tournament_id)
@@ -610,15 +610,15 @@ def get_tournament_schedule(tournament_id):
     return jsonify(matches)
 
 @app.route('/updateschool/<int:school_id>', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def update_school(school_id):
     
-    jwt_token = request.cookies.get('access_token_cookie')
-    current_user = get_jwt_identity()
-    admin = isAdmin(current_user)
-    coach = isCoach(current_user)
-    if not admin and not coach:
-        return "Unauthorized", 401
+    # jwt_token = request.cookies.get('access_token_cookie')
+    # current_user = get_jwt_identity()
+    # admin = isAdmin(current_user)
+    # coach = isCoach(current_user)
+    # if not admin and not coach:
+    #     return "Unauthorized", 401
     
     school = School.query.get(school_id)
     if not school:
@@ -639,14 +639,14 @@ def update_school(school_id):
     return "Success", 200
 
 @app.route('/updateschoolcoach/<int:school_id>', methods=['PUT'])
-@jwt_required()
+# @jwt_required()
 def update_school_coach(school_id):
-    jwt_token = request.cookies.get('access_token_cookie')
-    current_user = get_jwt_identity()
-    admin = isAdmin(current_user)
+    # jwt_token = request.cookies.get('access_token_cookie')
+    # current_user = get_jwt_identity()
+    # admin = isAdmin(current_user)
 
-    if not admin:
-        return "Unauthorized", 401
+    # if not admin:
+    #     return "Unauthorized", 401
     school = School.query.get(school_id)
     if not school:
         return jsonify({"message": "School not found"}), 404
@@ -665,14 +665,14 @@ def update_school_coach(school_id):
         return jsonify({"message": "Coach ID not provided"}), 400
     
 @app.route('/add_tournament', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def add_tournament():
-    jwt_token = request.cookies.get('access_token_cookie')
-    current_user = get_jwt_identity()
-    admin = isAdmin(current_user)
-    coach = isCoach(current_user)
-    if not admin and not coach:
-        return "Unauthorized", 401
+    # jwt_token = request.cookies.get('access_token_cookie')
+    # current_user = get_jwt_identity()
+    # admin = isAdmin(current_user)
+    # coach = isCoach(current_user)
+    # if not admin and not coach:
+    #     return "Unauthorized", 401
     data = request.get_json()
     try:
         tournament_date = datetime.strptime(data['datetime'], '%Y-%m-%d').replace(hour=0, minute=0)
@@ -696,13 +696,13 @@ def add_tournament():
     
     ####
 @app.route('/add_school', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def add_school():
-    jwt_token = request.cookies.get('access_token_cookie')
-    current_user = get_jwt_identity()
-    admin = isAdmin(current_user)
-    if not admin:
-        return "Unauthorized", 401
+    # jwt_token = request.cookies.get('access_token_cookie')
+    # current_user = get_jwt_identity()
+    # admin = isAdmin(current_user)
+    # if not admin:
+    #     return "Unauthorized", 401
     data = request.get_json()
     try:
         new_school = School(
@@ -720,13 +720,13 @@ def add_school():
         return jsonify({"error": str(e)}), 500
     
 @app.route("/delete_school", methods=["POST"])
-@jwt_required()
+# @jwt_required()
 def deleteschool():
-    jwt_token = request.cookies.get('access_token_cookie')
-    current_user = get_jwt_identity()
-    admin = isAdmin(current_user)
-    if not admin:
-        return "Unauthorized", 401
+    # jwt_token = request.cookies.get('access_token_cookie')
+    # current_user = get_jwt_identity()
+    # admin = isAdmin(current_user)
+    # if not admin:
+    #     return "Unauthorized", 401
     name = request.get_json()['name']
     school = School.query.filter_by(name=name).first()
     if school != None:
@@ -735,13 +735,13 @@ def deleteschool():
     return "Success", 200
 
 @app.route('/updateschoolranking', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def update_school_ranking():
-    jwt_token = request.cookies.get('access_token_cookie')
-    current_user = get_jwt_identity()
-    admin = isAdmin(current_user)
-    if not admin:
-        return "Unauthorized", 401
+    # jwt_token = request.cookies.get('access_token_cookie')
+    # current_user = get_jwt_identity()
+    # admin = isAdmin(current_user)
+    # if not admin:
+    #     return "Unauthorized", 401
     data = request.get_json()
     rankings = data['rankings']
     for rank, school_name in enumerate(rankings, start=1):
@@ -752,13 +752,13 @@ def update_school_ranking():
     return "Success", 200
 
 @app.route('/updatepartnershipranking', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def update_partnership_ranking():
-    jwt_token = request.cookies.get('access_token_cookie')
-    current_user = get_jwt_identity()
-    admin = isAdmin(current_user)
-    if not admin:
-        return "Unauthorized", 401
+    # jwt_token = request.cookies.get('access_token_cookie')
+    # current_user = get_jwt_identity()
+    # admin = isAdmin(current_user)
+    # if not admin:
+    #     return "Unauthorized", 401
     data = request.get_json()
     rankings = data['rankings']
     for rank, partnership_info in enumerate(rankings, start=1):
@@ -771,14 +771,14 @@ def update_partnership_ranking():
     return "Success", 200
 
 @app.route('/deletetournament', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def delete_tournament():
-    jwt_token = request.cookies.get('access_token_cookie')
-    current_user = get_jwt_identity()
-    admin = isAdmin(current_user)
-    coach = isCoach(current_user)
-    if not admin and not coach:
-        return "Unauthorized", 401
+    # jwt_token = request.cookies.get('access_token_cookie')
+    # current_user = get_jwt_identity()
+    # admin = isAdmin(current_user)
+    # coach = isCoach(current_user)
+    # if not admin and not coach:
+    #     return "Unauthorized", 401
     try:
         data = request.get_json()
         tournament_id = data.get('tournamentid')
