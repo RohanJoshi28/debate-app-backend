@@ -41,8 +41,8 @@ app.config["JWT_COOKIE_SECURE"] = True
 app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
-app.config["JWT_COOKIE_SAMESITE"] = "None"
-app.config["JWT_COOKIE_DOMAIN"] = "rohanjoshi.dev"
+# app.config["JWT_COOKIE_SAMESITE"] = "None"
+# app.config["JWT_COOKIE_DOMAIN"] = "rohanjoshi.dev"
 jwt = JWTManager(app)
 
 GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
@@ -215,10 +215,14 @@ def login():
     }
     user_info = requests.get('https://www.googleapis.com/oauth2/v3/userinfo', headers=headers).json()
 
-    print(user_info['email'])
     #check if user is in database, if not add the user 
     #FYI FOR LATER ON: MAYBE ONLY ALLOW LOGIN IF USER IS AN EXISTING USER; BC ONLY ADMINS CAN ACCESS
+    
+    email_domain = "*@" + user_info['email'].split('@')[-1]
+    
     user = User.query.filter_by(email=user_info['email']).first()
+    if (user is None):
+        user = User.query.filter_by(email=email_domain).first()
     coach = Coach.query.filter_by(email=user_info['email']).first()
     admin = Admin.query.filter_by(email=user_info['email']).first()
     if (user is not None) or (coach is not None) or (admin is not None):
@@ -403,7 +407,43 @@ def save_coach_email():
         print(e.message)
     return "Success", 200
 
+@app.route('/save_user_email', methods=['POST'])
+# @jwt_required()
+def save_user_email():
+    
+    # jwt_token = request.cookies.get('access_token_cookie')
+    # current_user = get_jwt_identity()
+    # admin = isAdmin(current_user)
+    # if not admin:
+    #     return "Unauthorized", 401
+    
+    name = request.form['name']
+    email = request.form['email']
 
+    user = User.query.filter_by(email=email).first()
+    if user == None:
+        user = User(name=name, email=email)
+        db.session.add(user)
+        db.session.commit()
+    else:
+        user.name = name
+        db.session.commit()
+    
+    # message = Mail(
+    # from_email='testdebateteamapp@gmail.com',
+    # to_emails=email,
+    # subject='Welcome to the Debate Team Dashboard!',
+    # html_content='<p>Hi, ' + name + '!</p><p>You were added as a user to the Debate Team Dashboard.</p><strong>To access the dashboard, go to: rohanjoshi.dev :)</strong>')
+    
+    # try:
+    #     sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+    #     response = sg.send(message)
+    #     print(response.status_code)
+    #     print(response.body)
+    #     print(response.headers)
+    # except Exception as e:
+    #     print(e.message)
+    return "Success", 200
 @app.route("/deleteuser", methods=["POST"])
 # @jwt_required()
 def deleteuser():
@@ -416,8 +456,12 @@ def deleteuser():
     # email = request.form['email']
     email = request.get_json()['email']
     user = User.query.filter_by(email=email).first()
+    coach = Coach.query.filter_by(email=email).first()
     if user != None:
         db.session.delete(user)
+        db.session.commit()
+    if coach != None:
+        db.session.delete(coach)
         db.session.commit()
     return "Success", 200
 
