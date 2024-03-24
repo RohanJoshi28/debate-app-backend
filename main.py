@@ -242,6 +242,7 @@ def login():
         response = jsonify(user=user_info, role=role)
         response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
         # response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
+        #
         return response, 200
     else:
        #
