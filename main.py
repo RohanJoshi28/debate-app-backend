@@ -23,6 +23,9 @@ from flask_migrate import Migrate
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
+from wtforms import StringField, IntegerField, SubmitField, validators
+from wtforms.validators import DataRequired
+
 import subprocess
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -381,7 +384,7 @@ def save_coach_email():
     name = request.form['name']
     email = request.form['email']
     school = request.form['school']
-    
+
     #get school id
     coach = Coach.query.filter_by(email=email).first()
     if coach == None:
@@ -740,6 +743,13 @@ def add_tournament():
         return jsonify({"error": str(e)}), 500
     
     ####
+
+class AddSchoolForm(FlaskForm):
+    name = StringField('School Name', validators=[DataRequired()])
+    num_debaters = IntegerField('Number of Debaters', validators=[DataRequired()])
+    num_judges = IntegerField('Number of Judges', validators=[DataRequired()])
+    submit = SubmitField('Add School')
+
 @app.route('/add_school', methods=['POST'])
 # @jwt_required()
 def add_school():
