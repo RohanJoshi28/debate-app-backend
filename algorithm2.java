@@ -38,6 +38,16 @@ public class algorithm2 {
         int judgeNum = sum(judges);
         if(playNum/2>judgeNum){//should be players/2
             numMatches = judgeNum;
+            int i = 0;
+            // while(sum(players)>numMatches*2){
+            //     if(players[i]>judges[i]*2){
+            //         players[i]--;
+            //     }
+            //     i++;
+            //     if(i>=players.length){
+            //         i = 0;
+            //     }
+            // }
             // add disclaimer saying that for lower ranked teams to play, they may need to be switched in(only top x(according to judge) teams are looked at)
             // may do differnt way potentially
             // int sumOthers = 0;
@@ -357,6 +367,14 @@ public class algorithm2 {
                         if(foundPrev){
                             if(timeSinceMatch>judges.length-1&&!judges[pos][j].used){
                                 if(swap(match, i, pos, judges[pos][j], prev)){
+                                    String matches = "";
+                                    for(int w = 0; w<i; w++){
+                                        matches+=match[w];
+                                    }
+                                    if(matches.contains("J"+judges[pos][j].team+judges[pos][j].number)){ 
+                                        judges[pos][j].used = true;
+                                        continue;
+                                    }
                                     timeSinceMatch = 0;
                                     matchMade = true;
                                     judges[pos][j].used = true;
@@ -406,6 +424,14 @@ public class algorithm2 {
                             if(!allUsed(judges[pos])){
                                 for(int n = 0; n<judges[pos].length; n++){
                                     if(!judges[pos][n].used){
+                                        String matches = "";
+                                        for(int w = 0; w<i; w++){
+                                            matches+=match[w];
+                                        }
+                                        if(matches.contains("J"+judges[pos][n].team+judges[pos][n].number)){ 
+                                            judges[pos][j].used = true;
+                                            continue;
+                                        }
                                         judges[pos][n].used = true;
                                         matchMade = true;
                                         timeSinceMatch = 0;
@@ -561,6 +587,14 @@ public class algorithm2 {
                     
                     //attempt match, if not all judges are used for this team, match should be forced
                     if(!judges[pos][j].used){
+                        String matches = "";
+                        for(int w = 0; w<i; w++){
+                            matches+=match[w];
+                        }
+                        if(matches.contains("J"+judges[pos][j].team+judges[pos][j].number)){ 
+                            judges[pos][j].used = true;
+                            continue;
+                        }
                         judges[pos][j].used = true;
                         matchMade = true;
                         timeSinceMatch = 0;
