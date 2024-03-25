@@ -106,7 +106,7 @@ public class algorithm2 {
     
     public static String[] roundjv(int numMatches, debater[][] players, debater[][] judges, String[] prev, debater[][] playerCopy, debater[][] judgesCopy){
         long startTime = System.currentTimeMillis();
-        long twentySeconds = 20*1000;
+        long twentySeconds = 5*1000;//changed to 5 seconds for now lol 20*1000;
         String[] match = new String[numMatches];
         int pos = players.length-1;
         
@@ -287,11 +287,11 @@ public class algorithm2 {
         pos = judges.length-1;
         //System.out.println("j");
         for(int i = 0; i < numMatches; i++){
-            // if(System.currentTimeMillis()-startTime>twentySeconds){
-            //     System.out.println("Match Failed");
-            //     String[] failedTest = {"Test Failed"};
-            //     return failedTest;
-            // }
+            if(System.currentTimeMillis()-startTime>twentySeconds){
+                System.out.println("Match Failed");
+                String[] failedTest = {"Test Failed"};
+                return failedTest;
+            }
 
             // if(prev.length>0&&timeSenseMatch<6){
             //     System.out.println(i+" "+timeSenseMatch);
