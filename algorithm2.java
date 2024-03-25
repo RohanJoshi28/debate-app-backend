@@ -379,55 +379,15 @@ public class algorithm2 {
                         //gonna come back later lol
                         String pair1 = match[i].split("\\|")[0];
                         String pair2 = match[i].split("\\|")[1];
+                        String pair = "";
                         if(players[Integer.parseInt(pair1.split("~")[0])][Integer.parseInt(pair1.split("~")[1])].judgeSupport){
-                            int temp = pos;
-                            pos = Integer.parseInt(pair1.split("~")[0]);
-                            if(judges[pos].length>0&&allUsed(judges[pos])){
-                                String matched = "";
-                                for(int l = 0; l < match.length; l++){
-                                    matched+=match[l];
-                                }
-                                for(int b = 0; b<judges[pos].length; b++){
-                                    String check = "J"+judges[pos][b].team+"~"+judges[pos][b].number;
-                                    if(matched.contains(check)){
-                                        judges[pos][b].used = true;
-                                    }else{
-                                        judges[pos][b].used = false;
-                                        judgesToUse++;
-                                    }
-                                }
-                            }
-                            if(!allUsed(judges[pos])){
-                                for(int m = 0; m<judges[pos].length; m++){
-                                    foundPrev = false;
-                                    for(int k = 0; k<prev.length; k++){
-                                        if(prev[k].split("\\|")[0].equals(match[i].split("\\|")[0])||
-                                        prev[k].split("\\|")[1].equals(match[i].split("\\|")[0])||
-                                        prev[k].split("\\|")[0].equals(match[i].split("\\|")[1])||
-                                        prev[k].split("\\|")[1].equals(match[i].split("\\|")[1])){
-                                            if(prev[k].contains("J"+judges[pos][m].team+"~"+judges[pos][m].number)){
-                                                foundPrev = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    if(!foundPrev){
-                                        judges[pos][m].used = true;
-                                        matchMade = true;
-                                        timeSinceMatch = 0;
-                                        judgesToUse--;
-                                        match[i]+="J"+judges[pos][m].team+"~"+judges[pos][m].number;
-                                        break;
-                                    }
-                                }
-                            }
-                            pos = temp;
-                            if(!foundPrev){
-                                break;
-                            }
+                            pair = pair1;
                         }else if(players[Integer.parseInt(pair2.split("~")[0])][Integer.parseInt(pair2.split("~")[1])].judgeSupport){
-                            int temp = pos;
-                            pos = Integer.parseInt(pair2.split("~")[0]);
+                            pair = pair2;
+                        }
+                        if(!pair.equals("")){
+                            int realPos = pos;
+                            pos = Integer.parseInt(pair.split("~")[0]);
                             if(judges[pos].length>0&&allUsed(judges[pos])){
                                 String matched = "";
                                 for(int l = 0; l < match.length; l++){
@@ -444,34 +404,137 @@ public class algorithm2 {
                                 }
                             }
                             if(!allUsed(judges[pos])){
-                                for(int m = 0; m<judges[pos].length; m++){
-                                    foundPrev = false;
-                                    for(int k = 0; k<prev.length; k++){
-                                        if(prev[k].split("\\|")[0].equals(match[i].split("\\|")[0])||
-                                        prev[k].split("\\|")[1].equals(match[i].split("\\|")[0])||
-                                        prev[k].split("\\|")[0].equals(match[i].split("\\|")[1])||
-                                        prev[k].split("\\|")[1].equals(match[i].split("\\|")[1])){
-                                            if(prev[k].contains("J"+judges[pos][m].team+"~"+judges[pos][m].number)){
-                                                foundPrev = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    if(!foundPrev){
-                                        judges[pos][m].used = true;
+                                for(int n = 0; n<judges[pos].length; n++){
+                                    if(!judges[pos][n].used){
+                                        judges[pos][n].used = true;
                                         matchMade = true;
                                         timeSinceMatch = 0;
                                         judgesToUse--;
-                                        match[i]+="J"+judges[pos][m].team+"~"+judges[pos][m].number;
+                                        match[i]+="J"+judges[pos][n].team+"~"+judges[pos][n].number;
+                                        pos = realPos;
                                         break;
                                     }
                                 }
-                            }
-                            pos = temp;
-                            if(!foundPrev){
                                 break;
                             }
+                            for(int n = 0; n<i; n++){
+                                if(match[n].split("J")[1].split("~")[0].equals(Integer.toString(pos))){
+                                    if(match[n].split("\\|")[0].split("~")[0].equals(Integer.toString(pos))){
+                                        if(players[pos][Integer.parseInt(match[n].split("\\|")[0].split("~")[1])].judgeSupport){
+                                            continue;
+                                        }
+                                    }else if(match[n].split("\\|")[1].split("~")[0].equals(Integer.toString(pos))){
+                                        if(players[pos][Integer.parseInt(match[n].split("\\|")[1].split("~")[1])].judgeSupport){
+                                            continue;
+                                        }
+                                    }
+                                    String switch1 = match[i]+"J"+match[n].split("J")[1];
+                                    String switch2 = match[n].split("J")[0];
+                                    match[n] = switch1;
+                                    match[i] = switch2;
+                                    break;
+                                }
+                            }
+                            i--;
+                            players[Integer.parseInt(pair.split("~")[0])][Integer.parseInt(pair.split("~")[1])].judgeSupport = false;
+                            pos=realPos;
+                            matchMade = true;
+                            timeSinceMatch = 0;
+                            break;
                         }
+                        // if(players[Integer.parseInt(pair1.split("~")[0])][Integer.parseInt(pair1.split("~")[1])].judgeSupport){
+                        //     int temp = pos;
+                        //     pos = Integer.parseInt(pair1.split("~")[0]);
+                        //     if(judges[pos].length>0&&allUsed(judges[pos])){
+                        //         String matched = "";
+                        //         for(int l = 0; l < match.length; l++){
+                        //             matched+=match[l];
+                        //         }
+                        //         for(int b = 0; b<judges[pos].length; b++){
+                        //             String check = "J"+judges[pos][b].team+"~"+judges[pos][b].number;
+                        //             if(matched.contains(check)){
+                        //                 judges[pos][b].used = true;
+                        //             }else{
+                        //                 judges[pos][b].used = false;
+                        //                 judgesToUse++;
+                        //             }
+                        //         }
+                        //     }
+                        //     if(!allUsed(judges[pos])){
+                        //         for(int m = 0; m<judges[pos].length; m++){
+                        //             foundPrev = false;
+                        //             for(int k = 0; k<prev.length; k++){
+                        //                 if(prev[k].split("\\|")[0].equals(match[i].split("\\|")[0])||
+                        //                 prev[k].split("\\|")[1].equals(match[i].split("\\|")[0])||
+                        //                 prev[k].split("\\|")[0].equals(match[i].split("\\|")[1])||
+                        //                 prev[k].split("\\|")[1].equals(match[i].split("\\|")[1])){
+                        //                     if(prev[k].contains("J"+judges[pos][m].team+"~"+judges[pos][m].number)){
+                        //                         foundPrev = true;
+                        //                         break;
+                        //                     }
+                        //                 }
+                        //             }
+                        //             if(!foundPrev){
+                        //                 judges[pos][m].used = true;
+                        //                 matchMade = true;
+                        //                 timeSinceMatch = 0;
+                        //                 judgesToUse--;
+                        //                 match[i]+="J"+judges[pos][m].team+"~"+judges[pos][m].number;
+                        //                 break;
+                        //             }
+                        //         }
+                        //     }
+                        //     pos = temp;
+                        //     if(!foundPrev){
+                        //         break;
+                        //     }
+                        // }else if(players[Integer.parseInt(pair2.split("~")[0])][Integer.parseInt(pair2.split("~")[1])].judgeSupport){
+                        //     int temp = pos;
+                        //     pos = Integer.parseInt(pair2.split("~")[0]);
+                        //     if(judges[pos].length>0&&allUsed(judges[pos])){
+                        //         String matched = "";
+                        //         for(int l = 0; l < match.length; l++){
+                        //             matched+=match[l];
+                        //         }
+                        //         for(int b = 0; b<judges[pos].length; b++){
+                        //             String check = "J"+judges[pos][b].team+"~"+judges[pos][b].number;
+                        //             if(matched.contains(check)){
+                        //                 judges[pos][b].used = true;
+                        //             }else{
+                        //                 judges[pos][b].used = false;
+                        //                 judgesToUse++;
+                        //             }
+                        //         }
+                        //     }
+                        //     if(!allUsed(judges[pos])){
+                        //         for(int m = 0; m<judges[pos].length; m++){
+                        //             foundPrev = false;
+                        //             for(int k = 0; k<prev.length; k++){
+                        //                 if(prev[k].split("\\|")[0].equals(match[i].split("\\|")[0])||
+                        //                 prev[k].split("\\|")[1].equals(match[i].split("\\|")[0])||
+                        //                 prev[k].split("\\|")[0].equals(match[i].split("\\|")[1])||
+                        //                 prev[k].split("\\|")[1].equals(match[i].split("\\|")[1])){
+                        //                     if(prev[k].contains("J"+judges[pos][m].team+"~"+judges[pos][m].number)){
+                        //                         foundPrev = true;
+                        //                         break;
+                        //                     }
+                        //                 }
+                        //             }
+                        //             if(!foundPrev){
+                        //                 judges[pos][m].used = true;
+                        //                 matchMade = true;
+                        //                 timeSinceMatch = 0;
+                        //                 judgesToUse--;
+                        //                 match[i]+="J"+judges[pos][m].team+"~"+judges[pos][m].number;
+                        //                 break;
+                        //             }
+                        //         }
+                        //     }
+                        //     pos = temp;
+                        //     if(!foundPrev){
+                        //         break;
+                        //     }
+                        // }
                     }
 
                     //given a circulation without match has occured, swap if judge matches a team
