@@ -20,10 +20,12 @@ from datetime import timedelta
 from datetime import timezone
 from flask_migrate import Migrate
 
+import bleach
+
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
-from wtforms import StringField, IntegerField, SubmitField, validators
+from wtforms import StringField, IntegerField, SubmitField, validators, DateField, SelectField
 from wtforms.validators import DataRequired
 
 import subprocess
@@ -332,6 +334,11 @@ def increment():
 
 #Route to increment request count
 
+class SaveAdminEmail(FlaskForm):
+    name = StringField('name', validators=[DataRequired()])
+    email = StringField('email', validators=[DataRequired()])
+    submit = SubmitField('Save')
+
 @app.route('/save_admin_email', methods=['POST'])
 # @jwt_required()
 def save_admin_email():
@@ -341,35 +348,44 @@ def save_admin_email():
     # admin = isAdmin(current_user)
     # if not admin:
     #     return "Unauthorized", 401
-    
-    name = request.form['name']
-    email = request.form['email']
+    form = SaveAdminEmail()
+    if form.validate_on_submit():
+        name = form.name.data
+        name = bleach.clean(name)
+        email = form.email.data
+        email = bleach.clean(email)
 
-    admin = Admin.query.filter_by(email=email).first()
-    if admin == None:
-        admin = Admin(name=name, email=email)
-        db.session.add(admin)
-        db.session.commit()
+        admin = Admin.query.filter_by(email=email).first()
+        if admin == None:
+            admin = Admin(name=name, email=email)
+            db.session.add(admin)
+            db.session.commit()
+        else:
+            admin.name = name
+            db.session.commit()
+        
+        message = Mail(
+        from_email='testdebateteamapp@gmail.com',
+        to_emails=email,
+        subject='Welcome to the Debate Team Dashboard!',
+        html_content='<p>Hi, ' + name + '!</p><p>You were added as an admin to the Debate Team Dashboard.</p><strong>To access the dashboard, go to: rohanjoshi.dev :)</strong>')
+        
+        try:
+            sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+            response = sg.send(message)
+            print(response.status_code)
+            print(response.body)
+            print(response.headers)
+        except Exception as e:
+            print(e.message)
+        return "Success", 200
     else:
-        admin.name = name
-        db.session.commit()
-    
-    message = Mail(
-    from_email='testdebateteamapp@gmail.com',
-    to_emails=email,
-    subject='Welcome to the Debate Team Dashboard!',
-    html_content='<p>Hi, ' + name + '!</p><p>You were added as an admin to the Debate Team Dashboard.</p><strong>To access the dashboard, go to: rohanjoshi.dev :)</strong>')
-    
-    try:
-        sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
-        response = sg.send(message)
-        print(response.status_code)
-        print(response.body)
-        print(response.headers)
-    except Exception as e:
-        print(e.message)
-    return "Success", 200
+        return "Failure", 400
 
+class SaveCoachEmail(FlaskForm):
+    name = StringField('name', validators=[DataRequired()])
+    email = StringField('email', validators=[DataRequired()])
+    submit = SubmitField('Save')
 
 @app.route('/save_coach_email', methods=['POST'])
 # @jwt_required()
@@ -382,7 +398,9 @@ def save_coach_email():
     #     return "Unauthorized", 401
     
     name = request.form['name']
+    name = bleach.clean(name)
     email = request.form['email']
+    email = bleach.clean(email)
     school = request.form['school']
 
     #get school id
@@ -657,6 +675,11 @@ def get_tournament_schedule(tournament_id):
 
     return jsonify(matches)
 
+class UpdateSchoolForm(FlaskForm):
+    pairs = IntegerField('Number of pairs', validators=[DataRequired()])
+    judges = IntegerField('Number of Judges', validators=[DataRequired()])
+    submit = SubmitField('Update School')
+
 @app.route('/updateschool/<int:school_id>', methods=['POST'])
 # @jwt_required()
 def update_school(school_id):
@@ -667,24 +690,27 @@ def update_school(school_id):
     # coach = isCoach(current_user)
     # if not admin and not coach:
     #     return "Unauthorized", 401
-    
-    school = School.query.get(school_id)
-    if not school:
-        return jsonify({"message": "School not found"}), 404
-    num_debaters = int(request.form['pairs'])
-    num_judges = int(request.form['judges'])
-    
-    
-    print(num_debaters)
-    print(num_judges)
+    form = UpdateSchoolForm()
+    if form.validate_on_submit():
+        school = School.query.get(school_id)
+        if not school:
+            return jsonify({"message": "School not found"}), 404
+        num_debaters = int(form.pairs.data)
+        num_judges = int(form.judges.data)
+        
+        
+        print(num_debaters)
+        print(num_judges)
 
 
-    school.num_debaters = num_debaters
-    school.num_judges = num_judges
+        school.num_debaters = num_debaters
+        school.num_judges = num_judges
 
-    db.session.commit()
+        db.session.commit()
 
-    return "Success", 200
+        return "Success", 200
+    else:
+        return "Failure", 400
 
 @app.route('/updateschoolcoach/<int:school_id>', methods=['PUT'])
 # @jwt_required()
@@ -711,6 +737,16 @@ def update_school_coach(school_id):
             return jsonify({"message": "Coach not found"}), 404
     else:
         return jsonify({"message": "Coach ID not provided"}), 400
+    
+class TournamentForm(FlaskForm):
+    name = StringField('Tournament Name', validators=[DataRequired()])
+    datetime = DateField('Date', validators=[DataRequired()])
+    host_school = SelectField('Host School', coerce=int, validators=[DataRequired()]) 
+    submit = SubmitField('Create Tournament')
+
+    def __init__(self, *args, **kwargs):
+        super(TournamentForm, self).__init__(*args, **kwargs)
+        self.host_school.choices = [(school.id, school.name) for school in School.query.all()]
     
 @app.route('/add_tournament', methods=['POST'])
 # @jwt_required()
@@ -758,21 +794,22 @@ def add_school():
     # admin = isAdmin(current_user)
     # if not admin:
     #     return "Unauthorized", 401
-    data = request.get_json()
-    try:
-        new_school = School(
-            name=data['name'],
-            num_debaters=data['num_debaters'],
-            num_judges=data['num_judges']
-        )
-        db.session.add(new_school)
-        db.session.commit()
+    form = AddSchoolForm()
+    if form.validate_on_submit():
+        try:
+            new_school = School(
+                name=form.name.data,
+                num_debaters=form.num_debaters.data,
+                num_judges=form.num_judges.data
+            )
+            db.session.add(new_school)
+            db.session.commit()
 
-        return jsonify({"message": "School added successfully", "school_id": new_school.id}), 200
+            return jsonify({"message": "School added successfully", "school_id": new_school.id}), 200
 
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": str(e)}), 500
     
 @app.route("/delete_school", methods=["POST"])
 # @jwt_required()
