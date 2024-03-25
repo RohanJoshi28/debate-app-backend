@@ -7,6 +7,9 @@ public class VarsityMatchmaking {
         matchmake(d, j);
     }
 
+    //TODO:
+    //allow 2nd call to function after morning rounds
+    //pass in and utilize morning results instead of placeholder
     private static void matchmake(int[] debaterCounts, int[] judgeCounts) {
         List<School> schools = createSchools(debaterCounts.length);
         List<Debater> debaters = createDebaters(debaterCounts, schools);
@@ -19,7 +22,7 @@ public class VarsityMatchmaking {
         // Afternoon Rounds
         List<Debater> winningDebaters = getWinningDebaters(round1, round2);
         List<Debater> afternoonDebaters = new ArrayList<>(winningDebaters);
-        List<Judge> afternoonJudges = selectBestJudges(judges, round1, round2, schools);
+        List<Judge> afternoonJudges = selectBestJudges(judges, round1, round2);
 
         Round round3 = createRound(afternoonDebaters, afternoonJudges, null);
         Round round4 = createRound(afternoonDebaters, afternoonJudges, round3);
@@ -47,7 +50,7 @@ public class VarsityMatchmaking {
         return winningDebaters;
     }
 
-    private static List<Judge> selectBestJudges(List<Judge> judges, Round round1, Round round2, List<School> schools) {
+    private static List<Judge> selectBestJudges(List<Judge> judges, Round round1, Round round2) {
         List<Judge> bestJudges = new ArrayList<>();
         // Get best judges based on coaches' preferences
         // For simplicity, randomly select judges
@@ -56,7 +59,7 @@ public class VarsityMatchmaking {
             if (bestJudges.size() == 2) break; // Assuming only 2 best judges needed
         }
         // Handle cases where there might not be enough best judges
-        int remainingJudges = schools.size() - bestJudges.size();
+        int remainingJudges = 2 - bestJudges.size(); // Considering only 2 best judges
         if (remainingJudges > 0) {
             for (Judge judge : judges) {
                 if (!bestJudges.contains(judge)) {
@@ -110,14 +113,10 @@ public class VarsityMatchmaking {
         List<Debater> matchedDebaters = new ArrayList<>();
         List<Judge> matchedJudges = new ArrayList<>();
 
-        for (int debater1Index = 0; debater1Index < debaters.size(); debater1Index++) {
-            Debater debater1 = debaters.get(debater1Index);
-
+        for (Debater debater1 : debaters) {
             if (matchedDebaters.contains(debater1)) continue;
 
-            for (int debater2Index = 0; debater2Index < debaters.size(); debater2Index++) {
-                Debater debater2 = debaters.get(debater2Index);
-
+            for (Debater debater2 : debaters) {
                 if (matchedDebaters.contains(debater2)) continue;
                 if (!canDebatersMatch(debater1, debater2, lastRound)) continue;
 
@@ -153,11 +152,9 @@ public class VarsityMatchmaking {
         }
         
         for (Judge judge : judges) {
-            if (matchedJudges.contains(judge)) {
-                continue;
+            if (!matchedJudges.contains(judge)) {
+                return judge;
             }
-
-            return judge;
         }
 
         return null;
@@ -172,10 +169,11 @@ public class VarsityMatchmaking {
 
         public boolean hasMatchup(Debater debater1, Debater debater2) {
             for (Match match : matches) {
-                if (match.debater1 == debater1 && match.debater2 == debater2 ||
-                match.debater1 == debater2 && match.debater2 == debater1) return true;
+                if ((match.debater1 == debater1 && match.debater2 == debater2) ||
+                    (match.debater1 == debater2 && match.debater2 == debater1)) {
+                    return true;
+                }
             }
-
             return false;
         }
 
