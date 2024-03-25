@@ -13,32 +13,32 @@ public class matchmakerTests {
         int[] test1Judges = {0, 0, 5};
         String[][] matches1 = A.JVMatches(test1Players, test1Judges);
         System.out.println("test 1");
-        //test(matches1);
+        test(matches1);
         int[] test2Players = {5, 5, 0};
         int[] test2Judges = {0, 0, 5};
         String[][] matches2 = A.JVMatches(test2Players, test2Judges);
         System.out.println("test 2");
-        //test(matches2);
+        test(matches2);
         int[] test3Players = {12, 1, 4, 4, 13, 4, 1};
         int[] test3Judges = {6, 3, 3, 2, 6, 8, 0};
         String[][] matches3 = A.JVMatches(test3Players, test3Judges);
         System.out.println("test 3");
-        //test(matches3);
+        test(matches3);
         int[] test4Players = {14, 5, 3, 5, 1, 2, 15};
         int[] test4Judges = {6, 7, 4, 5, 0, 3, 5};
         String[][] matches4 = A.JVMatches(test4Players, test4Judges);
         System.out.println("test 4");
-        //test(matches4);
+        test(matches4);
         int[] test5Players = {11, 6, 13, 3};
         int[] test5Judges = {6, 1, 5, 1};
         String[][] matches5 = A.JVMatches(test5Players, test5Judges);
         System.out.println("test 5");
-        //test(matches5);
+        test(matches5);
         int[] test6Players = {5, 6, 15};
         int[] test6Judges = {5, 3, 12};
         String[][] matches6 = A.JVMatches(test6Players, test6Judges);
         System.out.println("test 6");
-        //test(matches6);
+        test(matches6);
     }
 
     public static void test(String[][] matches){
