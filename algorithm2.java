@@ -39,6 +39,7 @@ public class algorithm2 {
         if(playNum/2>judgeNum){//should be players/2
             numMatches = judgeNum;
             int i = 0;
+            //attempt to balance players, premptively because too few judges, may have to be done later/while algorithm runs
             // while(sum(players)>numMatches*2){
             //     if(players[i]>judges[i]*2){
             //         players[i]--;
@@ -48,35 +49,12 @@ public class algorithm2 {
             //         i = 0;
             //     }
             // }
-            // add disclaimer saying that for lower ranked teams to play, they may need to be switched in(only top x(according to judge) teams are looked at)
-            // may do differnt way potentially
-            // int sumOthers = 0;
-            // for(int i = 1; i<players.length; i++){
-            //     sumOthers+=players[i];
-            // }
-            // if(players[0]>sumOthers){
-            //     players[0] = sumOthers;
-            // }
-            // // for(int i = 0; i <players.length; i++){
-            // //     if(players[i]>judgeNum){
-            // //         players[i] = judgeNum;
-            // //     }
-            // // }
         }else{
-            // if(playNum%2==1){
-            //     if(players[0]>0){
-            //         players[0]--;
-            //         playNum--;
-            //     }
-            // }
             numMatches = playNum/2;
         }
         playersToUse = playNum;
         judgesToUse = judgeNum;
-        //the following does not perfectly take into account edge cases
-        //the main edge case not accounted four is too many teams
-        //in the case of too many teams the largest team will be penalized rather than the host
-        //number of matches will be based on judges or players and distributed to teams equally
+
         debater[][] debaters = new debater[players.length][];
         for(int i = 0; i < debaters.length; i++){
             debaters[i] = new debater[players[i]];
@@ -116,12 +94,12 @@ public class algorithm2 {
     
     public static String[] roundjv(int numMatches, debater[][] players, debater[][] judges, String[] prev, debater[][] playerCopy, debater[][] judgesCopy){
         long startTime = System.currentTimeMillis();
-        long twentySeconds = 5*1000;//changed to 5 seconds for now lol 20*1000;
+        long fiveSeconds = 5*1000;
         String[] match = new String[numMatches];
         int pos = players.length-1;
         
         for(int i = 0; i<numMatches; i++){
-            if(System.currentTimeMillis()-startTime>twentySeconds){
+            if(System.currentTimeMillis()-startTime>fiveSeconds){
                 System.out.println("Match Failed");
                 String[] failedTest = {"Test Failed"};
                 return failedTest;
@@ -187,7 +165,7 @@ public class algorithm2 {
         int timeSinceMatch = 0;
 
         for(int i = 0; i<numMatches; i++){
-            if(System.currentTimeMillis()-startTime>twentySeconds){
+            if(System.currentTimeMillis()-startTime>fiveSeconds){
                 System.out.println("Match Failed");
                 String[] failedTest = {"Test Failed"};
                 return failedTest;
@@ -295,29 +273,13 @@ public class algorithm2 {
 
         timeSinceMatch = 0;
         pos = judges.length-1;
-        //System.out.println("j");
+        
         for(int i = 0; i < numMatches; i++){
-            if(System.currentTimeMillis()-startTime>twentySeconds){
+            if(System.currentTimeMillis()-startTime>fiveSeconds){
                 System.out.println("Match Failed");
                 String[] failedTest = {"Test Failed"};
                 return failedTest;
             }
-
-            // if(prev.length>0&&timeSenseMatch<6){
-            //     System.out.println(i+" "+timeSenseMatch);
-            //     for(int j = 0; j < prev.length; j++){
-            //         System.out.print(prev[j]+" ");
-            //     }
-            //     System.out.println();
-            //     for(int j = 0; j < match.length; j++){
-            //         System.out.print(match[j]+" ");
-            //     }
-            //     System.out.println();
-            // }
-
-            // if(pos == 2 && prev.length>0){
-            //     System.out.println("hello");
-            // }
 
             //make sure judges of all teams are available for use
             if(judges[pos].length>0&&allUsed(judges[pos])){
@@ -336,8 +298,7 @@ public class algorithm2 {
                 }
             }
 
-            //check if any judge is from same team as debater,(only if full rotation has not occuredd)
-            //System.out.println(match[i]);
+            //check if any judge is from same team as debater,(only if full rotation has not occured)
             if(judges[pos].length>0&&(match[i].split("~")[0].equals(judges[pos][0].team)||
             match[i].split("\\|")[1].split("~")[0].equals(judges[pos][0].team))&&
             timeSinceMatch<judges.length-1){
@@ -393,19 +354,25 @@ public class algorithm2 {
                             }
                             continue;
                         }
-                        //check if a player should recieve support, if so match and break/continue
-                        //gonna come back later lol
+                        
                         String pair1 = match[i].split("\\|")[0];
                         String pair2 = match[i].split("\\|")[1];
                         String pair = "";
+
+                        //get pair that needs support
                         if(players[Integer.parseInt(pair1.split("~")[0])][Integer.parseInt(pair1.split("~")[1])].judgeSupport){
                             pair = pair1;
                         }else if(players[Integer.parseInt(pair2.split("~")[0])][Integer.parseInt(pair2.split("~")[1])].judgeSupport){
                             pair = pair2;
                         }
+
+                        //check for whether a judge support pair was found
                         if(!pair.equals("")){
+                            //change position to target judge of same type
                             int realPos = pos;
                             pos = Integer.parseInt(pair.split("~")[0]);
+
+                            //ensure all available judges(of team) are there
                             if(judges[pos].length>0&&allUsed(judges[pos])){
                                 String matched = "";
                                 for(int l = 0; l < match.length; l++){
@@ -421,6 +388,8 @@ public class algorithm2 {
                                     }
                                 }
                             }
+                            
+                            //if not all judges on your team were used add one to yourself
                             if(!allUsed(judges[pos])){
                                 for(int n = 0; n<judges[pos].length; n++){
                                     if(!judges[pos][n].used){
@@ -443,6 +412,10 @@ public class algorithm2 {
                                 }
                                 break;
                             }
+
+                            //if all judges on your team were used, look for whether 
+                            //it's possible to swap with a already used judge on your team
+                            //given that match is not given judge support                            
                             for(int n = 0; n<i; n++){
                                 if(match[n].split("J")[1].split("~")[0].equals(Integer.toString(pos))){
                                     if(match[n].split("\\|")[0].split("~")[0].equals(Integer.toString(pos))){
@@ -461,6 +434,8 @@ public class algorithm2 {
                                     break;
                                 }
                             }
+
+                            //regardless if match was possible, since a swap was performed, reset i, and restart search
                             i--;
                             players[Integer.parseInt(pair.split("~")[0])][Integer.parseInt(pair.split("~")[1])].judgeSupport = false;
                             pos=realPos;
@@ -468,99 +443,6 @@ public class algorithm2 {
                             timeSinceMatch = 0;
                             break;
                         }
-                        // if(players[Integer.parseInt(pair1.split("~")[0])][Integer.parseInt(pair1.split("~")[1])].judgeSupport){
-                        //     int temp = pos;
-                        //     pos = Integer.parseInt(pair1.split("~")[0]);
-                        //     if(judges[pos].length>0&&allUsed(judges[pos])){
-                        //         String matched = "";
-                        //         for(int l = 0; l < match.length; l++){
-                        //             matched+=match[l];
-                        //         }
-                        //         for(int b = 0; b<judges[pos].length; b++){
-                        //             String check = "J"+judges[pos][b].team+"~"+judges[pos][b].number;
-                        //             if(matched.contains(check)){
-                        //                 judges[pos][b].used = true;
-                        //             }else{
-                        //                 judges[pos][b].used = false;
-                        //                 judgesToUse++;
-                        //             }
-                        //         }
-                        //     }
-                        //     if(!allUsed(judges[pos])){
-                        //         for(int m = 0; m<judges[pos].length; m++){
-                        //             foundPrev = false;
-                        //             for(int k = 0; k<prev.length; k++){
-                        //                 if(prev[k].split("\\|")[0].equals(match[i].split("\\|")[0])||
-                        //                 prev[k].split("\\|")[1].equals(match[i].split("\\|")[0])||
-                        //                 prev[k].split("\\|")[0].equals(match[i].split("\\|")[1])||
-                        //                 prev[k].split("\\|")[1].equals(match[i].split("\\|")[1])){
-                        //                     if(prev[k].contains("J"+judges[pos][m].team+"~"+judges[pos][m].number)){
-                        //                         foundPrev = true;
-                        //                         break;
-                        //                     }
-                        //                 }
-                        //             }
-                        //             if(!foundPrev){
-                        //                 judges[pos][m].used = true;
-                        //                 matchMade = true;
-                        //                 timeSinceMatch = 0;
-                        //                 judgesToUse--;
-                        //                 match[i]+="J"+judges[pos][m].team+"~"+judges[pos][m].number;
-                        //                 break;
-                        //             }
-                        //         }
-                        //     }
-                        //     pos = temp;
-                        //     if(!foundPrev){
-                        //         break;
-                        //     }
-                        // }else if(players[Integer.parseInt(pair2.split("~")[0])][Integer.parseInt(pair2.split("~")[1])].judgeSupport){
-                        //     int temp = pos;
-                        //     pos = Integer.parseInt(pair2.split("~")[0]);
-                        //     if(judges[pos].length>0&&allUsed(judges[pos])){
-                        //         String matched = "";
-                        //         for(int l = 0; l < match.length; l++){
-                        //             matched+=match[l];
-                        //         }
-                        //         for(int b = 0; b<judges[pos].length; b++){
-                        //             String check = "J"+judges[pos][b].team+"~"+judges[pos][b].number;
-                        //             if(matched.contains(check)){
-                        //                 judges[pos][b].used = true;
-                        //             }else{
-                        //                 judges[pos][b].used = false;
-                        //                 judgesToUse++;
-                        //             }
-                        //         }
-                        //     }
-                        //     if(!allUsed(judges[pos])){
-                        //         for(int m = 0; m<judges[pos].length; m++){
-                        //             foundPrev = false;
-                        //             for(int k = 0; k<prev.length; k++){
-                        //                 if(prev[k].split("\\|")[0].equals(match[i].split("\\|")[0])||
-                        //                 prev[k].split("\\|")[1].equals(match[i].split("\\|")[0])||
-                        //                 prev[k].split("\\|")[0].equals(match[i].split("\\|")[1])||
-                        //                 prev[k].split("\\|")[1].equals(match[i].split("\\|")[1])){
-                        //                     if(prev[k].contains("J"+judges[pos][m].team+"~"+judges[pos][m].number)){
-                        //                         foundPrev = true;
-                        //                         break;
-                        //                     }
-                        //                 }
-                        //             }
-                        //             if(!foundPrev){
-                        //                 judges[pos][m].used = true;
-                        //                 matchMade = true;
-                        //                 timeSinceMatch = 0;
-                        //                 judgesToUse--;
-                        //                 match[i]+="J"+judges[pos][m].team+"~"+judges[pos][m].number;
-                        //                 break;
-                        //             }
-                        //         }
-                        //     }
-                        //     pos = temp;
-                        //     if(!foundPrev){
-                        //         break;
-                        //     }
-                        // }
                     }
 
                     //given a circulation without match has occured, swap if judge matches a team
