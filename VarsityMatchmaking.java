@@ -12,17 +12,38 @@ public class VarsityMatchmaking {
         List<Debater> debaters = createDebaters(debaterCounts, schools);
         List<Judge> judges = createJudges(judgeCounts, schools);
 
+        // Morning Rounds
         Round round1 = createRound(debaters, judges, null);
-        Collections.reverse(debaters);
-        Collections.reverse(judges);
         Round round2 = createRound(debaters, judges, round1);
-        
-        //flip to look better
-        //Collections.reverse(round2.matches);
-        //issue: instead of stopping at first valid matchup, search for better
-        
+
+        // Afternoon Rounds
+        List<Debater> winningDebaters = getWinningDebaters(round1, round2);
+        List<Debater> afternoonDebaters = new ArrayList<>(winningDebaters);
+
+        Round round3 = createRound(afternoonDebaters, afternoonJudges, null);
+        Round round4 = createRound(afternoonDebaters, afternoonJudges, round3);
+
+        System.out.println("Morning Rounds:");
         System.out.println(round1);
         System.out.println(round2);
+        System.out.println("Afternoon Rounds:");
+        System.out.println(round3);
+        System.out.println(round4);
+    }
+
+    private static List<Debater> getWinningDebaters(Round round1, Round round2) {
+        List<Debater> winningDebaters = new ArrayList<>();
+        for (Match match : round1.matches) {
+            if (match.winner()) {
+                winningDebaters.add(match.debater1);
+            }
+        }
+        for (Match match : round2.matches) {
+            if (match.winner()) {
+                winningDebaters.add(match.debater1);
+            }
+        }
+        return winningDebaters;
     }
 
     private static List<School> createSchools(int count) {
@@ -141,7 +162,7 @@ public class VarsityMatchmaking {
             builder.append("Round:\n");
 
             for (Match match : matches) {
-                builder.append(match + "\n");
+                builder.append(match).append("\n");
             }
 
             return builder.toString();
@@ -157,6 +178,13 @@ public class VarsityMatchmaking {
             this.debater1 = debater1;
             this.debater2 = debater2;
             this.judge = judge;
+        }
+
+        public boolean winner() {
+            // Placeholder logic for determining the winner (which will need to be passed in)
+            // For simplicity right now, a random winner is chosen
+            Random random = new Random();
+            return random.nextBoolean();
         }
 
         @Override
