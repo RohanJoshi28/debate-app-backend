@@ -19,6 +19,7 @@ public class VarsityMatchmaking {
         // Afternoon Rounds
         List<Debater> winningDebaters = getWinningDebaters(round1, round2);
         List<Debater> afternoonDebaters = new ArrayList<>(winningDebaters);
+        List<Judge> afternoonJudges = selectBestJudges(judges, round1, round2, schools);
 
         Round round3 = createRound(afternoonDebaters, afternoonJudges, null);
         Round round4 = createRound(afternoonDebaters, afternoonJudges, round3);
@@ -44,6 +45,28 @@ public class VarsityMatchmaking {
             }
         }
         return winningDebaters;
+    }
+
+    private static List<Judge> selectBestJudges(List<Judge> judges, Round round1, Round round2, List<School> schools) {
+        List<Judge> bestJudges = new ArrayList<>();
+        // Get best judges based on coaches' preferences
+        // For simplicity, randomly select judges
+        for (Judge judge : judges) {
+            bestJudges.add(judge);
+            if (bestJudges.size() == 2) break; // Assuming only 2 best judges needed
+        }
+        // Handle cases where there might not be enough best judges
+        int remainingJudges = schools.size() - bestJudges.size();
+        if (remainingJudges > 0) {
+            for (Judge judge : judges) {
+                if (!bestJudges.contains(judge)) {
+                    bestJudges.add(judge);
+                    remainingJudges--;
+                    if (remainingJudges == 0) break;
+                }
+            }
+        }
+        return bestJudges;
     }
 
     private static List<School> createSchools(int count) {
@@ -181,8 +204,8 @@ public class VarsityMatchmaking {
         }
 
         public boolean winner() {
-            // Placeholder logic for determining the winner (which will need to be passed in)
-            // For simplicity right now, a random winner is chosen
+            // Placeholder logic for determining the winner
+            // For simplicity, a random winner is chosen
             Random random = new Random();
             return random.nextBoolean();
         }
