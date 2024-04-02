@@ -475,26 +475,7 @@ def deleteuser():
         db.session.commit()
     return "Success", 200
 
-@app.route("/deleteuser", methods=["POST"])
-# @jwt_required()
-def deleteuser():
-    
-    # jwt_token = request.cookies.get('access_token_cookie')
-    # current_user = get_jwt_identity()
-    # admin = isAdmin(current_user)
-    # if not admin:
-    #     return "Unauthorized", 401
-    # email = request.form['email']
-    email = request.get_json()['email']
-    user = User.query.filter_by(email=email).first()
-    coach = Coach.query.filter_by(email=email).first()
-    if user != None:
-        db.session.delete(user)
-        db.session.commit()
-    if coach != None:
-        db.session.delete(coach)
-        db.session.commit()
-    return "Success", 200
+
 
 
 @app.route("/deletecoach", methods=["POST"])
