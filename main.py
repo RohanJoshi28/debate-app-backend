@@ -113,6 +113,12 @@ tournament_school = db.Table(
     db.Column("tournament_id", db.Integer, db.ForeignKey("tournament.id")),
     db.Column("school_id", db.Integer, db.ForeignKey("school.id")),
 )
+class RoomAssignment(db.Model):
+    __tablename__ = "room_assignment"
+    id = db.Column(db.Integer, primary_key=True)
+    tournament_id = db.Column(db.Integer, db.ForeignKey("tournament.id"), nullable=False)
+    match_index = db.Column(db.Integer, nullable=False)
+    room_number = db.Column(db.String, nullable=False)
 
 db.create_all()
 
@@ -878,6 +884,43 @@ def delete_tournament():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
+
+
+@app.route('/tournament/<int:tournament_id>/rooms', methods=['POST'])
+def update_room_assignments(tournament_id):
+
+    try:
+        room_assignments_data = request.get_json()
+        if not isinstance(room_assignments_data, list):
+            return jsonify({'error': 'Invalid data format'}), 400
+
+        RoomAssignment.query.filter_by(tournament_id=tournament_id).delete()
+
+        for room_assignment in room_assignments_data:
+            match_index = room_assignment.get('match_index')
+            room_number = room_assignment.get('room_number')
+            if room_number:  
+                new_room_assignment = RoomAssignment(
+                    tournament_id=tournament_id,
+                    match_index=match_index,
+                    room_number=room_number
+                )
+                db.session.add(new_room_assignment)
+        db.session.commit()
+        return jsonify({'message': 'Room assignments success'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to update room assignments', 'details': str(e)}), 500
+
+
+@app.route('/tournament/<int:tournament_id>/rooms', methods=['GET'])
+def get_room_assignments(tournament_id):
+    room_assignments = RoomAssignment.query.filter_by(tournament_id=tournament_id).all()
+    room_assignments_data = [{'match_index': ra.match_index, 'room_number': ra.room_number} for ra in room_assignments]
+    return jsonify(room_assignments_data), 200
+
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
 
