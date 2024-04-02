@@ -112,33 +112,32 @@ tournament_school = db.Table(
 db.create_all()
 
 #db model creation tests
-"""
-if RequestCount.query.get(1) is None:
-    new_counter = RequestCount(id=1, count=0)
-    db.session.add(new_counter)
-    db.session.commit()
 
-db.session.query(School).delete()
-db.session.query(Tournament).delete()
+# if RequestCount.query.get(1) is None:
+#     new_counter = RequestCount(id=1, count=0)
+#     db.session.add(new_counter)
+#     db.session.commit()
 
-school1 = School(id=1, name="Bergen Academies", num_debaters=2, num_judges=2)
-school2 = School(id=2, name="Mountain Valley", num_debaters=2, num_judges=2)
-school3 = School(id=3, name="Bridgewater High", num_debaters=3, num_judges=1)
+# db.session.query(School).delete()
+# db.session.query(Tournament).delete()
 
-db.session.add(school1)
-db.session.add(school2)
-db.session.add(school3)
-db.session.commit()
+# school1 = School(id=1, name="Bergen Academies", num_debaters=2, num_judges=2)
+# school2 = School(id=2, name="Mountain Valley", num_debaters=2, num_judges=2)
+# school3 = School(id=3, name="Bridgewater High", num_debaters=3, num_judges=1)
 
-tournament = Tournament(id=1, host_school_id=school1.id, datetime=datetime(2024, 2, 5, 17, 0))
-db.session.add(tournament)
-db.session.commit()
+# db.session.add(school1)
+# db.session.add(school2)
+# db.session.add(school3)
+# db.session.commit()
 
-tournament.schools.append(school1)
-tournament.schools.append(school2)
-tournament.schools.append(school3)
-db.session.commit()
-"""
+# tournament = Tournament(id=1, host_school_id=school1.id, datetime=datetime(2024, 2, 5, 17, 0))
+# db.session.add(tournament)
+# db.session.commit()
+
+# tournament.schools.append(school1)
+# tournament.schools.append(school2)
+# tournament.schools.append(school3)
+# db.session.commit()
 
 def create_initial_user():
     # Add the user if not already present in the database
@@ -241,7 +240,7 @@ def login():
         jwt_token = create_access_token(identity=user_info['email'])
         response = jsonify(user=user_info, role=role)
         response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
-        # response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
+        # response.set_cookie('access_token_cookie', value=jwt_token)
         #
         return response, 200
     else:
@@ -409,7 +408,7 @@ def save_coach_email():
     return "Success", 200
 
 @app.route('/save_user_email', methods=['POST'])
-# @jwt_required()
+@jwt_required()
 def save_user_email():
     
     # jwt_token = request.cookies.get('access_token_cookie')
@@ -484,7 +483,7 @@ def deletecoach():
     return "Success", 200
 
 @app.route('/users', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def get_users():
     # jwt_token = request.cookies.get('access_token_cookie')
     # current_user = get_jwt_identity()
