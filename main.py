@@ -201,6 +201,10 @@ def hello_world():
         return jsonify({"error": "Java program execution failed", "details": errors}), 500
     return jsonify({"output": output}), 200
 
+@app.route('/test', methods=['GET'])
+def test_debug():
+
+    return isCoach("joshkim771@gmail.com")
 @app.route('/login', methods=['POST'])
 def login():
     auth_code = request.get_json()['code']
