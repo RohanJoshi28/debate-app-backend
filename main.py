@@ -300,13 +300,13 @@ def isAdmin(email):
     return True
 
 @app.route("/protected", methods=["GET"])
-# @jwt_required()
+@jwt_required()
 def protected():
     #every user has access
-    # jwt_token = request.cookies.get('access_token_cookie')
-    # current_user = get_jwt_identity()
+    jwt_token = request.cookies.get('access_token_cookie')
+    current_user = get_jwt_identity()
     #^this is the email of the user
-    return isCoach("joshkim771@gmail.com")
+    # return isCoach("joshkim771@gmail.com")
     return "Success", 200
 
 @app.route("/protected_coach", methods=["GET"])
