@@ -251,8 +251,8 @@ def login():
 
         # Create JWT token and send response with user_info including role
         jwt_token = create_access_token(identity=user_info['email'])
-        # response = jsonify(user=user_info, role=role)
-        response = jsonify(user=user_info)
+        response = jsonify(user=user_info, role=role)
+
         response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
         # response.set_cookie('access_token_cookie', value=jwt_token)
         #
