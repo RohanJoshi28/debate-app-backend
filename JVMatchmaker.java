@@ -146,6 +146,11 @@ public class JVMatchmaker {
 
             return builder.toString();
         }
+
+        public Round copy() {
+            List<Match> newMatches = new ArrayList<>(matches);
+            return new Round(newMatches);
+        }
     }
 
     private static class Match {
@@ -162,6 +167,10 @@ public class JVMatchmaker {
         @Override
         public String toString() {
             return "(" + debater1 + ", " + debater2 + ", " + judge + ")";
+        }
+
+        public Match copy() {
+            return new Match(debater1, debater2, judge);
         }
     }
 

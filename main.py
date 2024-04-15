@@ -20,8 +20,13 @@ from datetime import timedelta
 from datetime import timezone
 from flask_migrate import Migrate
 
+# import bleach
+
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+
+# from wtforms import StringField, IntegerField, SubmitField, validators, DateField, SelectField
+# from wtforms.validators import DataRequired
 
 import subprocess
 app = Flask(__name__)
@@ -108,37 +113,42 @@ tournament_school = db.Table(
     db.Column("tournament_id", db.Integer, db.ForeignKey("tournament.id")),
     db.Column("school_id", db.Integer, db.ForeignKey("school.id")),
 )
+class RoomAssignment(db.Model):
+    __tablename__ = "room_assignment"
+    id = db.Column(db.Integer, primary_key=True)
+    tournament_id = db.Column(db.Integer, db.ForeignKey("tournament.id"), nullable=False)
+    match_index = db.Column(db.Integer, nullable=False)
+    room_number = db.Column(db.String, nullable=False)
 
 db.create_all()
 
 #db model creation tests
-"""
-if RequestCount.query.get(1) is None:
-    new_counter = RequestCount(id=1, count=0)
-    db.session.add(new_counter)
-    db.session.commit()
 
-db.session.query(School).delete()
-db.session.query(Tournament).delete()
+# if RequestCount.query.get(1) is None:
+#     new_counter = RequestCount(id=1, count=0)
+#     db.session.add(new_counter)
+#     db.session.commit()
 
-school1 = School(id=1, name="Bergen Academies", num_debaters=2, num_judges=2)
-school2 = School(id=2, name="Mountain Valley", num_debaters=2, num_judges=2)
-school3 = School(id=3, name="Bridgewater High", num_debaters=3, num_judges=1)
+# db.session.query(School).delete()
+# db.session.query(Tournament).delete()
 
-db.session.add(school1)
-db.session.add(school2)
-db.session.add(school3)
-db.session.commit()
+# school1 = School(id=1, name="Bergen Academies", num_debaters=2, num_judges=2)
+# school2 = School(id=2, name="Mountain Valley", num_debaters=2, num_judges=2)
+# school3 = School(id=3, name="Bridgewater High", num_debaters=3, num_judges=1)
 
-tournament = Tournament(id=1, host_school_id=school1.id, datetime=datetime(2024, 2, 5, 17, 0))
-db.session.add(tournament)
-db.session.commit()
+# db.session.add(school1)
+# db.session.add(school2)
+# db.session.add(school3)
+# db.session.commit()
 
-tournament.schools.append(school1)
-tournament.schools.append(school2)
-tournament.schools.append(school3)
-db.session.commit()
-"""
+# tournament = Tournament(id=1, host_school_id=school1.id, datetime=datetime(2024, 2, 5, 17, 0))
+# db.session.add(tournament)
+# db.session.commit()
+
+# tournament.schools.append(school1)
+# tournament.schools.append(school2)
+# tournament.schools.append(school3)
+# db.session.commit()
 
 def create_initial_user():
     # Add the user if not already present in the database
@@ -197,6 +207,9 @@ def hello_world():
         return jsonify({"error": "Java program execution failed", "details": errors}), 500
     return jsonify({"output": output}), 200
 
+
+
+    
 @app.route('/login', methods=['POST'])
 def login():
     auth_code = request.get_json()['code']
@@ -227,7 +240,6 @@ def login():
     admin = Admin.query.filter_by(email=user_info['email']).first()
     if (user is not None) or (coach is not None) or (admin is not None):
         # Include role in the user_info JSON
-        
         role = "user"
         
         if (isCoach(user_info['email'])):
@@ -240,8 +252,9 @@ def login():
         # Create JWT token and send response with user_info including role
         jwt_token = create_access_token(identity=user_info['email'])
         response = jsonify(user=user_info, role=role)
+
         response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
-        # response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
+        # response.set_cookie('access_token_cookie', value=jwt_token)
         #
         return response, 200
     else:
@@ -293,6 +306,7 @@ def protected():
     jwt_token = request.cookies.get('access_token_cookie')
     current_user = get_jwt_identity()
     #^this is the email of the user
+    # return isCoach("joshkim771@gmail.com")
     return "Success", 200
 
 @app.route("/protected_coach", methods=["GET"])
@@ -328,6 +342,11 @@ def increment():
     return jsonify({"message": "Request count incremented", "currentCount": counter.count}), 200
 
 #Route to increment request count
+
+# class SaveAdminEmail(FlaskForm):
+#     name = StringField('name', validators=[DataRequired()])
+#     email = StringField('email', validators=[DataRequired()])
+#     submit = SubmitField('Save')
 
 @app.route('/save_admin_email', methods=['POST'])
 # @jwt_required()
@@ -467,6 +486,8 @@ def deleteuser():
     return "Success", 200
 
 
+
+
 @app.route("/deletecoach", methods=["POST"])
 # @jwt_required()
 def deletecoach():
@@ -484,7 +505,7 @@ def deletecoach():
     return "Success", 200
 
 @app.route('/users', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def get_users():
     # jwt_token = request.cookies.get('access_token_cookie')
     # current_user = get_jwt_identity()
@@ -654,6 +675,11 @@ def get_tournament_schedule(tournament_id):
 
     return jsonify(matches)
 
+# class UpdateSchoolForm(FlaskForm):
+#     pairs = IntegerField('Number of pairs', validators=[DataRequired()])
+#     judges = IntegerField('Number of Judges', validators=[DataRequired()])
+#     submit = SubmitField('Update School')
+
 @app.route('/updateschool/<int:school_id>', methods=['POST'])
 # @jwt_required()
 def update_school(school_id):
@@ -709,6 +735,16 @@ def update_school_coach(school_id):
     else:
         return jsonify({"message": "Coach ID not provided"}), 400
     
+# class TournamentForm(FlaskForm):
+#     name = StringField('Tournament Name', validators=[DataRequired()])
+#     datetime = DateField('Date', validators=[DataRequired()])
+#     host_school = SelectField('Host School', coerce=int, validators=[DataRequired()]) 
+#     submit = SubmitField('Create Tournament')
+
+#     def __init__(self, *args, **kwargs):
+#         super(TournamentForm, self).__init__(*args, **kwargs)
+#         self.host_school.choices = [(school.id, school.name) for school in School.query.all()]
+    
 @app.route('/add_tournament', methods=['POST'])
 # @jwt_required()
 def add_tournament():
@@ -740,6 +776,13 @@ def add_tournament():
         return jsonify({"error": str(e)}), 500
     
     ####
+
+# class AddSchoolForm(FlaskForm):
+#     name = StringField('School Name', validators=[DataRequired()])
+#     num_debaters = IntegerField('Number of Debaters', validators=[DataRequired()])
+#     num_judges = IntegerField('Number of Judges', validators=[DataRequired()])
+#     submit = SubmitField('Add School')
+
 @app.route('/add_school', methods=['POST'])
 # @jwt_required()
 def add_school():
@@ -845,6 +888,43 @@ def delete_tournament():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
+
+
+@app.route('/tournament/<int:tournament_id>/rooms', methods=['POST'])
+def update_room_assignments(tournament_id):
+
+    try:
+        room_assignments_data = request.get_json()
+        if not isinstance(room_assignments_data, list):
+            return jsonify({'error': 'Invalid data format'}), 400
+
+        RoomAssignment.query.filter_by(tournament_id=tournament_id).delete()
+
+        for room_assignment in room_assignments_data:
+            match_index = room_assignment.get('match_index')
+            room_number = room_assignment.get('room_number')
+            if room_number:  
+                new_room_assignment = RoomAssignment(
+                    tournament_id=tournament_id,
+                    match_index=match_index,
+                    room_number=room_number
+                )
+                db.session.add(new_room_assignment)
+        db.session.commit()
+        return jsonify({'message': 'Room assignments success'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to update room assignments', 'details': str(e)}), 500
+
+
+@app.route('/tournament/<int:tournament_id>/rooms', methods=['GET'])
+def get_room_assignments(tournament_id):
+    room_assignments = RoomAssignment.query.filter_by(tournament_id=tournament_id).all()
+    room_assignments_data = [{'match_index': ra.match_index, 'room_number': ra.room_number} for ra in room_assignments]
+    return jsonify(room_assignments_data), 200
+
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
 
