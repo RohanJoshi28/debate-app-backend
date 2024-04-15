@@ -527,20 +527,34 @@ public class algorithm2 {
                 pos = judges.length-1;
             }
         }
+
+        //find what teams shouldn't be punished
+        String notpunished = "";
+        for(int i = 0; i<players.length; i++){
+            if(players[i].length<=2*judges[i].length){
+                notpunished+=","+i+",";
+            }
+        }
+
         //give advantage to teams that brought enough judges
+        int maxPlayersOnTeam = 0;
         for(int i = 0; i < players.length; i++){
-            int upto = maxPlayersOnTeam;
-            if(players.team.notpunished && players.team.size<maxPlayersOnTeam){
-                for(int j = 0; j<playesr[i].length; j++){
+            if(players[i].length>maxPlayersOnTeam){
+                maxPlayersOnTeam=players[i].length;
+            }
+        }
+        for(int i = 0; i < players.length; i++){
+            if(notpunished.contains(","+i+",") && players[i].length<maxPlayersOnTeam){
+                for(int j = 0; j<players[i].length; j++){
                     if(!players[i][j].used){
                         boolean done = false;
                         for(int k = 0; k<match.length; k++){
-                            if(!match[k].contains(player.team)){
-                                String temp = match[k].split("\\|");
-                                if(!temp[k].team.notpunished){
-                                    temp[k]= player[i][j];
+                            if(!match[k].contains(players[i][k].team)){
+                                String[] temp = match[k].split("\\|");
+                                if(notpunished.contains(","+temp[k].split("~")[0]+",")){
+                                    temp[k]= players[i][j].team+"~"+players[i][j].number;
                                 }
-                                match = temp[0]+"|"+temp[1]+"|"+temp[2];
+                                match[k] = temp[0]+"|"+temp[1]+"|"+temp[2];
                             }
                             done = true;
                             break;
