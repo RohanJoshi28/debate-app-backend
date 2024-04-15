@@ -552,12 +552,25 @@ public class algorithm2 {
                             if(!match[k].contains(players[i][k].team)){
                                 String[] temp = match[k].split("\\|");
                                 if(notpunished.contains(","+temp[k].split("~")[0]+",")){
-                                    temp[k]= players[i][j].team+"~"+players[i][j].number;
+                                    players[Integer.parseInt(temp[0].split("~")[0])][Integer.parseInt(temp[0].split("~")[1])].used = false;
+                                    temp[0]= players[i][j].team+"~"+players[i][j].number;
+                                    match[k] = temp[0]+"|"+temp[1]+"|"+temp[2];
+                                    players[i][k].used = true;
+                                    done = true;
+                                    break;
                                 }
-                                match[k] = temp[0]+"|"+temp[1]+"|"+temp[2];
                             }
-                            done = true;
-                            break;
+                            if(!match[k].contains(players[i][k].team)){
+                                String[] temp = match[k].split("\\|");
+                                if(notpunished.contains(","+temp[k].split("~")[1]+",")){
+                                    players[Integer.parseInt(temp[1].split("~")[0])][Integer.parseInt(temp[1].split("~")[1])].used = false;
+                                    temp[1]= players[i][j].team+"~"+players[i][j].number;
+                                    match[k] = temp[0]+"|"+temp[1]+"|"+temp[2];
+                                    players[i][k].used = true;
+                                    done = true;
+                                    break;
+                                }
+                            }
                         }
                         if(done){
                             break;
