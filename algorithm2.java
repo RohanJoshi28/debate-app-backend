@@ -39,6 +39,7 @@ public class algorithm2 {
         if(playNum/2>judgeNum){//should be players/2
             numMatches = judgeNum;
             int i = 0;
+            //in this case add all judges, but give advantage to teams later
             //attempt to balance players, premptively because too few judges, may have to be done later/while algorithm runs
             // while(sum(players)>numMatches*2){
             //     if(players[i]>judges[i]*2){
@@ -94,7 +95,7 @@ public class algorithm2 {
     
     public static String[] roundjv(int numMatches, debater[][] players, debater[][] judges, String[] prev, debater[][] playerCopy, debater[][] judgesCopy){
         long startTime = System.currentTimeMillis();
-        long fiveSeconds = 5*1000;
+        long fiveSeconds = 20*1000;
         String[] match = new String[numMatches];
         int pos = players.length-1;
         
@@ -526,6 +527,7 @@ public class algorithm2 {
                 pos = judges.length-1;
             }
         }
+        //give advantage to teams that brought enough judges
         return match;
     }
 
