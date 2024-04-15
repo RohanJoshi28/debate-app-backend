@@ -528,6 +528,30 @@ public class algorithm2 {
             }
         }
         //give advantage to teams that brought enough judges
+        for(int i = 0; i < players.length; i++){
+            int upto = maxPlayersOnTeam;
+            if(players.team.notpunished && players.team.size<maxPlayersOnTeam){
+                for(int j = 0; j<playesr[i].length; j++){
+                    if(!players[i][j].used){
+                        boolean done = false;
+                        for(int k = 0; k<match.length; k++){
+                            if(!match[k].contains(player.team)){
+                                String temp = match[k].split("\\|");
+                                if(!temp[k].team.notpunished){
+                                    temp[k]= player[i][j];
+                                }
+                                match = temp[0]+"|"+temp[1]+"|"+temp[2];
+                            }
+                            done = true;
+                            break;
+                        }
+                        if(done){
+                            break;
+                        }
+                    }
+                }
+            }
+        }
         return match;
     }
 
