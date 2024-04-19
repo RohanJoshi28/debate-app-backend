@@ -539,7 +539,7 @@ def get_users():
     jwt_token = request.cookies.get('access_token_cookie')
     current_user = get_jwt_identity()
     admin = isAdmin(current_user)
-    if not admin:
+    if not admin:#
         return "Unauthorized access", 401
     
     users = User.query.all()
