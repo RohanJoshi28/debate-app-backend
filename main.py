@@ -5,9 +5,10 @@ import requests
 from flask import Flask, jsonify, request, Response, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, decode_token, get_unverified_jwt_headers, verify_jwt_in_request
 from flask_jwt_extended import get_jwt
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
@@ -34,14 +35,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 
 app.app_context().push()
-# CORS(app, origins=['http://localhost:3000'], supports_credentials=True) #<--disable on deploy
-# CORS(app, origins=['http://localhost:3000', 'https://test-debate-frontend-update-deploy.onrender.com', 'https://debate-app-backend.onrender.com'], supports_credentials=True)
+#CORS(app, origins=['http://localhost:3000'], supports_credentials=True) #<--disable on deploy
+# # CORS(app, origins=['http://localhost:3000', 'https://test-debate-frontend-update-deploy.onrender.com', 'https://debate-app-backend.onrender.com'], supports_credentials=True)
 CORS(app, resources={r"/*": {"origins": "https://www.rohanjoshi.dev", "supports_credentials": True}}) #<--enable on deploy
 
 migrate = Migrate(app, db)
 
 load_dotenv()
 
+
+UPLOAD_FOLDER = 'maps' 
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config["JWT_COOKIE_SECURE"] = True
 app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
@@ -150,6 +154,25 @@ db.create_all()
 # tournament.schools.append(school3)
 # db.session.commit()
 
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return 'No file part', 400
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return 'No selected file', 400
+
+    # Use secure_filename to sanitize the filename
+    filename = secure_filename(file.filename)
+
+    # Save the file to the upload directory
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(file_path)
+
+    return 'File uploaded successfully', 200
+
 def create_initial_user():
     # Add the user if not already present in the database
     existing_user = User.query.filter_by(email='joshkim771@gmail.com').first()
@@ -253,8 +276,8 @@ def login():
         # Create JWT token and send response with user_info including role
         jwt_token = create_access_token(identity=user_info['email'])
         response = jsonify(user=user_info, role=role)
+        # response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
         response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
-        # response.set_cookie('access_token_cookie', value=jwt_token)
         #
         return response, 200
     else:
@@ -469,7 +492,7 @@ def save_user_email():
 def deleteuser():
     
     # jwt_token = request.cookies.get('access_token_cookie')
-    # current_user = get_jwt_identity()
+    current_user = get_jwt_identity()
     # admin = isAdmin(current_user)
     # if not admin:
     #     return "Unauthorized", 401
@@ -477,12 +500,19 @@ def deleteuser():
     email = request.get_json()['email']
     user = User.query.filter_by(email=email).first()
     coach = Coach.query.filter_by(email=email).first()
+    admin = Admin.query.filter_by(email=email).first()
     if user != None:
         db.session.delete(user)
         db.session.commit()
     if coach != None:
         db.session.delete(coach)
         db.session.commit()
+    if admin != None:
+        #add check, admin cannot delete themselves
+        db.session.delete(admin)
+        db.session.commit()
+        
+
     return "Success", 200
 
 
@@ -507,11 +537,11 @@ def deletecoach():
 @app.route('/users', methods=['GET'])
 @jwt_required()
 def get_users():
-    # jwt_token = request.cookies.get('access_token_cookie')
-    # current_user = get_jwt_identity()
-    # admin = isAdmin(current_user)
-    # if not admin:
-    #     return "Unauthorized", 401
+    jwt_token = request.cookies.get('access_token_cookie')
+    current_user = get_jwt_identity()
+    admin = isAdmin(current_user)
+    if not admin:
+        return "Unauthorized", 401
     
     users = User.query.all()
     user_data = []
@@ -554,7 +584,7 @@ def get_admins():
     return jsonify(user_data),200
 
 @app.route('/schools', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def get_schools():
     schools = School.query.all()
     school_data = [{
@@ -784,13 +814,17 @@ def add_tournament():
 #     submit = SubmitField('Add School')
 
 @app.route('/add_school', methods=['POST'])
-# @jwt_required()
 def add_school():
-    # jwt_token = request.cookies.get('access_token_cookie')
-    # current_user = get_jwt_identity()
-    # admin = isAdmin(current_user)
-    # if not admin:
-    #     return "Unauthorized", 401
+    
+    jwt_token = request.cookies.get('access_token_cookie')
+    admin = isAdmin(decode_token(jwt_token)['sub'])
+    # if verify_jwt_in_request():
+    #     print("HI")
+    #     current_user = get_jwt_identity()
+        # admin = isAdmin(current_user)
+    if not admin:
+        return "Unauthorized", 401
+ 
     data = request.get_json()
     try:
         new_school = School(
