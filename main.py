@@ -583,7 +583,7 @@ def get_admins():
     return jsonify(user_data),200
 
 @app.route('/schools', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def get_schools():
     schools = School.query.all()
     school_data = [{
