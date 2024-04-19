@@ -39,6 +39,7 @@ public class algorithm2 {
         if(playNum/2>judgeNum){//should be players/2
             numMatches = judgeNum;
             int i = 0;
+            //in this case add all judges, but give advantage to teams later
             //attempt to balance players, premptively because too few judges, may have to be done later/while algorithm runs
             // while(sum(players)>numMatches*2){
             //     if(players[i]>judges[i]*2){
@@ -94,7 +95,7 @@ public class algorithm2 {
     
     public static String[] roundjv(int numMatches, debater[][] players, debater[][] judges, String[] prev, debater[][] playerCopy, debater[][] judgesCopy){
         long startTime = System.currentTimeMillis();
-        long fiveSeconds = 5*1000;
+        long fiveSeconds = 20*1000;
         String[] match = new String[numMatches];
         int pos = players.length-1;
         
@@ -524,6 +525,58 @@ public class algorithm2 {
             //resets teams to beginning(so you swithc every time)
             if(pos<0){
                 pos = judges.length-1;
+            }
+        }
+
+        //find what teams shouldn't be punished
+        String notpunished = "";
+        for(int i = 0; i<players.length; i++){
+            if(players[i].length<=2*judges[i].length){
+                notpunished+=","+i+",";
+            }
+        }
+
+        //give advantage to teams that brought enough judges
+        int maxPlayersOnTeam = 0;
+        for(int i = 0; i < players.length; i++){
+            if(players[i].length>maxPlayersOnTeam){
+                maxPlayersOnTeam=players[i].length;
+            }
+        }
+        for(int i = 0; i < players.length; i++){
+            if(notpunished.contains(","+i+",") && players[i].length<maxPlayersOnTeam){
+                for(int j = 0; j<players[i].length; j++){
+                    if(!players[i][j].used){
+                        boolean done = false;
+                        for(int k = 0; k<match.length; k++){
+                            if(!match[k].contains(players[i][k].team)){
+                                String[] temp = match[k].split("\\|");
+                                if(notpunished.contains(","+temp[k].split("~")[0]+",")){
+                                    players[Integer.parseInt(temp[0].split("~")[0])][Integer.parseInt(temp[0].split("~")[1])].used = false;
+                                    temp[0]= players[i][j].team+"~"+players[i][j].number;
+                                    match[k] = temp[0]+"|"+temp[1]+"|"+temp[2];
+                                    players[i][k].used = true;
+                                    done = true;
+                                    break;
+                                }
+                            }
+                            if(!match[k].contains(players[i][k].team)){
+                                String[] temp = match[k].split("\\|");
+                                if(notpunished.contains(","+temp[k].split("~")[1]+",")){
+                                    players[Integer.parseInt(temp[1].split("~")[0])][Integer.parseInt(temp[1].split("~")[1])].used = false;
+                                    temp[1]= players[i][j].team+"~"+players[i][j].number;
+                                    match[k] = temp[0]+"|"+temp[1]+"|"+temp[2];
+                                    players[i][k].used = true;
+                                    done = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if(done){
+                            break;
+                        }
+                    }
+                }
             }
         }
         return match;
