@@ -16,7 +16,7 @@ public class JVMatchmaker {
         Collections.reverse(debaters);
         Collections.reverse(judges);
         Round round2 = createRound(debaters, judges, round1);
-        
+        //
         //flip to look better
         //Collections.reverse(round2.matches);
         //issue: instead of stopping at first valid matchup, search for better
