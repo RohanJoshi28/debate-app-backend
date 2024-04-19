@@ -540,7 +540,7 @@ def get_users():
     current_user = get_jwt_identity()
     admin = isAdmin(current_user)
     if not admin:
-        return "Unauthorized", 401
+        return "Unauthorized access", 401
     
     users = User.query.all()
     user_data = []
