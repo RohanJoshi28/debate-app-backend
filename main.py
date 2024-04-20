@@ -999,7 +999,7 @@ def delete_tournament():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-
+#
 
 @app.route('/tournament/<int:tournament_id>/rooms', methods=['POST'])
 def update_room_assignments(tournament_id):
