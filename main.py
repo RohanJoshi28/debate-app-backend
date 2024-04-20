@@ -477,8 +477,8 @@ def save_user_email():
     admin = isAdmin(curr_user)
     if not admin:
         return "Unauthorized", 401
-    name = request.form['name']
-    email = request.form['email']
+    name = request.get_json()['name']
+    email = request.get_json()['email']
 
     user = User.query.filter_by(email=email).first()
     if user == None:
