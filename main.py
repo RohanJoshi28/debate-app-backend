@@ -509,6 +509,7 @@ def save_user_email():
 def deleteuser():
     jwt_token = request.cookies.get('access_token_cookie')
     return "Success", 200
+#
     
     admin = isAdmin(decode_token(jwt_token['sub']))
     if not admin:
