@@ -512,6 +512,7 @@ def deleteuser():
     admin = isAdmin(curr_user)
     if not admin:
         return "Unauthorized", 401
+    #
     # jwt_token = request.cookies.get('access_token_cookie')
     # admin = isAdmin(current_user)
     # if not admin:
