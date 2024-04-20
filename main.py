@@ -579,13 +579,17 @@ def get_users():
 
 
 @app.route('/coaches', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def get_coaches():
     # jwt_token = request.cookies.get('access_token_cookie')
     # current_user = get_jwt_identity()
     # admin = isAdmin(current_user)
     # if not admin:
     #     return "Unauthorized", 401
+    current_user = get_jwt_identity()
+    admin = isAdmin(current_user)
+    if not admin:##
+        return "Unauthorized access", 401
     users = Coach.query.all()
     user_data = []
     for user in users:
@@ -595,14 +599,17 @@ def get_coaches():
 
 
 @app.route('/admins', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def get_admins():
     # jwt_token = request.cookies.get('access_token_cookie')
     # current_user = get_jwt_identity()
     # admin = isAdmin(current_user)
     # if not admin:
     #     return "Unauthorized", 401
-    
+    current_user = get_jwt_identity()
+    admin = isAdmin(current_user)
+    if not admin:##
+        return "Unauthorized access", 401
     users = Admin.query.all()
     user_data = []
     for user in users:
@@ -623,7 +630,7 @@ def get_schools():
     return jsonify(school_data), 200
 
 @app.route('/tournaments')
-# @jwt_required()
+@jwt_required()
 def get_tournaments():
 
     tournaments = Tournament.query.all()
@@ -651,7 +658,7 @@ def get_tournaments():
     return jsonify(tournaments_list), 200
 
 @app.route('/tournament/<int:tournament_id>')
-# @jwt_required()
+@jwt_required()
 def get_tournament(tournament_id):
     tournament = Tournament.query.get(tournament_id)
     if tournament is None:
@@ -684,7 +691,7 @@ def get_tournament(tournament_id):
 
 
 @app.route('/tournamentschedule/<int:tournament_id>', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 def get_tournament_schedule(tournament_id):
     # Fetch the tournament
     tournament = Tournament.query.get(tournament_id)
@@ -782,6 +789,12 @@ def update_school_coach(school_id):
 
     # if not admin:
     #     return "Unauthorized", 401
+    jwt_token = request.cookies.get('access_token_cookie')
+    curr_user = decode_token(jwt_token['sub'])
+    admin = isAdmin(curr_user)
+    coach = isCoach(curr_user)
+    if not admin and not coach:
+        return "Unauthorized", 401
     school = School.query.get(school_id)
     if not school:
         return jsonify({"message": "School not found"}), 404
@@ -986,7 +999,12 @@ def delete_tournament():
 
 @app.route('/tournament/<int:tournament_id>/rooms', methods=['POST'])
 def update_room_assignments(tournament_id):
-
+    jwt_token = request.cookies.get('access_token_cookie')
+    curr_user = decode_token(jwt_token['sub'])
+    admin = isAdmin(curr_user)
+    coach = isCoach(curr_user)
+    if not admin and not coach:
+        return "Unauthorized", 401
     try:
         room_assignments_data = request.get_json()
         if not isinstance(room_assignments_data, list):
@@ -1012,6 +1030,7 @@ def update_room_assignments(tournament_id):
 
 
 @app.route('/tournament/<int:tournament_id>/rooms', methods=['GET'])
+@jwt_required()
 def get_room_assignments(tournament_id):
     room_assignments = RoomAssignment.query.filter_by(tournament_id=tournament_id).all()
     room_assignments_data = [{'match_index': ra.match_index, 'room_number': ra.room_number} for ra in room_assignments]
