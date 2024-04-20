@@ -978,7 +978,7 @@ def delete_tournament():
     coach = isCoach(curr_user)
     if not admin and not coach:
         return "Unauthorized", 401
-    try:
+    try:#
         data = request.get_json()
         tournament_id = data.get('tournamentid')
 
