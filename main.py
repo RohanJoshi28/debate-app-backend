@@ -197,7 +197,7 @@ def create_initial_user():
         new_admin = Admin(email='joshkim771@gmail.com', name='Joshua Kim')
         db.session.add(new_admin)
         db.session.commit()
-        
+        #
 create_initial_user()
 
 # @app.before_request
