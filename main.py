@@ -981,7 +981,7 @@ def delete_tournament():
     try:#
         data = request.get_json()
         tournament_id = data.get('tournamentid')
-
+#
         if tournament_id is None:
             return jsonify({"error": "Tournament ID not provided"}), 400
 
