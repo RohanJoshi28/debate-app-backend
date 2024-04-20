@@ -815,14 +815,14 @@ def add_tournament():
 @app.route('/add_school', methods=['POST'])
 def add_school():
     
-    jwt_token = request.cookies.get('access_token_cookie')
-    admin = isAdmin(decode_token(jwt_token)['sub'])
-    # if verify_jwt_in_request():
-    #     print("HI")
-    #     current_user = get_jwt_identity()
-        # admin = isAdmin(current_user)
-    if not admin:
-        return "Unauthorized", 401
+    # jwt_token = request.cookies.get('access_token_cookie')
+    # admin = isAdmin(decode_token(jwt_token)['sub'])
+    # # if verify_jwt_in_request():
+    # #     print("HI")
+    # #     current_user = get_jwt_identity()
+    #     # admin = isAdmin(current_user)
+    # if not admin:
+    #     return "Unauthorized", 401
  
     data = request.get_json()
     try:
