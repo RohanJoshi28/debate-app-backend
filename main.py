@@ -156,6 +156,12 @@ db.create_all()
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    
+    jwt_token = request.cookies.get('access_token_cookie')
+    curr_user = decode_token(jwt_token['sub'])
+    admin = isAdmin(curr_user)
+    if not admin:
+        return "Unauthorized", 401
     if 'file' not in request.files:
         return 'No file part', 400
 
@@ -379,7 +385,11 @@ def save_admin_email():
     # admin = isAdmin(current_user)
     # if not admin:
     #     return "Unauthorized", 401
-    
+    jwt_token = request.cookies.get('access_token_cookie')
+    curr_user = decode_token(jwt_token['sub'])
+    admin = isAdmin(curr_user)
+    if not admin:
+        return "Unauthorized", 401
     name = request.form['name']
     email = request.form['email']
 
@@ -418,7 +428,11 @@ def save_coach_email():
     # admin = isAdmin(current_user)
     # if not admin:
     #     return "Unauthorized", 401
-    
+    jwt_token = request.cookies.get('access_token_cookie')
+    curr_user = decode_token(jwt_token['sub'])
+    admin = isAdmin(curr_user)
+    if not admin:
+        return "Unauthorized", 401
     name = request.form['name']
     email = request.form['email']
     school = request.form['school']
@@ -458,7 +472,11 @@ def save_user_email():
     # admin = isAdmin(current_user)
     # if not admin:
     #     return "Unauthorized", 401
-    
+    jwt_token = request.cookies.get('access_token_cookie')
+    curr_user = decode_token(jwt_token['sub'])
+    admin = isAdmin(curr_user)
+    if not admin:
+        return "Unauthorized", 401
     name = request.form['name']
     email = request.form['email']
 
@@ -489,7 +507,11 @@ def save_user_email():
 @app.route("/deleteuser", methods=["POST"])
 # @jwt_required()
 def deleteuser():
-    
+    jwt_token = request.cookies.get('access_token_cookie')
+    curr_user = decode_token(jwt_token['sub'])
+    admin = isAdmin(curr_user)
+    if not admin:
+        return "Unauthorized", 401
     # jwt_token = request.cookies.get('access_token_cookie')
     current_user = get_jwt_identity()
     # admin = isAdmin(current_user)
@@ -525,6 +547,12 @@ def deletecoach():
     # admin = isAdmin(current_user)
     # if not admin:
     #     return "Unauthorized", 401
+    
+    jwt_token = request.cookies.get('access_token_cookie')
+    curr_user = decode_token(jwt_token['sub'])
+    admin = isAdmin(curr_user)
+    if not admin:
+        return "Unauthorized", 401
     email = request.form['email']
     email = request.get_json()['email']
     user = Coach.query.filter_by(email=email).first()
@@ -719,6 +747,13 @@ def update_school(school_id):
     # coach = isCoach(current_user)
     # if not admin and not coach:
     #     return "Unauthorized", 401
+    jwt_token = request.cookies.get('access_token_cookie')
+    curr_user = decode_token(jwt_token['sub'])
+    admin = isAdmin(curr_user)
+    coach = isCoach(curr_user)
+    if not admin and not coach:
+        return "Unauthorized", 401
+    
     
     school = School.query.get(school_id)
     if not school:
@@ -783,6 +818,13 @@ def add_tournament():
     # coach = isCoach(current_user)
     # if not admin and not coach:
     #     return "Unauthorized", 401
+    jwt_token = request.cookies.get('access_token_cookie')
+    curr_user = decode_token(jwt_token['sub'])
+    admin = isAdmin(curr_user)
+    coach = isCoach(curr_user)
+    if not admin and not coach:
+        return "Unauthorized", 401
+
     data = request.get_json()
     try:
         tournament_date = datetime.strptime(data['datetime'], '%Y-%m-%d').replace(hour=0, minute=0)
@@ -840,6 +882,12 @@ def add_school():
 @app.route("/delete_school", methods=["POST"])
 # @jwt_required()
 def deleteschool():
+    jwt_token = request.cookies.get('access_token_cookie')
+    curr_user = decode_token(jwt_token['sub'])
+    admin = isAdmin(curr_user)
+
+    if not admin:
+        return "Unauthorized", 401
     # jwt_token = request.cookies.get('access_token_cookie')
     # current_user = get_jwt_identity()
     # admin = isAdmin(current_user)
@@ -860,6 +908,11 @@ def update_school_ranking():
     # admin = isAdmin(current_user)
     # if not admin:
     #     return "Unauthorized", 401
+    jwt_token = request.cookies.get('access_token_cookie')
+    curr_user = decode_token(jwt_token['sub'])
+    admin = isAdmin(curr_user)
+    if not admin:
+        return "Unauthorized", 401
     data = request.get_json()
     rankings = data['rankings']
     for rank, school_name in enumerate(rankings, start=1):
@@ -877,6 +930,11 @@ def update_partnership_ranking():
     # admin = isAdmin(current_user)
     # if not admin:
     #     return "Unauthorized", 401
+    jwt_token = request.cookies.get('access_token_cookie')
+    curr_user = decode_token(jwt_token['sub'])
+    admin = isAdmin(curr_user)
+    if not admin:
+        return "Unauthorized", 401
     data = request.get_json()
     rankings = data['rankings']
     for rank, partnership_info in enumerate(rankings, start=1):
@@ -897,6 +955,12 @@ def delete_tournament():
     # coach = isCoach(current_user)
     # if not admin and not coach:
     #     return "Unauthorized", 401
+    jwt_token = request.cookies.get('access_token_cookie')
+    curr_user = decode_token(jwt_token['sub'])
+    admin = isAdmin(curr_user)
+    coach = isCoach(curr_user)
+    if not admin and not coach:
+        return "Unauthorized", 401
     try:
         data = request.get_json()
         tournament_id = data.get('tournamentid')
