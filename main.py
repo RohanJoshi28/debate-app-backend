@@ -42,7 +42,7 @@ CORS(app, resources={r"/*": {"origins": "https://www.rohanjoshi.dev", "supports_
 migrate = Migrate(app, db)
 
 load_dotenv()
-#
+
 
 UPLOAD_FOLDER = 'maps' 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -213,7 +213,7 @@ create_initial_user()
 def catch_all(path):
     return render_template('index.html')
 
-#
+
 @app.route('/', methods=['GET'])
 def hello_world():
     cmd = ['java', '-cp', '.', 'helloworld']
@@ -309,9 +309,11 @@ def refresh_expiring_jwts(response):
 
 @app.route("/logout", methods=["POST"])
 def logout():
-    resp = jsonify({'logout': True})
-    unset_jwt_cookies(resp)
-    return resp, 200
+    response = jsonify({"msg": "logout successful"})
+    unset_jwt_cookies(response)
+    response.delete_cookie('access_token_cookie', domain='.rohanjoshi.dev')
+    # response.delete_cookie('logged_in')
+    return response, 200
 
 def isCoach(email):
     coach = Coach.query.filter_by(email=email).first()
@@ -1042,6 +1044,5 @@ def get_room_assignments(tournament_id):
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
-
 
 
