@@ -42,7 +42,7 @@ CORS(app, resources={r"/*": {"origins": "https://www.rohanjoshi.dev", "supports_
 migrate = Migrate(app, db)
 
 load_dotenv()
-
+#
 
 UPLOAD_FOLDER = 'maps' 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
