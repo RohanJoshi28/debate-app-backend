@@ -309,11 +309,9 @@ def refresh_expiring_jwts(response):
 
 @app.route("/logout", methods=["POST"])
 def logout():
-    response = jsonify({"msg": "logout successful"})
-    unset_jwt_cookies(response)
-    response.delete_cookie('access_token_cookie', domain='.rohanjoshi.dev')
-    # response.delete_cookie('logged_in')
-    return response, 200
+    resp = jsonify({'logout': True})
+    unset_jwt_cookies(resp)
+    return resp, 200
 
 def isCoach(email):
     coach = Coach.query.filter_by(email=email).first()
