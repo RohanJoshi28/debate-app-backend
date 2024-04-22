@@ -213,7 +213,7 @@ create_initial_user()
 def catch_all(path):
     return render_template('index.html')
 
-
+#
 @app.route('/', methods=['GET'])
 def hello_world():
     cmd = ['java', '-cp', '.', 'helloworld']
