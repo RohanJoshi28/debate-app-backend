@@ -2,7 +2,7 @@ import os
 import subprocess
 
 import requests
-from flask import Flask, jsonify, request, Response, render_template
+from flask import Flask, jsonify, request, Response, render_template, send_from_directory, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
@@ -45,6 +45,7 @@ load_dotenv()
 
 
 UPLOAD_FOLDER = 'maps' 
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpeg', 'jpg'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config["JWT_COOKIE_SECURE"] = True
 app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
@@ -58,7 +59,8 @@ GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
 GOOGLE_CLIENT_SECRET = os.environ['GOOGLE_CLIENT_SECRET']
 
 
-
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 #Define the RequestCount model
 class RequestCount(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -156,12 +158,13 @@ db.create_all()
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    
     jwt_token = request.cookies.get('access_token_cookie')
     curr_user = decode_token(jwt_token)['sub']
     admin = isAdmin(curr_user)
+    
     if not admin:
         return "Unauthorized", 401
+    
     if 'file' not in request.files:
         return 'No file part', 400
 
@@ -170,15 +173,53 @@ def upload_file():
     if file.filename == '':
         return 'No selected file', 400
 
-    # Use secure_filename to sanitize the filename
-    filename = secure_filename(file.filename)
+    if not allowed_file(file.filename):
+        return 'File type not allowed', 400
 
+    if 'school_name' not in request.form:
+        return 'No school name provided', 400
+    
+    school_name = request.form['school_name']
+    
+    # Replace spaces with underscores in the school name
+    sanitized_school_name = school_name.replace(' ', '_')
+    
+    # Use secure_filename to sanitize the original filename
+    filename = secure_filename(file.filename)
+    
+    # Generate the new filename with sanitized school name and original file extension
+    _, file_extension = os.path.splitext(filename)
+    new_filename = f"{sanitized_school_name}{file_extension}"
+    
     # Save the file to the upload directory
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
     file.save(file_path)
 
     return 'File uploaded successfully', 200
 
+@app.route('/schoolmap/<school_name>', methods=['GET'])
+@jwt_required()
+def get_school_map(school_name):
+    
+    # Convert school name to a filename-friendly format (e.g., remove spaces and convert to lowercase)
+    sanitized_school_name = secure_filename(school_name)
+
+    # Define the directory path where map files are stored
+    maps_directory = 'maps'  # Update this with the actual directory path
+
+    # List of supported file extensions to try
+    file_extensions = ['.pdf', '.png', '.jpg', '.jpeg']
+
+    # Try to find the map file with supported extensions
+    for ext in file_extensions:
+        filename = sanitized_school_name + ext
+        map_path = os.path.join(maps_directory, filename)
+        if os.path.exists(map_path):
+            # Serve the map file with the found extension
+            return send_file(map_path)
+
+    # If no map file is found with supported extensions, return a 404 error
+    return 'Map file not found', 404
 def create_initial_user():
     # Add the user if not already present in the database
     existing_user = User.query.filter_by(email='joshkim2805@gmail.com').first()
@@ -281,7 +322,7 @@ def login():
         # Create JWT token and send response with user_info including role
         jwt_token = create_access_token(identity=user_info['email'])
         response = jsonify(user=user_info, role=role)
-        # response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
+        #response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
         response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
         #
         return response, 200
