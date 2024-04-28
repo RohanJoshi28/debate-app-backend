@@ -36,4 +36,10 @@ public class PersonStore {
     public List<Judge> GetJudges() {
         return new ArrayList<>(judges);
     }
+
+    public void SetTeamWins(int[] wins) {
+        for (int i = 0; i < teams.size(); i++) {
+            teams.get(i).wins = wins[i];
+        }
+    }
 }

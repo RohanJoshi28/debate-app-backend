@@ -20,7 +20,7 @@ public class RoundGenerator {
     }
 
     public Round Generate(Round lastRound) {
-        Round round = new Round(people);
+        Round round = new Round();
         availableTeams = people.GetTeams();
         availableJudges = people.GetJudges();
 
@@ -54,7 +54,7 @@ public class RoundGenerator {
                 match = new Match(opponent, team, judge);
             }
 
-            round.AddMatch(match);
+            round.matches.add(match);
         }
 
         return round;
