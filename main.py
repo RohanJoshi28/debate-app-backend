@@ -219,7 +219,9 @@ def get_school_map(school_name):
             return send_file(map_path)
 
     # If no map file is found with supported extensions, return a 404 error
-    return 'Map file not found', 404
+    all_files = os.listdir(maps_directory)
+    all_filenames = ', '.join(all_files)
+    return all_filenames, 404
 def create_initial_user():
     # Add the user if not already present in the database
     existing_user = User.query.filter_by(email='joshkim2805@gmail.com').first()
