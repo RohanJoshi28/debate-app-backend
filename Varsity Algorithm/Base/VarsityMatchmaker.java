@@ -12,13 +12,13 @@ public class VarsityMatchmaker {
         people = new PersonStore(schoolArgs);
     }
 
-    public Tournament CreateTournament() {
+    public RoundSet CreateRoundSet() {
         RoundGenerator roundGenerator = new RoundGenerator(people);
 
         Round round1 = roundGenerator.Generate(null);
         Round round2 = roundGenerator.Generate(round1);
 
-        return new Tournament(round1, round2);
+        return new RoundSet(round1, round2);
     }
 
     public void SetTeamWins(int[] wins) {

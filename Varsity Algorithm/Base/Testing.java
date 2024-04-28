@@ -15,12 +15,12 @@ public class Testing {
         };
         
         VarsityMatchmaker matchmaker = new VarsityMatchmaker(schoolArgs);
-        Tournament morningTournament = matchmaker.CreateTournament();
+        RoundSet morningTournament = matchmaker.CreateRoundSet();
         System.err.println("Morning:");
         System.out.println(morningTournament);
 
         matchmaker.SetTeamWins(morningWins);
-        Tournament afternoonTournament = matchmaker.CreateTournament();
+        RoundSet afternoonTournament = matchmaker.CreateRoundSet();
         System.out.println("Afternoon");
         System.out.println(afternoonTournament);
     }
