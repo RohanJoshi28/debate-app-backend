@@ -3,8 +3,9 @@ package People;
 import School.School;
 
 public class Team {
-    private School school;
-    private int rank;
+    public School school;
+    public int rank;
+    public int wins;
 
     public Team(School school, int rank) {
         this.school = school;
@@ -13,6 +14,6 @@ public class Team {
 
     @Override
     public String toString() {
-        return school.toString() + rank;
+        return "" + school + rank + " [" + wins + "]";
     }
 }
