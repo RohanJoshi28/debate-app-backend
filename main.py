@@ -320,7 +320,7 @@ def login():
             role = "admin"
     
         user_info['role'] = role
-
+#
         # Create JWT token and send response with user_info including role
         jwt_token = create_access_token(identity=user_info['email'])
         response = jsonify(user=user_info, role=role)
