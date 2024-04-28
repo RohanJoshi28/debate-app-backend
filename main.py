@@ -175,9 +175,12 @@ def upload_file():
 
     if not allowed_file(file.filename):
         return 'File type not allowed', 400
+   
 
     if 'school_name' not in request.form:
         return 'No school name provided', 400
+    
+    
     
     school_name = request.form['school_name']
     
@@ -218,10 +221,7 @@ def get_school_map(school_name):
             # Serve the map file with the found extension
             return send_file(map_path)
 
-    # If no map file is found with supported extensions, return a 404 error
-    all_files = os.listdir(maps_directory)
-    all_filenames = ', '.join(all_files)
-    return all_filenames, 404
+    return 'Map file not found', 404
 def create_initial_user():
     # Add the user if not already present in the database
     existing_user = User.query.filter_by(email='joshkim2805@gmail.com').first()
