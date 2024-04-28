@@ -1,5 +1,6 @@
+package Base;
+
 import School.SchoolArg;
-import People.*;
 
 public class Testing {
     public static void main(String[] args) {
@@ -8,11 +9,10 @@ public class Testing {
             new SchoolArg(2, 1),
             new SchoolArg(2, 1),
         };
+        
+        VarsityMatchmaker matchmaker = new VarsityMatchmaker();
+        Tournament morningTournament = matchmaker.CreateTournament(schoolArgs);
 
-        PersonGenerator personGenerator = new PersonGenerator(schoolArgs);
-
-        for (Team team : personGenerator.teams) {
-            System.out.println(team);
-        }
+        System.out.println(morningTournament);
     }
 }
