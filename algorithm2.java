@@ -243,6 +243,7 @@ public class algorithm2 {
                         if(!(timeSinceMatch<judges.length)){
                             String ttt = match[i].split("\\|")[0];
                             debater tmp = players[Integer.valueOf(ttt.split("~")[0])][Integer.valueOf(ttt.split("~")[1])];
+                            //if support needed(and full round completed) do not add two judge support teams together
                             if(players[pos][j].judgeSupport&&tmp.judgeSupport){
                                 break;
                             }
@@ -362,6 +363,7 @@ public class algorithm2 {
                                     judgesToUse--;
                                     if(match[i].lastIndexOf(judges[pos][j].team+"~")!=(match[i].indexOf(judges[pos][j].team+"~"))){
                                         if(match[i].lastIndexOf(judges[pos][j].team+"~")!=(match[i].indexOf(judges[pos][j].team+"~"))){
+                                            //add judge support if faced opposing teams judge
                                             if(match[i].split("\\|")[0].split("~")[0].equals(judges[pos][j].team)){
                                                 players[Integer.parseInt(match[i].split("\\|")[1].split("~")[0])][Integer.parseInt(match[i].split("\\|")[1].split("~")[1])].judgeSupport = true;
                                             }else{
