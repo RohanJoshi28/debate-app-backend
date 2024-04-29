@@ -767,11 +767,26 @@ def get_tournament(tournament_id):
 @app.route('/tournamentschedule/<int:tournament_id>', methods=['GET'])
 @jwt_required()
 def get_tournament_schedule(tournament_id):
+    letters_to_numbers = {chr(i): i - ord('A') for i in range(ord('A'), ord('Z') + 1)}
     # Fetch the tournament
     tournament = Tournament.query.get(tournament_id)
 
     if tournament is None:
         return jsonify({"message": "Tournament not found"}), 404
+    else:
+        matches = Match.query.filter_by(tournament_id=tournament_id).order_by(Match.id).all()
+        if matches:
+            match_export_list = []
+            for match in matches:
+                match_round = match.round_number
+                if len(match_export_list)<=match_round-1:
+                    match_export_list.append([])
+                match_affirmative = str(letters_to_numbers[match.affirmative[0]]) + "~" + str(int(match.affirmative[1]) - 1)
+                match_negative = str(letters_to_numbers[match.negative[0]]) + "~" + str(int(match.negative[1]) - 1)
+                match_judge = "J" + str(letters_to_numbers[match.judge[0]]) + "~" + str(int(match.judge[2]) - 1)
+                full_match = match_affirmative + "|" + match_negative + "|" + match_judge
+                match_export_list[match_round-1].append(full_match)
+            return match_export_list
 
     # Initialize lists to hold player and judge counts
     players_counts = []
