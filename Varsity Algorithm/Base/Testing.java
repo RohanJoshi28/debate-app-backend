@@ -12,12 +12,15 @@ public class Testing {
         };
 
         int[] morningWins = new int[] {
-            0, 1, 1, 1, 2, 1, 0, 0, 1, 2, 1, 1, 2, 1, 2, 0
+            2, 1, 0, 1,
+            1, 0, 1, 2,
+            1, 2, 0, 2,
+            2, 0, 1, 1
         };
         
         VarsityMatchmaker matchmaker = new VarsityMatchmaker(schoolArgs);
         RoundSet morningTournament = matchmaker.CreateRoundSet();
-        System.err.println("Morning:");
+        System.out.println("Morning:");
         System.out.println(morningTournament);
 
         matchmaker.SetTeamWins(morningWins);

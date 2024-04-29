@@ -11,6 +11,8 @@ public class MatchEvaluator {
         return team1.school == team2.school;
     }
 
+    //TODO: RAnk judges and have higher judges preferrably judge in the afternoon
+    //and preferrably jusge higher ranked teams
     private static final int RANK_DIFFERENCE_PENALTY = 1;
     private static final int WIN_DIFFERENCE_PENALTY = 10;
     private static final int TEAM_ALREADY_GONE_PENALTY = 100;
