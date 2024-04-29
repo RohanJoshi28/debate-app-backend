@@ -126,6 +126,15 @@ class RoomAssignment(db.Model):
     match_index = db.Column(db.Integer, nullable=False)
     room_number = db.Column(db.String, nullable=False)
 
+class Match(db.Model):
+    __tablename__ = 'match'
+    id = db.Column(db.Integer, primary_key=True)
+    tournament_id = db.Column(db.Integer, db.ForeignKey('tournament.id'), nullable=False)
+    round_number = db.Column(db.Integer, nullable=False)
+    affirmative = db.Column(db.String, nullable=False)
+    negative = db.Column(db.String, nullable=False)
+    judge = db.Column(db.String, nullable=False)
+
 db.create_all()
 
 #db model creation tests
@@ -815,6 +824,19 @@ def update_school(school_id):
     num_debaters = int(request.form['pairs'])
     num_judges = int(request.form['judges'])
     
+    tournaments = Tournament.query.filter(
+        (Tournament.host_school_id == school_id) | 
+        (Tournament.schools.any(id=school_id))
+    ).all()
+
+    tournament_ids = [tournament.id for tournament in tournaments]
+
+    matches = Match.query.filter(Match.tournament_id.in_(tournament_ids)).all()
+
+    for match in matches:
+        db.session.delete(match)
+
+    db.session.commit()
     
     print(num_debaters)
     print(num_judges)
