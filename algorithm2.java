@@ -102,7 +102,11 @@ public class algorithm2 {
         for(int i = 0; i<numMatches; i++){
             if(System.currentTimeMillis()-startTime>fiveSeconds){
                 System.out.println("Match Failed");
-                String[] failedTest = {"Test Failed"};
+                //String[] failedTest = {"Test Failed"};
+                String[] failedTest = new String[numMatches];
+                for(int q = 0; q < numMatches; q++){
+                    failedTest[i] = "0~0|0~0|J0~0";
+                }
                 return failedTest;
             }
             if(!allUsed(players[pos])){
@@ -168,7 +172,11 @@ public class algorithm2 {
         for(int i = 0; i<numMatches; i++){
             if(System.currentTimeMillis()-startTime>fiveSeconds){
                 System.out.println("Match Failed");
-                String[] failedTest = {"Test Failed"};
+                //String[] failedTest = {"Test Failed"};
+                String[] failedTest = new String[numMatches];
+                for(int q = 0; q < numMatches; q++){
+                    failedTest[i] = "0~0|0~0|J0~0";
+                }
                 return failedTest;
             }
             if(players[pos].length>0&&allUsed(players[pos])){
@@ -278,7 +286,11 @@ public class algorithm2 {
         for(int i = 0; i < numMatches; i++){
             if(System.currentTimeMillis()-startTime>fiveSeconds){
                 System.out.println("Match Failed");
-                String[] failedTest = {"Test Failed"};
+                //String[] failedTest = {"Test Failed"};
+                String[] failedTest = new String[numMatches];
+                for(int q = 0; q < numMatches; q++){
+                    failedTest[i] = "0~0|0~0|J0~0";
+                }
                 return failedTest;
             }
 
