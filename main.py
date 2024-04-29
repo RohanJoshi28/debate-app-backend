@@ -4,9 +4,11 @@ import subprocess
 import requests
 from flask import Flask, jsonify, request, Response, render_template
 from flask_sqlalchemy import SQLAlchemy
+
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
+from flask import current_app
 
 from flask_jwt_extended import create_access_token, decode_token, get_unverified_jwt_headers, verify_jwt_in_request
 from flask_jwt_extended import get_jwt
@@ -31,13 +33,13 @@ from sendgrid.helpers.mail import Mail
 
 import subprocess
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://///Users/jaden/Grade 12/Capstone/debate-app-backend/database.db'
 db = SQLAlchemy(app)
 
 app.app_context().push()
-#CORS(app, origins=['http://localhost:3000'], supports_credentials=True) #<--disable on deploy
+CORS(app, origins=['http://127.0.0.1:3000'], supports_credentials=True) #<--disable on deploy
 # # CORS(app, origins=['http://localhost:3000', 'https://test-debate-frontend-update-deploy.onrender.com', 'https://debate-app-backend.onrender.com'], supports_credentials=True)
-CORS(app, resources={r"/*": {"origins": "https://www.rohanjoshi.dev", "supports_credentials": True}}) #<--enable on deploy
+#CORS(app, resources={r"/*": {"origins": "https://www.rohanjoshi.dev", "supports_credentials": True}}) #<--enable on deploy
 
 migrate = Migrate(app, db)
 
@@ -50,8 +52,8 @@ app.config["JWT_COOKIE_SECURE"] = True
 app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
-app.config["JWT_COOKIE_SAMESITE"] = "None"
-app.config["JWT_COOKIE_DOMAIN"] = "rohanjoshi.dev"
+#app.config["JWT_COOKIE_SAMESITE"] = "None"
+#app.config["JWT_COOKIE_DOMAIN"] = "rohanjoshi.dev"
 jwt = JWTManager(app)
 
 GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
@@ -124,6 +126,16 @@ class RoomAssignment(db.Model):
     match_index = db.Column(db.Integer, nullable=False)
     room_number = db.Column(db.String, nullable=False)
 
+
+class Match(db.Model):
+    __tablename__ = 'match'
+    id = db.Column(db.Integer, primary_key=True)
+    tournament_id = db.Column(db.Integer, db.ForeignKey('tournament.id'), nullable=False)
+    round_number = db.Column(db.Integer, nullable=False)
+    affirmative = db.Column(db.String, nullable=False)
+    negative = db.Column(db.String, nullable=False)
+    judge = db.Column(db.String, nullable=False)
+
 db.create_all()
 
 #db model creation tests
@@ -183,19 +195,32 @@ def create_initial_user():
     # Add the user if not already present in the database
     existing_user = User.query.filter_by(email='joshkim2805@gmail.com').first()
     if not existing_user:
-        new_user = User(email='joshkim2805@gmail.com', name='Joshua Kim')
-        db.session.add(new_user)
+        #new_user = User(email='joshkim2805@gmail.com', name='Joshua Kim')
+        new_user1 = User(email='jadenmanuel2006@gmail.com', name='Jaden Manuel')
+        new_user2 = User(email='jadenmanuel19@gmail.com', name='Jaden M Manuel')
+        #db.session.add(new_user)
+        db.session.add(new_user1)
+        db.session.add(new_user2)
         db.session.commit()
     existing_coach = Coach.query.filter_by(email='joshkim771@gmail.com').first()
     if not existing_coach:
-        new_coach = Coach(email='joshkim771@gmail.com', name='Joshua Kim', school_id=1)
-        db.session.add(new_coach)
+        #new_coach = Coach(email='joshkim771@gmail.com', name='Joshua Kim', school_id=1)
+        new_coach1 = Coach(email='jadenmanuel2006@gmail.com', name='Jaden Manuel', school_id=1)
+        new_coach2 = Coach(email='jadenmanuel19@gmail.com', name='Jaden M Manuel', school_id=1)
+        #db.session.add(new_coach)
+        db.session.add(new_coach1)
+        db.session.add(new_coach2)
         db.session.commit()
     
     existing_admin = Admin.query.filter_by(email='joshkim771@gmail.com').first()
     if not existing_admin:
-        new_admin = Admin(email='joshkim771@gmail.com', name='Joshua Kim')
-        db.session.add(new_admin)
+        #new_admin = Admin(email='joshkim771@gmail.com', name='Joshua Kim')
+        new_admin1 = Admin(email='jadenmanuel2006@gmail.com', name='Jaden Manuel')
+        new_admin2 = Admin(email='jadenmanuel19@gmail.com', name='Jaden M Manuel')
+        #db.session.add(new_admin)
+        db.session.add(new_admin1)
+        db.session.add(new_admin2)
+
         db.session.commit()
         #
 create_initial_user()
@@ -282,7 +307,7 @@ def login():
         jwt_token = create_access_token(identity=user_info['email'])
         response = jsonify(user=user_info, role=role)
         # response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
-        response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
+        response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
         #
         return response, 200
     else:
@@ -1040,7 +1065,32 @@ def get_room_assignments(tournament_id):
     room_assignments_data = [{'match_index': ra.match_index, 'room_number': ra.room_number} for ra in room_assignments]
     return jsonify(room_assignments_data), 200
 
+@app.route('/tournament/<int:tournament_id>/update_schedule', methods=['POST'])
+def update_tournament_schedule(tournament_id):
+    try:
+        schedule_data = request.get_json().get('schedule')
+        if not schedule_data:
+            return jsonify({"error": "No schedule data provided"}), 400
 
+        Match.query.filter_by(tournament_id=tournament_id).delete()
+
+        for round_index, round in enumerate(schedule_data):
+            for match_data in round:
+                new_match = Match(
+                    tournament_id=tournament_id,
+                    round_number=round_index + 1,
+                    affirmative=match_data['affirmative'],
+                    negative=match_data['negative'],
+                    judge=match_data['judge']
+                )
+                db.session.add(new_match)
+
+        db.session.commit()
+        return jsonify({"message": "Schedule updated successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error('Failed to update schedule with error: %s', str(e))
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
