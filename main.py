@@ -1130,6 +1130,39 @@ def update_room_assignments(tournament_id):
         db.session.rollback()
         return jsonify({'error': 'Failed to update room assignments', 'details': str(e)}), 500
 
+@app.route('/tournament/<int:tournament_id>/update_schedule', methods=['POST'])
+def update_tournament_schedule(tournament_id):
+    try:
+        # Extract the schedule data from the request
+        schedule_data = request.get_json().get('schedule')
+        if not schedule_data:
+            return jsonify({"error": "No schedule data provided"}), 400
+
+
+        # Clear existing matches for this tournament
+        Match.query.filter_by(tournament_id=tournament_id).delete()
+
+        db.session.commit()
+
+        # Add new matches based on the received schedule data
+        for round_index, round in enumerate(schedule_data):
+            for match_data in round:
+                new_match = Match(
+                    tournament_id=tournament_id,
+                    round_number=round_index + 1,
+                    affirmative=match_data['affirmative'],
+                    negative=match_data['negative'],
+                    judge=match_data['judge']
+                )
+                db.session.add(new_match)
+
+        db.session.commit()
+        return jsonify({"message": "Schedule updated successfully"}), 200
+    
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
 
 @app.route('/tournament/<int:tournament_id>/rooms', methods=['GET'])
 @jwt_required()
