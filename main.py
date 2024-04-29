@@ -175,9 +175,12 @@ def upload_file():
 
     if not allowed_file(file.filename):
         return 'File type not allowed', 400
+   
 
     if 'school_name' not in request.form:
         return 'No school name provided', 400
+    
+    
     
     school_name = request.form['school_name']
     
@@ -218,7 +221,6 @@ def get_school_map(school_name):
             # Serve the map file with the found extension
             return send_file(map_path)
 
-    # If no map file is found with supported extensions, return a 404 error
     return 'Map file not found', 404
 def create_initial_user():
     # Add the user if not already present in the database
@@ -318,7 +320,7 @@ def login():
             role = "admin"
     
         user_info['role'] = role
-
+##
         # Create JWT token and send response with user_info including role
         jwt_token = create_access_token(identity=user_info['email'])
         response = jsonify(user=user_info, role=role)
