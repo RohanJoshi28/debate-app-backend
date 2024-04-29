@@ -15,7 +15,7 @@ public class MatchEvaluator {
     private static final int WIN_DIFFERENCE_PENALTY = 10;
     private static final int TEAM_ALREADY_GONE_PENALTY = 100;
     private static final int JUDGE_ALREADY_GONE_PENALTY = 1000;
-    private static final int JUDGE_TEAM_TWICE_PENALTY = 10000;
+    private static final int JUDGE_JUDGES_TEAM_TWICE_PENALTY = 10000;
     private static final int TEAM_SAME_SIDE_PENALTY = 100000;
     private static final int JUDGE_HOME_SCHOOL_PENALTY = 1000000;
     private static final int TEAMS_MATCHED_TWICE_PENALTY = 10000000;
@@ -71,11 +71,11 @@ public class MatchEvaluator {
 
         //Penalize judging the same team twice
         if (lastRound.JudgeJudgesTeam(judge, affirmativeTeam)) {
-            score -= JUDGE_TEAM_TWICE_PENALTY;
+            score -= JUDGE_JUDGES_TEAM_TWICE_PENALTY;
         }
 
         if (lastRound.JudgeJudgesTeam(judge, negativeTeam)) {
-            score -= JUDGE_TEAM_TWICE_PENALTY;
+            score -= JUDGE_JUDGES_TEAM_TWICE_PENALTY;
         }
 
         //Penalize matching judges again (so judges which haven't been matched can go)

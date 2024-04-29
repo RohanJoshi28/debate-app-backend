@@ -26,7 +26,7 @@ public class RoundGenerator {
 
         //Loop as long as there are enough people to create a match
         while (availableTeams.size() >= 2 && availableJudges.size() >= 1) {
-            Team team = availableTeams.get(0);
+            Team team = GetHighestRankingTeamAvailable();
             availableTeams.remove(team);
 
             //Search for best opponent
@@ -58,6 +58,20 @@ public class RoundGenerator {
         }
 
         return round;
+    }
+
+    private Team GetHighestRankingTeamAvailable() {
+        Team bestTeam = null;
+        int bestRank = Integer.MAX_VALUE;
+
+        for (Team team : availableTeams) {
+            if (team.rank < bestRank) {
+                bestRank = team.rank;
+                bestTeam = team;
+            }
+        }
+
+        return bestTeam;
     }
 
     private MatchupResult GetBestMatchup(Team team, Round lastRound) {
