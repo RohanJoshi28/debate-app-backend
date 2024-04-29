@@ -3,7 +3,7 @@ import java.io.FileNotFoundException;
 public class matchmakerTests {
     public static void main(String[] args) throws FileNotFoundException {
         algorithm2 A = new algorithm2();
-        JVMatchmaker JV = new JVMatchmaker();
+        //JVMatchmaker JV = new JVMatchmaker();
         // int[] test0Players = {2, 2, 3};
         // int[] test0Judges = {2, 2, 1};
         // String[][] matches0 = A.JVMatches(test0Players, test0Judges);
@@ -44,11 +44,16 @@ public class matchmakerTests {
         // String[][] matches7 = A.JVMatches(test7Players, test7Judges);
         // System.out.println("test 7");
         // test(matches7);
-        int[] test8Players = {5, 4, 8, 4, 6};
-        int[] test8Judges = {2, 2, 5, 1, 3};
-        String[][] matches8 = A.JVMatches(test8Players, test8Judges);
-        System.out.println("test 8");
-        test(matches8);
+        // int[] test8Players = {5, 4, 8, 4, 6};
+        // int[] test8Judges = {2, 2, 5, 1, 3};
+        // String[][] matches8 = A.JVMatches(test8Players, test8Judges);
+        // System.out.println("test 8");
+        // test(matches8);
+        int[] test9Players = {3, 3, 4};
+        int[] test9Judges = {1, 1, 3};
+        String[][] matches9 = A.JVMatches(test9Players, test9Judges);
+        System.out.println("test 4");
+        test(matches9);
     }
 
     public static void test(String[][] matches){
