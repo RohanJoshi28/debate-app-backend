@@ -5,9 +5,10 @@ import School.SchoolArg;
 public class Testing {
     public static void main(String[] args) {
         SchoolArg[] schoolArgs = new SchoolArg[] {
-            new SchoolArg(2, 2),
-            new SchoolArg(2, 2),
-            new SchoolArg(2, 2),
+            new SchoolArg(4, 1),
+            new SchoolArg(4, 2),
+            new SchoolArg(4, 5),
+            new SchoolArg(4, 3),
         };
 
         int[] morningWins = new int[] {

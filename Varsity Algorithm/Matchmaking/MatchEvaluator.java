@@ -22,13 +22,15 @@ public class MatchEvaluator {
     
     //Calculates a score that reflects how well of a matchup these teams and judge are
     public int EvaluateMatchup(Team affirmativeTeam, Team negativeTeam, Judge judge, Round lastRound) {
-        int score = 0;
+        //Initialize a score counter with an arbitrary value
+        //(initial value plays no role and doesn't affect the outcome)
+        int score = JUDGE_HOME_SCHOOL_PENALTY;
 
         //Penalize matching teams of different ranks
         int rankDifference = Math.abs(affirmativeTeam.rank - negativeTeam.rank);
         score -= rankDifference * RANK_DIFFERENCE_PENALTY;
 
-        //Penalize matching teams with different number of wins
+        //Penalize matching teams with different numbers of wins
         int winDifference = Math.abs(affirmativeTeam.wins - negativeTeam.wins);
         score -= winDifference * WIN_DIFFERENCE_PENALTY;
 
@@ -41,7 +43,7 @@ public class MatchEvaluator {
             score -= JUDGE_HOME_SCHOOL_PENALTY;
         }
 
-        //Don't consider the last round if there isn't one
+        //Don't consider factors relating to a previous round if there isn't one
         if (lastRound == null) {
             return score;
         }
@@ -60,7 +62,8 @@ public class MatchEvaluator {
             score -= TEAM_SAME_SIDE_PENALTY;
         }
 
-        //Penalize matching teams again (so teams which haven't been matched can go)
+        //Penalize matching teams that have already debated
+        //(so teams which haven't been matched can debate)
         if (lastRound.IsTeamMatched(affirmativeTeam)) {
             score -= TEAM_ALREADY_GONE_PENALTY;
         }
