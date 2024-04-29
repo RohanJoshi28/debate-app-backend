@@ -38,7 +38,7 @@ public class algorithm2 {
         int judgeNum = sum(judges);
         if(playNum/2>judgeNum){//should be players/2
             numMatches = judgeNum;
-            int i = 0;
+            //int i = 0;
             //in this case add all judges, but give advantage to teams later
             //attempt to balance players, premptively because too few judges, may have to be done later/while algorithm runs
             // while(sum(players)>numMatches*2){
@@ -102,7 +102,11 @@ public class algorithm2 {
         for(int i = 0; i<numMatches; i++){
             if(System.currentTimeMillis()-startTime>fiveSeconds){
                 System.out.println("Match Failed");
-                String[] failedTest = {"Test Failed"};
+                //String[] failedTest = {"Test Failed"};
+                String[] failedTest = new String[numMatches];
+                for(int q = 0; q < numMatches; q++){
+                    failedTest[i] = "0~0|0~0|J0~0";
+                }
                 return failedTest;
             }
             if(!allUsed(players[pos])){
@@ -168,7 +172,11 @@ public class algorithm2 {
         for(int i = 0; i<numMatches; i++){
             if(System.currentTimeMillis()-startTime>fiveSeconds){
                 System.out.println("Match Failed");
-                String[] failedTest = {"Test Failed"};
+                //String[] failedTest = {"Test Failed"};
+                String[] failedTest = new String[numMatches];
+                for(int q = 0; q < numMatches; q++){
+                    failedTest[i] = "0~0|0~0|J0~0";
+                }
                 return failedTest;
             }
             if(players[pos].length>0&&allUsed(players[pos])){
@@ -232,6 +240,14 @@ public class algorithm2 {
                     
                     //attempt match, if not all player are used for this team, match should be forced
                     if(!players[pos][j].used){
+                        if(!(timeSinceMatch<judges.length)){
+                            String ttt = match[i].split("\\|")[0];
+                            debater tmp = players[Integer.valueOf(ttt.split("~")[0])][Integer.valueOf(ttt.split("~")[1])];
+                            //if support needed(and full round completed) do not add two judge support teams together
+                            if(players[pos][j].judgeSupport&&tmp.judgeSupport){
+                                break;
+                            }
+                        }
                         players[pos][j].used = true;
                         matchMade = true;
                         timeSinceMatch = 0;
@@ -278,7 +294,11 @@ public class algorithm2 {
         for(int i = 0; i < numMatches; i++){
             if(System.currentTimeMillis()-startTime>fiveSeconds){
                 System.out.println("Match Failed");
-                String[] failedTest = {"Test Failed"};
+                //String[] failedTest = {"Test Failed"};
+                String[] failedTest = new String[numMatches];
+                for(int q = 0; q < numMatches; q++){
+                    failedTest[i] = "0~0|0~0|J0~0";
+                }
                 return failedTest;
             }
 
@@ -328,7 +348,7 @@ public class algorithm2 {
                         //if a judge pairing was found, check if swap should be tried, otherwise continue
                         if(foundPrev){
                             if(timeSinceMatch>judges.length-1&&!judges[pos][j].used){
-                                if(swap(match, i, pos, judges[pos][j], prev)){
+                                if(swap(match, i, pos, judges[pos][j], prev, players)){
                                     String matches = "";
                                     for(int w = 0; w<i; w++){
                                         matches+=match[w];
@@ -343,6 +363,7 @@ public class algorithm2 {
                                     judgesToUse--;
                                     if(match[i].lastIndexOf(judges[pos][j].team+"~")!=(match[i].indexOf(judges[pos][j].team+"~"))){
                                         if(match[i].lastIndexOf(judges[pos][j].team+"~")!=(match[i].indexOf(judges[pos][j].team+"~"))){
+                                            //add judge support if faced opposing teams judge
                                             if(match[i].split("\\|")[0].split("~")[0].equals(judges[pos][j].team)){
                                                 players[Integer.parseInt(match[i].split("\\|")[1].split("~")[0])][Integer.parseInt(match[i].split("\\|")[1].split("~")[1])].judgeSupport = true;
                                             }else{
@@ -450,7 +471,7 @@ public class algorithm2 {
                     if((match[i].split("~")[0].equals(judges[pos][0].team)||
                     match[i].split("\\|")[1].split("~")[0].equals(judges[pos][0].team))&&
                     timeSinceMatch>=judges.length-1){
-                        if(swap(match, i, pos, judges[pos][j], prev)){
+                        if(swap(match, i, pos, judges[pos][j], prev, players)){
                             timeSinceMatch = 0;
                             matchMade = true;
                             judges[pos][j].used = true;
@@ -642,7 +663,7 @@ public class algorithm2 {
     }
 
     //if possible, will swap a value(returns true), if not, returns false
-    public static boolean swap(String[] matches, int max, int pos, debater judge, String[] prev){
+    public static boolean swap(String[] matches, int max, int pos, debater judge, String[] prev, debater[][] debaters){
         // look into:
         // should never swap if teams overlap previous matchs
         // there are opportunities when swapping(when position matches) could be beneficial
@@ -683,7 +704,13 @@ public class algorithm2 {
             if(!(matches[i].split("\\|")[0].split("~")[0].equals(judge.team)||
             matches[i].split("\\|")[1].split("~")[0].equals(judge.team)||
             matches[max].split("\\|")[0].split("~")[0].equals(matches[i].split("J")[1].split("~")[0])||
-            matches[max].split("\\|")[0].split("~")[0].equals(matches[i].split("J")[1].split("~")[0]))){
+            matches[max].split("\\|")[1].split("~")[0].equals(matches[i].split("J")[1].split("~")[0]))){
+                if(debaters[Integer.parseInt(matches[i].split("\\|")[0].split("~")[0])][Integer.parseInt(matches[i].split("\\|")[0].split("~")[1])].judgeSupport){
+                    return false;
+                }
+                if(debaters[Integer.parseInt(matches[i].split("\\|")[1].split("~")[0])][Integer.parseInt(matches[i].split("\\|")[1].split("~")[1])].judgeSupport){
+                    return false;
+                }
                 matches[max]+=matches[i].split("\\|")[2];
                 matches[i] = matches[i].split("J")[0]+toSwap;
                 return true;

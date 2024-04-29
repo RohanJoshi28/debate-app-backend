@@ -126,6 +126,15 @@ class RoomAssignment(db.Model):
     match_index = db.Column(db.Integer, nullable=False)
     room_number = db.Column(db.String, nullable=False)
 
+class Match(db.Model):
+    __tablename__ = 'match'
+    id = db.Column(db.Integer, primary_key=True)
+    tournament_id = db.Column(db.Integer, db.ForeignKey('tournament.id'), nullable=False)
+    round_number = db.Column(db.Integer, nullable=False)
+    affirmative = db.Column(db.String, nullable=False)
+    negative = db.Column(db.String, nullable=False)
+    judge = db.Column(db.String, nullable=False)
+
 db.create_all()
 
 #db model creation tests
@@ -238,6 +247,24 @@ def create_initial_user():
     existing_admin = Admin.query.filter_by(email='joshkim771@gmail.com').first()
     if not existing_admin:
         new_admin = Admin(email='joshkim771@gmail.com', name='Joshua Kim')
+        db.session.add(new_admin)
+        db.session.commit()
+
+        # Add the user if not already present in the database
+    existing_user = User.query.filter_by(email='rjoshi6@gmail.com').first()
+    if not existing_user:
+        new_user = User(email='rjoshi6@gmail.com', name='Rohan Joshi')
+        db.session.add(new_user)
+        db.session.commit()
+    existing_coach = Coach.query.filter_by(email='rjoshi6@gmail.com').first()
+    if not existing_coach:
+        new_coach = Coach(email='rjoshi6@gmail.com', name='Rohan Joshi', school_id=1)
+        db.session.add(new_coach)
+        db.session.commit()
+    
+    existing_admin = Admin.query.filter_by(email='rjoshi6@gmail.com').first()
+    if not existing_admin:
+        new_admin = Admin(email='rjoshi6@gmail.com', name='Rohan Joshi')
         db.session.add(new_admin)
         db.session.commit()
         #
@@ -740,11 +767,26 @@ def get_tournament(tournament_id):
 @app.route('/tournamentschedule/<int:tournament_id>', methods=['GET'])
 @jwt_required()
 def get_tournament_schedule(tournament_id):
+    letters_to_numbers = {chr(i): i - ord('A') for i in range(ord('A'), ord('Z') + 1)}
     # Fetch the tournament
     tournament = Tournament.query.get(tournament_id)
 
     if tournament is None:
         return jsonify({"message": "Tournament not found"}), 404
+    else:
+        matches = Match.query.filter_by(tournament_id=tournament_id).order_by(Match.id).all()
+        if matches:
+            match_export_list = []
+            for match in matches:
+                match_round = match.round_number
+                if len(match_export_list)<=match_round-1:
+                    match_export_list.append([])
+                match_affirmative = str(letters_to_numbers[match.affirmative[0]]) + "~" + str(int(match.affirmative[1]) - 1)
+                match_negative = str(letters_to_numbers[match.negative[0]]) + "~" + str(int(match.negative[1]) - 1)
+                match_judge = "J" + str(letters_to_numbers[match.judge[0]]) + "~" + str(int(match.judge[2]) - 1)
+                full_match = match_affirmative + "|" + match_negative + "|" + match_judge
+                match_export_list[match_round-1].append(full_match)
+            return match_export_list
 
     # Initialize lists to hold player and judge counts
     players_counts = []
@@ -815,6 +857,19 @@ def update_school(school_id):
     num_debaters = int(request.form['pairs'])
     num_judges = int(request.form['judges'])
     
+    tournaments = Tournament.query.filter(
+        (Tournament.host_school_id == school_id) | 
+        (Tournament.schools.any(id=school_id))
+    ).all()
+
+    tournament_ids = [tournament.id for tournament in tournaments]
+
+    matches = Match.query.filter(Match.tournament_id.in_(tournament_ids)).all()
+
+    for match in matches:
+        db.session.delete(match)
+
+    db.session.commit()
     
     print(num_debaters)
     print(num_judges)
@@ -1074,6 +1129,39 @@ def update_room_assignments(tournament_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Failed to update room assignments', 'details': str(e)}), 500
+
+@app.route('/tournament/<int:tournament_id>/update_schedule', methods=['POST'])
+def update_tournament_schedule(tournament_id):
+    try:
+        # Extract the schedule data from the request
+        schedule_data = request.get_json().get('schedule')
+        if not schedule_data:
+            return jsonify({"error": "No schedule data provided"}), 400
+
+
+        # Clear existing matches for this tournament
+        Match.query.filter_by(tournament_id=tournament_id).delete()
+
+        db.session.commit()
+
+        # Add new matches based on the received schedule data
+        for round_index, round in enumerate(schedule_data):
+            for match_data in round:
+                new_match = Match(
+                    tournament_id=tournament_id,
+                    round_number=round_index + 1,
+                    affirmative=match_data['affirmative'],
+                    negative=match_data['negative'],
+                    judge=match_data['judge']
+                )
+                db.session.add(new_match)
+
+        db.session.commit()
+        return jsonify({"message": "Schedule updated successfully"}), 200
+    
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route('/tournament/<int:tournament_id>/rooms', methods=['GET'])
