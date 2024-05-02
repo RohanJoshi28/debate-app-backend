@@ -37,7 +37,7 @@ db = SQLAlchemy(app)
 app.app_context().push()
 #CORS(app, origins=['http://localhost:3000'], supports_credentials=True) #<--disable on deploy
 # # CORS(app, origins=['http://localhost:3000', 'https://test-debate-frontend-update-deploy.onrender.com', 'https://debate-app-backend.onrender.com'], supports_credentials=True)
-CORS(app, resources={r"/*": {"origins": "https://www.rohanjoshi.dev", "supports_credentials": True}}) #<--enable on deploy
+#CORS(app, resources={r"/*": {"origins": "https://www.rohanjoshi.dev", "supports_credentials": True}}) #<--enable on deploy
 
 migrate = Migrate(app, db)
 
@@ -268,6 +268,27 @@ def create_initial_user():
         db.session.add(new_admin)
         db.session.commit()
         #
+
+
+           
+    existing_user = User.query.filter_by(email='jadenmanuel2006@gmail.com').first()
+    if not existing_user:
+        new_user = User(email='jadenmanuel2006@gmail.com', name='Jaden Manuel')
+        db.session.add(new_user)
+        db.session.commit()
+    existing_coach = Coach.query.filter_by(email='jadenmanuel2006@gmail.com').first()
+    if not existing_coach:
+        new_coach = Coach(email='jadenmanuel2006@gmail.com', name='Jaden Manuel', school_id=1)
+        db.session.add(new_coach)
+        db.session.commit()
+    
+    existing_admin = Admin.query.filter_by(email='jadenmanuel2006@gmail.com').first()
+    if not existing_admin:
+        new_admin = Admin(email='jadenmanuel2006@gmail.com', name='Jaden Manuel')
+        db.session.add(new_admin)
+        db.session.commit()
+        #
+
 create_initial_user()
 
 # @app.before_request
