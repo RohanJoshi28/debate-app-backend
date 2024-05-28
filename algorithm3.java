@@ -87,6 +87,13 @@ public class algorithm3{
 
     public static debater[][] round1(int rounds, debater[][] debaters, debater[][] judges){
         debater[][] round1 = new debater[rounds][3];
+        for(int i = 0; i < round1.length; i++){
+            for(int j = 0; j < round1[i].length; j++){
+                round1[i][j] = new debater(false, -1, -1);
+            }
+        }
+        long startTime = System.currentTimeMillis();
+        long fiveSeconds = 20*1000;
 
         int pos = 0;
 
@@ -108,11 +115,23 @@ public class algorithm3{
             }
             
             i--;
+            
+            if(System.currentTimeMillis()-startTime>fiveSeconds){
+                System.out.println("Match Failed");
+                //String[] failedTest = {"Test Failed"};
+                return round1;
+            }
         }
 
         //generates negative debators
         int time = 0;;
         for(int i = 0; i < round1.length; i++){
+            
+            if(System.currentTimeMillis()-startTime>fiveSeconds){
+                System.out.println("Match Failed");
+                //String[] failedTest = {"Test Failed"};
+                return round1;
+            }
 
             //before trying to change current affirmative debator, check if you can swap negative ones
             //if loop without match has been made, see if you can swap around a couple debators
@@ -203,6 +222,14 @@ public class algorithm3{
         pos = 0;
         time = 0;
         for(int i = 0; i < round1.length; i++){
+
+            
+            if(System.currentTimeMillis()-startTime>fiveSeconds){
+                System.out.println("Match Failed");
+                //String[] failedTest = {"Test Failed"};
+                return round1;
+            }
+
             // System.out.println(i);
             // System.out.println(round1[i][0].team+"~"+round1[i][0].number+"|");
             // System.out.println(round1[i][1].team+"~"+round1[i][1].number);
@@ -285,6 +312,7 @@ public class algorithm3{
 
     //checks to see if a previous match was made with these members
     public static boolean prevMatched(debater[][] prev, debater aff, debater neg, debater judge){
+
         for(debater[] match : prev){
             if(match[0].equals(aff)||match[1].equals(aff)){
                 if(match[0].equals(neg)||match[1].equals(neg)){
@@ -308,11 +336,27 @@ public class algorithm3{
     public static debater[][] round2(debater[][] round1, int rounds, debater[][] debaters, debater[][] judges, String teamsDisavantaged){
         debater[][] round2 = new debater[rounds][3];
 
+        for(int i = 0; i < round2.length; i++){
+            for(int j = 0; j < round2[i].length; j++){
+                round2[i][j] = new debater(false, -1, -1);
+            }
+        }
+
+        long startTime = System.currentTimeMillis();
+        long fiveSeconds = 20*1000;
+
         int pos = 0;
         int time = 0;
 
         //generates affirmitive for round 1, adding teams in order, only checking to see debater hasn't been used
         for(int i = 0; i < round2.length; i++){
+
+            
+            if(System.currentTimeMillis()-startTime>fiveSeconds){
+                System.out.println("Match Failed");
+                //String[] failedTest = {"Test Failed"};
+                return round1;
+            }
 
             if(allUsed(debaters[pos])){
                 if(!(teamsDisavantaged.contains(","+pos+","))){
@@ -357,6 +401,13 @@ public class algorithm3{
         //generates negative debators
         time = 0;;
         for(int i = 0; i < round2.length; i++){
+
+            
+            if(System.currentTimeMillis()-startTime>fiveSeconds){
+                System.out.println("Match Failed");
+                //String[] failedTest = {"Test Failed"};
+                return round1;
+            }
 
             //resets debators when needed
             if(allUsed(debaters[pos])){
@@ -468,6 +519,13 @@ public class algorithm3{
         pos = 0;
         time = 0;
         for(int i = 0; i < round2.length; i++){
+
+            
+            if(System.currentTimeMillis()-startTime>fiveSeconds){
+                System.out.println("Match Failed");
+                //String[] failedTest = {"Test Failed"};
+                return round1;
+            }
 
             if(allUsed(judges[pos])){
                 for(debater d : judges[pos]){
