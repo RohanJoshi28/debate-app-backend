@@ -803,7 +803,7 @@ def get_tournament_schedule(tournament_id):
 
     # Construct the command to run your Java program
     
-    cmd = ['java', '-cp', '.', 'algorithm2']
+    cmd = ['java', '-cp', '.', 'algorithm3']
 
     # Start the Java process
     process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

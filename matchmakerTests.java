@@ -2,7 +2,7 @@ import java.io.FileNotFoundException;
 
 public class matchmakerTests {
     public static void main(String[] args) throws FileNotFoundException {
-        algorithm2 A = new algorithm2();
+        algorithm3 A = new algorithm3();
         //JVMatchmaker JV = new JVMatchmaker();
         int[] test0Players = {2, 2, 3};
         int[] test0Judges = {2, 2, 1};
@@ -52,8 +52,13 @@ public class matchmakerTests {
         int[] test9Players = {3, 3, 4};
         int[] test9Judges = {1, 1, 3};
         String[][] matches9 = A.JVMatches(test9Players, test9Judges);
-        System.out.println("test 4");
+        System.out.println("test 9");
         test(matches9);
+        int[] test10Players = {5, 1, 2};
+        int[] test10Judges = {2, 3, 1};
+        String[][] matches10 = A.JVMatches(test10Players, test10Judges);
+        System.out.println("test 10");
+        test(matches10);
     }
 
     public static void test(String[][] matches){
