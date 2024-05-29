@@ -269,6 +269,23 @@ def create_initial_user():
         db.session.commit()
         #
 
+    # Add the user if not already present in the database
+    existing_user = User.query.filter_by(email='asenkran69@gmail.com').first()
+    if not existing_user:
+        new_user = User(email='asenkran69@gmail.com', name='Christopher Rodriguez')
+        db.session.add(new_user)
+        db.session.commit()
+    existing_coach = Coach.query.filter_by(email='asenkran69@gmail.com').first()
+    if not existing_coach:
+        new_coach = Coach(email='asenkran69@gmail.com', name='Christopher Rodriguez', school_id=1)
+        db.session.add(new_coach)
+        db.session.commit()
+    
+    existing_admin = Admin.query.filter_by(email='asenkran69@gmail.com').first()
+    if not existing_admin:
+        new_admin = Admin(email='asenkran69@gmail.com', name='Christopher Rodriguez')
+        db.session.add(new_admin)
+        db.session.commit()
 
            
     existing_user = User.query.filter_by(email='jadenmanuel2006@gmail.com').first()
