@@ -83,8 +83,6 @@ public class RoundGenerator {
         //Check every team and judge
         for (Team opponent : availableTeams) {
             for (Judge judge : availableJudges) {
-                if (evaluator.IsIllegalMatchup(team, opponent,judge)) continue;
-                
                 //Best affirmative
                 int score = evaluator.EvaluateMatchup(team, opponent, judge, lastRound);
                 

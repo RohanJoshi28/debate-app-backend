@@ -14,6 +14,6 @@ public class Team {
 
     @Override
     public String toString() {
-        return "" + school + rank + " [" + wins + "]";
+        return "" + school + "-" + rank + " [" + wins + "]";
     }
 }

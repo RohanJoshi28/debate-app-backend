@@ -1,8 +1,6 @@
 package School;
 
 public class School {
-    private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
     private int index;
 
     public School(int index) {
@@ -11,6 +9,6 @@ public class School {
 
     @Override
     public String toString() {
-        return ALPHABET.charAt(index) + "";
+        return Integer.toString(index);
     }
 }

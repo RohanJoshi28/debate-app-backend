@@ -5,14 +5,8 @@ import People.Team;
 import Round.Round;
 
 public class MatchEvaluator {
-    //Determines if a matchup is absolutely not allowed
-    public boolean IsIllegalMatchup(Team team1, Team team2, Judge judge) {
-        //Teams from the same school can never debate each other
-        return team1.school == team2.school;
-    }
-
-    //TODO: RAnk judges and have higher judges preferrably judge in the afternoon
-    //and preferrably jusge higher ranked teams
+    //TODO: Rank judges and have higher judges preferrably judge in the afternoon
+    //and preferrably judge higher ranked teams
     private static final int RANK_DIFFERENCE_PENALTY = 1;
     private static final int WIN_DIFFERENCE_PENALTY = 10;
     private static final int TEAM_ALREADY_GONE_PENALTY = 100;
@@ -20,13 +14,19 @@ public class MatchEvaluator {
     private static final int JUDGE_JUDGES_TEAM_TWICE_PENALTY = 10000;
     private static final int TEAM_SAME_SIDE_PENALTY = 100000;
     private static final int JUDGE_HOME_SCHOOL_PENALTY = 1000000;
-    private static final int TEAMS_MATCHED_TWICE_PENALTY = 10000000;
+    private static final int TEAMS_FROM_SAME_SCHOOL_PENALTY = 10000000;
+    private static final int NO_JUDGE_SUPPORT_PENALTY = 100000000;
+    private static final int TEAMS_MATCHED_TWICE_PENALTY = 1000000000;
     
     //Calculates a score that reflects how well of a matchup these teams and judge are
     public int EvaluateMatchup(Team affirmativeTeam, Team negativeTeam, Judge judge, Round lastRound) {
-        //Initialize a score counter with an arbitrary value
-        //(initial value plays no role and doesn't affect the outcome)
-        int score = JUDGE_HOME_SCHOOL_PENALTY;
+        //Initialize a score counter
+        int score = 0;
+
+        //Penalize matching teams from the same school
+        if (affirmativeTeam.school == negativeTeam.school) {
+            score -= TEAMS_FROM_SAME_SCHOOL_PENALTY;
+        }
 
         //Penalize matching teams of different ranks
         int rankDifference = Math.abs(affirmativeTeam.rank - negativeTeam.rank);
@@ -48,6 +48,28 @@ public class MatchEvaluator {
         //Don't consider factors relating to a previous round if there isn't one
         if (lastRound == null) {
             return score;
+        }
+
+        //Penalize putting a team against a judge that isn't from their school
+        //if their last opponent was judged by a judge from the opponent's school
+        Team lastOpponent = lastRound.GetOpponent(affirmativeTeam);
+
+        if (lastOpponent != null) {
+            Judge lastJudge = lastRound.GetJudge(affirmativeTeam);
+
+            if (lastJudge.school == lastOpponent.school && judge.school != affirmativeTeam.school) {
+                score -= NO_JUDGE_SUPPORT_PENALTY;
+            }
+        }
+
+        lastOpponent = lastRound.GetOpponent(negativeTeam);
+
+        if (lastOpponent != null) {
+            Judge lastJudge = lastRound.GetJudge(negativeTeam);
+
+            if (lastJudge.school == lastOpponent.school && judge.school != negativeTeam.school) {
+                score -= NO_JUDGE_SUPPORT_PENALTY;
+            }
         }
         
         //Penalize matching teams against each other again
