@@ -32,23 +32,23 @@ public class algorithm3{
 
     public static String[][] JVMatches(int[] players, int[] Judges){
         //create arrays for debaters and judges
-        debater2[][] debaters = new debater2[players.length][];
-        debater2[][] judges = new debater2[Judges.length][];
+        debater[][] debaters = new debater[players.length][];
+        debater[][] judges = new debater[Judges.length][];
 
         int debaterCount = 0;
         int judgeCount = 0;
 
         //fill debater and judge arrays with debater class, matching to teams
         for(int i = 0; i < players.length; i++){
-            debaters[i] = new debater2[players[i]];
-            judges[i] = new debater2[Judges[i]];
+            debaters[i] = new debater[players[i]];
+            judges[i] = new debater[Judges[i]];
 
             for(int j = 0; j<debaters[i].length; j++){
-                debaters[i][j] = new debater2(false, i, j);
+                debaters[i][j] = new debater(false, i, j);
                 debaterCount++;
             }
             for(int j = 0; j<judges[i].length; j++){
-                judges[i][j] = new debater2(true, i, j);
+                judges[i][j] = new debater(true, i, j);
                 judgeCount++;
             }
         }
@@ -72,8 +72,8 @@ public class algorithm3{
         }
 
         //generates matches for rounds 1 and 2
-        debater2[][] round1 = round1(rounds, debaters, judges);
-        debater2[][] round2 = round2(round1, rounds, debaters, judges, teamsDisavantaged);
+        debater[][] round1 = round1(rounds, debaters, judges);
+        debater[][] round2 = round2(round1, rounds, debaters, judges, teamsDisavantaged);
 
         //changes round results to a returnable format
         String[][] finished = new String[2][round1.length];
@@ -85,11 +85,11 @@ public class algorithm3{
         return finished;
     }
 
-    public static debater2[][] round1(int rounds, debater2[][] debaters, debater2[][] judges){
-        debater2[][] round1 = new debater2[rounds][3];
+    public static debater[][] round1(int rounds, debater[][] debaters, debater[][] judges){
+        debater[][] round1 = new debater[rounds][3];
         for(int i = 0; i < round1.length; i++){
             for(int j = 0; j < round1[i].length; j++){
-                round1[i][j] = new debater2(false, -1, -1);
+                round1[i][j] = new debater(false, -1, -1);
             }
         }
         long startTime = System.currentTimeMillis();
@@ -301,8 +301,8 @@ public class algorithm3{
     }
 
     //helper function to check if debaters of type are used
-    public static boolean allUsed(debater2[] members){
-        for(debater2 d : members){
+    public static boolean allUsed(debater[] members){
+        for(debater d : members){
             if(d.used == false){
                 return false;
             }
@@ -311,9 +311,9 @@ public class algorithm3{
     }
 
     //checks to see if a previous match was made with these members
-    public static boolean prevMatched(debater2[][] prev, debater2 aff, debater2 neg, debater2 judge){
+    public static boolean prevMatched(debater[][] prev, debater aff, debater neg, debater judge){
 
-        for(debater2[] match : prev){
+        for(debater[] match : prev){
             if(match[0].equals(aff)||match[1].equals(aff)){
                 if(match[0].equals(neg)||match[1].equals(neg)){
                     return true;
@@ -333,12 +333,12 @@ public class algorithm3{
         //proper support given to players of previous rounds with unfair judges
         //reenabling already used debators/judge //hopefully done
         //deprioritizing teams that did not bring enough judges //hopefully done
-    public static debater2[][] round2(debater2[][] round1, int rounds, debater2[][] debaters, debater2[][] judges, String teamsDisavantaged){
-        debater2[][] round2 = new debater2[rounds][3];
+    public static debater[][] round2(debater[][] round1, int rounds, debater[][] debaters, debater[][] judges, String teamsDisavantaged){
+        debater[][] round2 = new debater[rounds][3];
 
         for(int i = 0; i < round2.length; i++){
             for(int j = 0; j < round2[i].length; j++){
-                round2[i][j] = new debater2(false, -1, -1);
+                round2[i][j] = new debater(false, -1, -1);
             }
         }
 
@@ -360,14 +360,14 @@ public class algorithm3{
 
             if(allUsed(debaters[pos])){
                 if(!(teamsDisavantaged.contains(","+pos+","))){
-                    for(debater2 d : debaters[pos]){
+                    for(debater d : debaters[pos]){
                         if(d.roundUsed!=2){
                             d.used = false;
                         }
                     }
                 }else{
                     if(time>=rounds){
-                        for(debater2 d : debaters[pos]){
+                        for(debater d : debaters[pos]){
                             if(d.roundUsed!=2){
                                 d.used = false;
                             }
@@ -412,14 +412,14 @@ public class algorithm3{
             //resets debators when needed
             if(allUsed(debaters[pos])){
                 if(!(teamsDisavantaged.contains(","+pos+","))){
-                    for(debater2 d : debaters[pos]){
+                    for(debater d : debaters[pos]){
                         if(d.roundUsed!=2){
                             d.used = false;
                         }
                     }
                 }else{
                     if(time>=rounds){
-                        for(debater2 d : debaters[pos]){
+                        for(debater d : debaters[pos]){
                             if(d.roundUsed!=2){
                                 d.used = false;
                             }
@@ -528,7 +528,7 @@ public class algorithm3{
             }
 
             if(allUsed(judges[pos])){
-                for(debater2 d : judges[pos]){
+                for(debater d : judges[pos]){
                     if(d.roundUsed!=2){
                         d.used = false;
                     }
@@ -538,7 +538,7 @@ public class algorithm3{
             if(round2[i][0].judgeSupport){
                 int temp = round2[i][0].team;
                 if(allUsed(judges[temp])){
-                    for(debater2 d : debaters[temp]){
+                    for(debater d : debaters[temp]){
                         if(d.roundUsed!=2){
                             d.used = false;
                         }
@@ -596,7 +596,7 @@ public class algorithm3{
             }else if(round2[i][1].judgeSupport){
                 int temp = round2[i][1].team;
                 if(allUsed(judges[temp])){
-                    for(debater2 d : debaters[temp]){
+                    for(debater d : debaters[temp]){
                         if(d.roundUsed!=2){
                             d.used = false;
                         }
@@ -725,37 +725,4 @@ public class algorithm3{
     }
 
     
-}
-
-class debater2{
-    boolean isJudge;
-    int team;
-    int number;
-    boolean used;
-    boolean disadvantage;
-    int debatorType;
-    boolean judgeSupport;
-    int roundUsed;
-    
-    public debater2(){
-        this.isJudge = false;
-        this.team = 0;
-        this.number = 0;
-        this.used = false;
-        this.debatorType = 0;
-        this.roundUsed = 0;
-        this.disadvantage = false;
-        this.judgeSupport = false;
-    }
-
-    public debater2(boolean isJudge, int team, int number){
-        this.isJudge = isJudge;
-        this.team = team;
-        this.number = number;
-        this.used = false;
-        this.debatorType = 0;
-        this.roundUsed = 0;
-        this.disadvantage = false;
-        this.judgeSupport = false;
-    }
 }
