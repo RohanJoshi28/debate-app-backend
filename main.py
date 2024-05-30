@@ -168,6 +168,9 @@ db.create_all()
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
+    print("BEGIN LOGS")
+    print(os.listdir())
+    print()
     jwt_token = request.cookies.get('access_token_cookie')
     curr_user = decode_token(jwt_token)['sub']
     admin = isAdmin(curr_user)
@@ -190,7 +193,7 @@ def upload_file():
     if 'school_name' not in request.form:
         return 'No school name provided', 400
     
-    
+    print("GOT PAST IF STATEMENTS")
     
     school_name = request.form['school_name']
     
@@ -206,6 +209,8 @@ def upload_file():
     
     # Save the file to the upload directory
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
+    print("FILE PATH")
+    print(file_path)
     file.save(file_path)
 
     return 'File uploaded successfully', 200
