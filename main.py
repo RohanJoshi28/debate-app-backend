@@ -903,7 +903,8 @@ def get_varsity_tournament_schedule(tournament_id):
     
     # Compile the Java program
     try:
-        os.chdir("Varsity Algorithm")
+        if os.path.split(os.getcwd())[1] != "Varsity Algorithm":
+            os.chdir("Varsity Algorithm")
         compile_process = run(['javac', 'Base/Testing.java'], check=True, stderr=PIPE, text=True)
     except CalledProcessError as e:
         return jsonify({"error": "Java compilation failed", "details": e.stderr}), 500
