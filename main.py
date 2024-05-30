@@ -234,7 +234,7 @@ def get_school_map(school_name):
     # Try to find the map file with supported extensions
     for ext in file_extensions:
         filename = sanitized_school_name + ext
-        #logs
+        #logs more logs
         print("PRINT ALL FILES")
         print(os.listdir("./tmp/maps"))
         map_path = os.path.join(maps_directory, filename)
