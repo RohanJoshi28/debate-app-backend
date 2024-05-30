@@ -226,7 +226,7 @@ def get_school_map(school_name):
     sanitized_school_name = secure_filename(school_name)
 
     # Define the directory path where map files are stored
-    maps_directory = 'maps'  # Update this with the actual directory path
+    maps_directory = './tmp/maps'  # Update this with the actual directory path
 
     # List of supported file extensions to try
     file_extensions = ['.pdf', '.png', '.jpg', '.jpeg']
@@ -235,6 +235,7 @@ def get_school_map(school_name):
     for ext in file_extensions:
         filename = sanitized_school_name + ext
         map_path = os.path.join(maps_directory, filename)
+        print(map_path)
         if os.path.exists(map_path):
             # Serve the map file with the found extension
             return send_file(map_path)
