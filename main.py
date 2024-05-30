@@ -35,9 +35,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 
 app.app_context().push()
-CORS(app, origins=['http://localhost:3000'], supports_credentials=True) #<--disable on deploy
+# CORS(app, origins=['http://localhost:3000'], supports_credentials=True) #<--disable on deploy
 # # CORS(app, origins=['http://localhost:3000', 'https://test-debate-frontend-update-deploy.onrender.com', 'https://debate-app-backend.onrender.com'], supports_credentials=True)
-# CORS(app, resources={r"/*": {"origins": "https://www.rohanjoshi.dev", "supports_credentials": True}}) #<--enable on deploy
+CORS(app, resources={r"/*": {"origins": "https://www.rohanjoshi.dev", "supports_credentials": True}}) #<--enable on deploy
 
 migrate = Migrate(app, db)
 
@@ -51,8 +51,8 @@ app.config["JWT_COOKIE_SECURE"] = True
 app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
-# app.config["JWT_COOKIE_SAMESITE"] = "None"
-# app.config["JWT_COOKIE_DOMAIN"] = "rohanjoshi.dev"
+app.config["JWT_COOKIE_SAMESITE"] = "None"
+app.config["JWT_COOKIE_DOMAIN"] = "rohanjoshi.dev"
 jwt = JWTManager(app)
 
 GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
@@ -389,8 +389,8 @@ def login():
         # Create JWT token and send response with user_info including role
         jwt_token = create_access_token(identity=user_info['email'])
         response = jsonify(user=user_info, role=role)
-        response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
-        # response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
+        # response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
+        response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
         #
         return response, 200
     else:
