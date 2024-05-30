@@ -33,9 +33,6 @@ public class Testing {
             }
 
             VarsityMatchmaker matchmaker = new VarsityMatchmaker(schoolArgs);
-            RoundSet morningTournament = matchmaker.CreateRoundSet();
-            // System.out.println("Morning:");
-            // System.out.println(morningTournament);
 
             matchmaker.SetTeamWins(morningWins);
             RoundSet afternoonTournament = matchmaker.CreateRoundSet();
@@ -43,10 +40,8 @@ public class Testing {
             // System.out.println(afternoonTournament);
 
             String[][] matches = new String[4][];
-            matches[0] = morningTournament.matchFormat1();
-            matches[1] = morningTournament.matchFormat2();
-            matches[2] = afternoonTournament.matchFormat1();
-            matches[3] = afternoonTournament.matchFormat2();
+            matches[0] = afternoonTournament.matchFormat1();
+            matches[1] = afternoonTournament.matchFormat2();
 
             // Output the matches as a simple format (e.g., line-separated values)
             for (String[] match : matches) {
