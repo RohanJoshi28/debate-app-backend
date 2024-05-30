@@ -69,6 +69,30 @@ public class Round {
         return false;
     }
 
+    public Team GetOpponent(Team team) {
+        for (Match match : matches) {
+            if (match.affirmativeTeam == team) {
+                return match.negativeTeam;
+            }
+
+            if (match.negativeTeam == team) {
+                return match.affirmativeTeam;
+            }
+        }
+
+        return null;
+    }
+
+    public Judge GetJudge(Team team) {
+        for (Match match : matches) {
+            if (match.ContainsTeam(team)) {
+                return match.judge;
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
