@@ -30,12 +30,13 @@ from sendgrid.helpers.mail import Mail
 # from wtforms.validators import DataRequired
 
 import subprocess
+from subprocess import Popen, PIPE, run, CalledProcessError
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 
 app.app_context().push()
-# CORS(app, origins=['http://localhost:3000'], supports_credentials=True) #<--disable on deploy
+#CORS(app, origins=['http://localhost:3000'], supports_credentials=True) #<--disable on deploy
 # # CORS(app, origins=['http://localhost:3000', 'https://test-debate-frontend-update-deploy.onrender.com', 'https://debate-app-backend.onrender.com'], supports_credentials=True)
 CORS(app, resources={r"/*": {"origins": "https://www.rohanjoshi.dev", "supports_credentials": True}}) #<--enable on deploy
 
@@ -389,7 +390,8 @@ def login():
         # Create JWT token and send response with user_info including role
         jwt_token = create_access_token(identity=user_info['email'])
         response = jsonify(user=user_info, role=role)
-        # response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
+        #response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
+    
         response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
         #
         return response, 200
@@ -841,6 +843,12 @@ def get_tournament_schedule(tournament_id):
 
     # Construct the command to run your Java program
     
+    # Compile the Java program
+    try:
+        compile_process = run(['javac', 'algorithm3.java'], check=True, stderr=PIPE, text=True)
+    except CalledProcessError as e:
+        return jsonify({"error": "Java compilation failed", "details": e.stderr}), 500
+    
     cmd = ['java', '-cp', '.', 'algorithm3']
 
     # Start the Java process
@@ -862,6 +870,7 @@ def get_tournament_schedule(tournament_id):
     # Check for errors
     if process.returncode != 0:
         print("D")
+        print(errors)
         return jsonify({"error": "Java program execution failed", "details": errors}), 500
     print("E")
     # Process the output back into a Python list of lists (or any other desired structure)
