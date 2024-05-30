@@ -36,9 +36,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 
 app.app_context().push()
-#CORS(app, origins=['http://localhost:3000'], supports_credentials=True) #<--disable on deploy
+CORS(app, origins=['http://localhost:3000'], supports_credentials=True) #<--disable on deploy
 # # CORS(app, origins=['http://localhost:3000', 'https://test-debate-frontend-update-deploy.onrender.com', 'https://debate-app-backend.onrender.com'], supports_credentials=True)
-CORS(app, resources={r"/*": {"origins": "https://www.rohanjoshi.dev", "supports_credentials": True}}) #<--enable on deploy
+#CORS(app, resources={r"/*": {"origins": "https://www.rohanjoshi.dev", "supports_credentials": True}}) #<--enable on deploy
 
 migrate = Migrate(app, db)
 
@@ -52,8 +52,8 @@ app.config["JWT_COOKIE_SECURE"] = True
 app.config['JWT_SECRET_KEY'] = os.environ['JWT_SECRET_KEY']
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
-app.config["JWT_COOKIE_SAMESITE"] = "None"
-app.config["JWT_COOKIE_DOMAIN"] = "rohanjoshi.dev"
+# app.config["JWT_COOKIE_SAMESITE"] = "None"
+# app.config["JWT_COOKIE_DOMAIN"] = "rohanjoshi.dev"
 jwt = JWTManager(app)
 
 GOOGLE_CLIENT_ID = os.environ['GOOGLE_CLIENT_ID']
@@ -390,9 +390,9 @@ def login():
         # Create JWT token and send response with user_info including role
         jwt_token = create_access_token(identity=user_info['email'])
         response = jsonify(user=user_info, role=role)
-        #response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
+        response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
     
-        response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
+        #response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
         #
         return response, 200
     else:
@@ -879,8 +879,14 @@ def get_tournament_schedule(tournament_id):
     return jsonify(matches)
 
 @app.route('/varsitytournamentschedule/<int:tournament_id>', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def get_varsity_tournament_schedule(tournament_id):
+    jwt_token = request.cookies.get('access_token_cookie')
+    curr_user = decode_token(jwt_token)['sub']
+    admin = isAdmin(curr_user)
+    coach = isCoach(curr_user)
+    if not admin and not coach:
+        return "Unauthorized", 401
     letters_to_numbers = {chr(i): i - ord('A') for i in range(ord('A'), ord('Z') + 1)}
     # Fetch the tournament
     tournament = Tournament.query.get(tournament_id)
@@ -897,7 +903,7 @@ def get_varsity_tournament_schedule(tournament_id):
     # Convert the lists to comma-separated strings
     players_str = ",".join(map(str, players_counts))
     judges_str = ",".join(map(str, judges_counts))
-    previous_wins = request.form['previous_wins']
+    previous_wins = request.json['previous_wins']
 
     # Construct the command to run your Java program
     
