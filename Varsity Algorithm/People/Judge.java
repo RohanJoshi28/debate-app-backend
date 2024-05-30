@@ -13,6 +13,6 @@ public class Judge {
 
     @Override
     public String toString() {
-        return "J" + school + "-" + index;
+        return "J" + school + "~" + index;
     }
 }
