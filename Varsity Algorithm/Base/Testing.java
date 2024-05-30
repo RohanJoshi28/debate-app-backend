@@ -14,10 +14,13 @@ public class Testing {
             // Reading data from stdin
             String playersLine = reader.readLine();
             String judgesLine = reader.readLine();
+            String winsLine = reader.readLine();
+
 
             // Parsing the comma-separated strings into arrays
             int[] test1Players = Arrays.stream(playersLine.split(",")).mapToInt(Integer::parseInt).toArray();
             int[] test1Judges = Arrays.stream(judgesLine.split(",")).mapToInt(Integer::parseInt).toArray();
+            int[] morningWins = Arrays.stream(winsLine.split(",")).mapToInt(Integer::parseInt).toArray();
 
             // Call the JVMatches method
             // String[][] matches = JVMatches(test1Players, test1Judges);
@@ -28,10 +31,6 @@ public class Testing {
             for(int i = 0; i < schoolArgs.length; i++){
                 schoolArgs[i] = new SchoolArg(test1Players[i], test1Judges[i]);
             }
-
-            int[] morningWins = new int[] {
-                1, 1, 2, 1, 1, 1, 2, 1, 0, 0
-            };
 
             VarsityMatchmaker matchmaker = new VarsityMatchmaker(schoolArgs);
             RoundSet morningTournament = matchmaker.CreateRoundSet();
