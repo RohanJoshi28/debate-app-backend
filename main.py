@@ -878,6 +878,58 @@ def get_tournament_schedule(tournament_id):
     print("F")
     return jsonify(matches)
 
+@app.route('/varsitytournamentschedule/<int:tournament_id>', methods=['POST'])
+@jwt_required()
+def get_varsity_tournament_schedule(tournament_id):
+    letters_to_numbers = {chr(i): i - ord('A') for i in range(ord('A'), ord('Z') + 1)}
+    # Fetch the tournament
+    tournament = Tournament.query.get(tournament_id)
+
+    # Initialize lists to hold player and judge counts
+    players_counts = []
+    judges_counts = []
+
+    # Iterate through schools participating in the tournament
+    for school in tournament.schools:
+        players_counts.append(school.num_debaters)
+        judges_counts.append(school.num_judges)
+
+    # Convert the lists to comma-separated strings
+    players_str = ",".join(map(str, players_counts))
+    judges_str = ",".join(map(str, judges_counts))
+    previous_wins = request.form['previous_wins']
+
+    # Construct the command to run your Java program
+    
+    # Compile the Java program
+    try:
+        compile_process = run(['javac', 'Varsity Algorithm/Base/Testing.java'], check=True, stderr=PIPE, text=True)
+    except CalledProcessError as e:
+        return jsonify({"error": "Java compilation failed", "details": e.stderr}), 500
+    
+    cmd = ['java', '-cp', '.', 'Varsity Algorithm/Base/Testing']
+
+    # Start the Java process
+    process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+
+    # Send the input data and read the output
+    output, errors = process.communicate(input=f"{players_str}\n{judges_str}\n{previous_wins}\n")
+    
+    # Close the stdin, stdout, and stderr streams
+    process.stdin.close()
+    process.stdout.close()
+    process.stderr.close()
+
+    # Wait for the process to finish
+    process.wait()
+    # Check for errors
+    if process.returncode != 0:
+        print(errors)
+        return jsonify({"error": "Java program execution failed", "details": errors}), 500
+    # Process the output back into a Python list of lists (or any other desired structure)
+    matches = [line.split(",") for line in output.strip().split("\n")]
+    return jsonify(matches)
+
 # class UpdateSchoolForm(FlaskForm):
 #     pairs = IntegerField('Number of pairs', validators=[DataRequired()])
 #     judges = IntegerField('Number of Judges', validators=[DataRequired()])
