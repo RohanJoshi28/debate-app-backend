@@ -59,6 +59,11 @@ public class matchmakerTests {
         String[][] matches10 = A.JVMatches(test10Players, test10Judges);
         System.out.println("test 10");
         test(matches10);
+        // int[] test11Players = {170, 101, 155, 123, 121, 120, 98, 81, 56, 98, 81, 56, 101, 155, 123, 121, 120, 98, 81, 56, 98, 81, 56, 1000, 4000, 987, 2734};
+        // int[] test11Judges = {80, 60, 75, 70, 60, 60, 46, 40, 28, 98, 81, 56, 60, 75, 70, 60, 60, 46, 40, 28, 98, 81, 56, 323, 789, 453, 671};
+        // String[][] matches11 = A.JVMatches(test11Players, test11Judges);
+        // System.out.println("test 11");
+        // test(matches11);
     }
 
     public static void test(String[][] matches){
