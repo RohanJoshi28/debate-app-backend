@@ -210,10 +210,11 @@ def upload_file():
     # Save the file to the upload directory
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
     #logs
-    print(os.listdir(app.config['UPLOAD_FOLDER']))
+
+    file.save(file_path)
     print("FILE PATH")
     print(file_path)
-    file.save(file_path)
+    print(os.listdir(app.config['UPLOAD_FOLDER']))
 
     return 'File uploaded successfully', 200
 
