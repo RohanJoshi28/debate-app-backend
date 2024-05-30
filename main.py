@@ -35,7 +35,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 
 app.app_context().push()
-#CORS(app, origins=['http://localhost:3000'], supports_credentials=True) #<--disable on deploy
+# CORS(app, origins=['http://localhost:3000'], supports_credentials=True) #<--disable on deploy
 # # CORS(app, origins=['http://localhost:3000', 'https://test-debate-frontend-update-deploy.onrender.com', 'https://debate-app-backend.onrender.com'], supports_credentials=True)
 CORS(app, resources={r"/*": {"origins": "https://www.rohanjoshi.dev", "supports_credentials": True}}) #<--enable on deploy
 
@@ -389,7 +389,7 @@ def login():
         # Create JWT token and send response with user_info including role
         jwt_token = create_access_token(identity=user_info['email'])
         response = jsonify(user=user_info, role=role)
-        #response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
+        # response.set_cookie('access_token_cookie', value=jwt_token, secure=True)
         response.set_cookie('access_token_cookie', value=jwt_token, secure=True, httponly=True, samesite='None', domain="rohanjoshi.dev")
         #
         return response, 200
@@ -844,11 +844,13 @@ def get_tournament_schedule(tournament_id):
     cmd = ['java', '-cp', '.', 'algorithm3']
 
     # Start the Java process
+    print("A")
     process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 
+    print("B")
     # Send the input data and read the output
     output, errors = process.communicate(input=f"{players_str}\n{judges_str}\n")
-
+    
     # Close the stdin, stdout, and stderr streams
     process.stdin.close()
     process.stdout.close()
@@ -856,14 +858,15 @@ def get_tournament_schedule(tournament_id):
 
     # Wait for the process to finish
     process.wait()
-
+    print("C")
     # Check for errors
     if process.returncode != 0:
+        print("D")
         return jsonify({"error": "Java program execution failed", "details": errors}), 500
-
+    print("E")
     # Process the output back into a Python list of lists (or any other desired structure)
     matches = [line.split(",") for line in output.strip().split("\n")]
-
+    print("F")
     return jsonify(matches)
 
 # class UpdateSchoolForm(FlaskForm):
