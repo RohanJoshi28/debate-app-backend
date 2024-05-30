@@ -45,7 +45,7 @@ migrate = Migrate(app, db)
 load_dotenv()
 
 
-UPLOAD_FOLDER = 'tmp/maps' 
+UPLOAD_FOLDER = './tmp/maps' 
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpeg', 'jpg'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config["JWT_COOKIE_SECURE"] = True
@@ -210,6 +210,7 @@ def upload_file():
     # Save the file to the upload directory
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
     #logs
+    print(os.listdir(app.config['UPLOAD_FOLDER']))
     print("FILE PATH")
     print(file_path)
     file.save(file_path)
