@@ -903,11 +903,12 @@ def get_varsity_tournament_schedule(tournament_id):
     
     # Compile the Java program
     try:
-        compile_process = run(['javac', 'Varsity Algorithm/Base/Testing.java'], check=True, stderr=PIPE, text=True)
+        os.chdir("Varsity Algorithm")
+        compile_process = run(['javac', 'Base/Testing.java'], check=True, stderr=PIPE, text=True)
     except CalledProcessError as e:
         return jsonify({"error": "Java compilation failed", "details": e.stderr}), 500
     
-    cmd = ['java', '-cp', '.', 'Varsity Algorithm/Base/Testing']
+    cmd = ['java', '-cp', '.', 'Base/Testing']
 
     # Start the Java process
     process = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
