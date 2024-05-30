@@ -45,7 +45,7 @@ migrate = Migrate(app, db)
 load_dotenv()
 
 
-UPLOAD_FOLDER = '/maps' 
+UPLOAD_FOLDER = 'maps' 
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpeg', 'jpg'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config["JWT_COOKIE_SECURE"] = True
