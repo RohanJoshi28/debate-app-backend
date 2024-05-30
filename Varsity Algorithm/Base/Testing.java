@@ -39,7 +39,7 @@ public class Testing {
             // System.out.println("Afternoon");
             // System.out.println(afternoonTournament);
 
-            String[][] matches = new String[4][];
+            String[][] matches = new String[2][];
             matches[0] = afternoonTournament.matchFormat1();
             matches[1] = afternoonTournament.matchFormat2();
 
