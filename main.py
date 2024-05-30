@@ -933,8 +933,10 @@ def get_varsity_tournament_schedule(tournament_id):
     # Check for errors
     if process.returncode != 0:
         print(errors)
+        os.chdir("..")
         return jsonify({"error": "Java program execution failed", "details": errors}), 500
     # Process the output back into a Python list of lists (or any other desired structure)
+    os.chdir("..")
     matches = [line.split(",") for line in output.strip().split("\n")]
     return jsonify(matches)
 
